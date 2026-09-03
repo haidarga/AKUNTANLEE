@@ -15,14 +15,19 @@ import {
   ArrowRight,
   Download,
   Gauge,
+  Sliders,
   HelpCircle
 } from 'lucide-react';
 import { formatIdrNumber } from '@/lib/decimal';
 
 export default function AdvisoryAnalyticsPage() {
-  const [activeTab, setActiveTab] = useState<'cost' | 'ratios' | 'manufacturing' | 'memo'>('cost');
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'cost' | 'ratios' | 'manufacturing' | 'whatif' | 'memo'>('cost');
+  const [umrHike, setUmrHike] = useState(8);
+  const [rawMatShock, setRawMatShock] = useState(10);
+  const [logisticsEff, setLogisticsEff] = useState(15);
+  const [simResults, setSimResults] = useState<any>(null);
 
   useEffect(() => {
     const loadAdvisoryData = async () => {
@@ -40,6 +45,29 @@ export default function AdvisoryAnalyticsPage() {
     };
     loadAdvisoryData();
   }, []);
+
+  useEffect(() => {
+    const fetchSimulation = async () => {
+      try {
+        const res = await fetch('/api/v1/advisory/what-if', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            umrLaborHikePercent: umrHike,
+            rawMaterialShockPercent: rawMatShock,
+            logisticsEfficiencyPercent: logisticsEff,
+          }),
+        });
+        if (res.ok) {
+          const json = await res.json();
+          setSimResults(json.data);
+        }
+      } catch (e) {
+        console.error('Failed to run simulation:', e);
+      }
+    };
+    fetchSimulation();
+  }, [umrHike, rawMatShock, logisticsEff]);
 
   if (isLoading || !data) {
     return (
@@ -121,6 +149,18 @@ export default function AdvisoryAnalyticsPage() {
         </button>
 
         <button
+          onClick={() => setActiveTab('whatif')}
+          className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 whitespace-nowrap ${
+            activeTab === 'whatif'
+              ? 'border-[#0F8F7A] text-[#0F8F7A]'
+              : 'border-transparent text-[#52636A] hover:text-[#102A32]'
+          }`}
+        >
+          <Sliders className="w-4 h-4" />
+          <span>4. Simulasi Sensitivitas &quot;What-If&quot;</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('memo')}
           className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 whitespace-nowrap ${
             activeTab === 'memo'
@@ -129,7 +169,7 @@ export default function AdvisoryAnalyticsPage() {
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>4. Memo Strategis untuk Klien</span>
+          <span>5. Memo Strategis untuk Klien</span>
         </button>
       </div>
 
@@ -388,7 +428,130 @@ export default function AdvisoryAnalyticsPage() {
         </div>
       )}
 
-      {/* TAB 4: EXECUTIVE MEMO */}
+      {/* TAB 4: WHAT-IF SENSITIVITY SIMULATOR (Solves Blindspot 3: Simulasi UMR & Markup Harga Jual) */}
+      {activeTab === 'whatif' && (
+        <div className="space-y-6">
+          <div className="bg-white p-5 rounded-2xl border border-[#DDE4E2] shadow-2xs">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                SCENARIO SENSITIVITY ENGINE
+              </span>
+              <span className="text-[10px] text-[#52636A]">Dihitung secara presisi dari model HPP Manufaktur</span>
+            </div>
+            <h3 className="text-base font-bold text-[#102A32]">
+              Simulator Sensitivitas Keputusan Konsultan (&quot;What-If Scenario&quot;)
+            </h3>
+            <p className="text-xs text-[#52636A]">
+              Menjawab pertanyaan Direksi: <em>&quot;Jika UMR naik 8% dan bahan baku fluktuatif, HPP kita bengkak berapa dan harga jual harus naik berapa persen?&quot;</em>
+            </p>
+
+            {/* 3 Interactive Sliders */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-6 p-5 rounded-xl bg-[#F6F7F5] border border-[#DDE4E2]">
+              {/* Slider 1: UMR Hike */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-[#102A32]">1. Kenaikan UMR / Upah Pabrik</span>
+                  <span className="font-mono font-extrabold text-[#0F8F7A] text-sm">+{umrHike}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="25"
+                  value={umrHike}
+                  onChange={(e) => setUmrHike(Number(e.target.value))}
+                  className="w-full accent-[#0F8F7A] cursor-pointer"
+                />
+                <span className="text-[10px] text-[#7A8C93] block">Rentang simulasi: 0% s.d +25%</span>
+              </div>
+
+              {/* Slider 2: Raw Material Shock */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-[#102A32]">2. Fluktuasi Bahan Baku / Kurs</span>
+                  <span className="font-mono font-extrabold text-[#B7791F] text-sm">+{rawMatShock}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="30"
+                  value={rawMatShock}
+                  onChange={(e) => setRawMatShock(Number(e.target.value))}
+                  className="w-full accent-[#B7791F] cursor-pointer"
+                />
+                <span className="text-[10px] text-[#7A8C93] block">Rentang simulasi: 0% s.d +30%</span>
+              </div>
+
+              {/* Slider 3: Logistics Savings */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-[#102A32]">3. Target Efisiensi Logistik (3PL)</span>
+                  <span className="font-mono font-extrabold text-blue-700 text-sm">-{logisticsEff}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  value={logisticsEff}
+                  onChange={(e) => setLogisticsEff(Number(e.target.value))}
+                  className="w-full accent-blue-600 cursor-pointer"
+                />
+                <span className="text-[10px] text-[#7A8C93] block">Rentang mitigasi: 0% s.d -40%</span>
+              </div>
+            </div>
+
+            {/* Real-time Dynamic Results Card */}
+            {simResults && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 space-y-1">
+                    <span className="text-[10px] font-bold text-rose-800 uppercase block">Kenaikan Biaya Upah Langsung (BTKL)</span>
+                    <strong className="text-base font-mono font-bold text-[#C83E4D] block">
+                      + Rp {simResults.simulatedModel.laborVarianceIdr.toLocaleString('id-ID')}
+                    </strong>
+                    <span className="text-[11px] text-[#52636A] block">
+                      Total BTKL Baru: Rp {simResults.simulatedModel.newDirectLaborIdr.toLocaleString('id-ID')}
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/40 space-y-1">
+                    <span className="text-[10px] font-bold text-amber-800 uppercase block">Kenaikan HPP Manufaktur (COGM)</span>
+                    <strong className="text-base font-mono font-bold text-[#B7791F] block">
+                      + Rp {simResults.simulatedModel.cogsVarianceIdr.toLocaleString('id-ID')}
+                    </strong>
+                    <span className="text-[11px] text-[#52636A] block">
+                      COGM Baru: Rp {simResults.simulatedModel.newTotalCogmIdr.toLocaleString('id-ID')}
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-1">
+                    <span className="text-[10px] font-bold text-[#0F8F7A] uppercase block">Rekomendasi Kenaikan Harga Jual</span>
+                    <strong className="text-base font-mono font-bold text-[#0F8F7A] block">
+                      +{simResults.consultantRecommendations.recommendedPriceMarkupPercent}% Markup
+                    </strong>
+                    <span className="text-[11px] text-[#52636A] block">
+                      Untuk mengunci laba bersih Rp 4.25 M
+                    </span>
+                  </div>
+                </div>
+
+                {/* Consultant Action Plan */}
+                <div className="p-5 rounded-xl border border-[#B2DFD6] bg-[#E8F5F1] space-y-3">
+                  <h4 className="font-bold text-xs text-[#0F8F7A] uppercase tracking-wider">
+                    {simResults.consultantRecommendations.executiveAdviceHeadline}
+                  </h4>
+                  <ul className="list-disc list-inside space-y-1.5 text-xs text-[#102A32]">
+                    {simResults.consultantRecommendations.actionSteps.map((step: string, idx: number) => (
+                      <li key={idx} className="leading-relaxed">{step}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 5: EXECUTIVE MEMO */}
       {activeTab === 'memo' && (
         <div className="space-y-6">
           <div className="bg-white p-8 rounded-2xl border border-[#DDE4E2] shadow-2xs space-y-6 font-serif">
