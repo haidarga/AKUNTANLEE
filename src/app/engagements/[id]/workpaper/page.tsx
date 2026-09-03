@@ -234,6 +234,34 @@ export default function WorkpaperPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* P1: Jurnal Penyesuaian Button */}
+            <button
+              onClick={() => setIsAdjustmentsOpen(true)}
+              className="px-3.5 py-2 bg-white border border-[#DDE4E2] hover:border-[#0F8F7A] text-[#102A32] rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+            >
+              <Scale className="w-3.5 h-3.5 text-[#0F8F7A]" />
+              <span>Jurnal Penyesuaian (AJE/RJE)</span>
+              <span className="px-1.5 py-0.5 rounded-full bg-[#E8F5F1] text-[#0F8F7A] text-[10px]">
+                {adjustments.length}
+              </span>
+            </button>
+
+            {/* P1: Partner Sign-Off & Seal Button */}
+            {currentEngagement.status === 'partner_sealed' ? (
+              <div className="px-3.5 py-2 bg-[#ECFDF5] border border-[#A7F3D0] text-[#065F46] rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs">
+                <ShieldCheck className="w-4 h-4 text-[#10B981]" />
+                <span>Tersegel Partner (AP.0942)</span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsSealOpen(true)}
+                className="px-3.5 py-2 bg-[#102A32] hover:bg-[#1A3F4B] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5 text-[#E5A93C]" />
+                <span>Partner Sign-Off & Segel</span>
+              </button>
+            )}
+
             <Link
               href={`/engagements/${engagement.id}/exports`}
               className="finova-pill-cta bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs shadow-xs"
