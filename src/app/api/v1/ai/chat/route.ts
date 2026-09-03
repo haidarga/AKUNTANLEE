@@ -23,8 +23,8 @@ export async function POST(req: NextRequest) {
 
     const context = `
 KLIEN: ${client?.legalName || 'PT Nusantara Sukses Makmur'}
-NAMA PERIKATAN: ${engagement?.name || 'Financial Review & Lead Schedule FY 2025'}
-PERIODE: Tahun Fiskal 2025 (${engagement?.periodStart} s.d. ${engagement?.periodEnd})
+NAMA PERIKATAN: ${engagement?.name || 'Financial Review & Lead Schedule FY 2026'}
+PERIODE: Tahun Fiskal 2026 (${engagement?.periodStart} s.d. ${engagement?.periodEnd})
 KAP: ${repo.getFirmProfile()?.name || "Kantor Akuntan Publik Terdaftar"}
 MATERIALITAS AUDIT: Rp ${engagement?.materialityIdr ? engagement.materialityIdr.toLocaleString('id-ID') : '250.000.000'}
 TOTAL ASET: ${formatIdrNumber(wp?.totals?.totalAssetsIdr || 0)}

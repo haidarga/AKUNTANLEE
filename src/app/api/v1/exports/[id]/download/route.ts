@@ -10,7 +10,7 @@ export async function GET(
   const artifact = state.exportArtifacts.find((a) => a.id === resolvedParams.id) || state.exportArtifacts[0];
 
   const user = state.users.find((u) => u.role === 'partner') || state.users[0];
-  const generated = repo.generateExport('ENG-2025-01', user);
+  const generated = repo.generateExport('ENG-2026-01', user);
 
   return new NextResponse(new Uint8Array(generated.buffer), {
     headers: {

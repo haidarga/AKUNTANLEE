@@ -13,9 +13,9 @@ describe('R07 / PRD §45.3: Safe XLSX Export & Post-Generation Read-Back Verific
 
     const result = generateWorkpaperXlsx({
       tenantId: 'TENANT-001',
-      engagementId: 'ENG-2025-01',
+      engagementId: 'ENG-2026-01',
       clientCode: 'NSM',
-      periodYear: '2025',
+      periodYear: '2026',
       workpaperVersion: wp,
       lines: repo.getState().workpaperLines,
       checks: repo.getState().validationChecks,
@@ -26,7 +26,7 @@ describe('R07 / PRD §45.3: Safe XLSX Export & Post-Generation Read-Back Verific
 
     expect(result.readbackSuccess).toBe(true);
     expect(result.artifact.status).toBe('complete');
-    expect(result.artifact.filename).toContain('NSM_FY2025');
+    expect(result.artifact.filename).toContain('NSM_FY2026');
     expect(result.artifact.checksumSha256).toHaveLength(64);
 
     // Verify read-back content in test
@@ -42,9 +42,9 @@ describe('R07 / PRD §45.3: Safe XLSX Export & Post-Generation Read-Back Verific
     expect(() => {
       generateWorkpaperXlsx({
         tenantId: 'TENANT-001',
-        engagementId: 'ENG-2025-01',
+        engagementId: 'ENG-2026-01',
         clientCode: 'NSM',
-        periodYear: '2025',
+        periodYear: '2026',
         workpaperVersion: wp,
         lines: repo.getState().workpaperLines,
         checks: repo.getState().validationChecks,

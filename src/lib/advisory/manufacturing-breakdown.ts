@@ -67,7 +67,7 @@ export function calculateManufacturingBreakdown(params?: {
   const cogs = cogm + begFg - endFg; // Rp 7.55 Milyar
 
   return {
-    periodYear: '2025',
+    periodYear: '2026',
     directMaterials: {
       beginningInventoryIdr: 850_000_000,
       rawMaterialPurchasesIdr: 4_100_000_000,

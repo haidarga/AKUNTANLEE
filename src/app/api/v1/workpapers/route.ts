@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const { engagementId, userRole } = body;
     const user = repo.getState().users.find((u) => u.role === (userRole as UserRoleV4)) || repo.getState().users[0];
 
-    const wp = repo.recalculateWorkpaper(engagementId || 'ENG-2025-01', user);
+    const wp = repo.recalculateWorkpaper(engagementId || 'ENG-2026-01', user);
     return NextResponse.json({ data: wp, request_id: `req-${Date.now()}` }, { status: 202 });
   } catch (err: any) {
     return NextResponse.json(

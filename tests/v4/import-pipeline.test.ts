@@ -14,7 +14,7 @@ describe('R03 / PRD §43: 8-Stage Import & Normalization Pipeline', () => {
     XLSX.utils.book_append_sheet(wb, ws, 'TB');
     const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
-    const result = processUploadedFile('test_tb.xlsx', buffer, 'TENANT-001', 'ENG-2025-01', 'USR-01');
+    const result = processUploadedFile('test_tb.xlsx', buffer, 'TENANT-001', 'ENG-2026-01', 'USR-01');
     expect(result.fileVersion.originalName).toBe('test_tb.xlsx');
     expect(result.fileVersion.status).toBe('ready');
     expect(result.fileVersion.sheetCount).toBe(1);
@@ -33,7 +33,7 @@ describe('R03 / PRD §43: 8-Stage Import & Normalization Pipeline', () => {
     const job: ImportJob = {
       id: 'IMP-TEST',
       tenantId: 'TENANT-001',
-      engagementId: 'ENG-2025-01',
+      engagementId: 'ENG-2026-01',
       fileVersionId: 'FV-TEST',
       datasetType: 'trial_balance',
       selectedSheet: 'TB',

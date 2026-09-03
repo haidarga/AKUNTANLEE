@@ -6,7 +6,7 @@ import { PpnMonthlyFiling } from './ppn-equalization';
 
 export function generateEBupot21Csv(
   employees: EmployeePayrollProfile[],
-  periodYear: string = '2025',
+  periodYear: string = '2026',
   masaPajak: string = '12' // 01 to 12
 ): string {
   // Official e-Bupot 21/26 Import Specification Header (DJP PER-2/PJ/2024)
@@ -53,7 +53,7 @@ export function generateEBupot21Csv(
 
 export function generateEFakturPpnCsv(
   filings: PpnMonthlyFiling[],
-  periodYear: string = '2025'
+  periodYear: string = '2026'
 ): string {
   // Official e-Faktur DJP 3.0 / 4.0 Specification Header (Pajak Keluaran / FK)
   const headers = [

@@ -103,7 +103,7 @@ export function analyzeCostAnomaliesAndAdvise(params: {
     totalCostLeakageRiskIdr: totalLeakage,
     anomalies,
     consultantExecutiveMemo: {
-      headline: 'Rekomendasi Strategis Pengendalian Biaya & Restrukturisasi Operasional FY 2025',
+      headline: 'Rekomendasi Strategis Pengendalian Biaya & Restrukturisasi Operasional FY 2026',
       executiveSummary: `Berdasarkan telaah mendalam tim konsultan FINOVA AI terhadap akun beban operasional PT Nusantara Sukses Makmur, terdeteksi pembengkakan biaya pada 2 pos utama senilai total Rp ${totalLeakage.toLocaleString('id-ID')} (+41.2% year-on-year). Kenaikan ini didorong oleh inefisiensi logistik antarpulau dan tingginya lembur darurat akibat kendala mesin pabrik.`,
       keyTakeaways: [
         'Beban Logistik melonjak 44.5% (Rp 1.85 Miliar vs Rp 1.28 Miliar tahun lalu), melebihi ambang batas toleransi pendapatan (7.7%).',

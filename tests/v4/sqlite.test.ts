@@ -51,7 +51,7 @@ describe('FINOVA Enterprise SQLite Engine', () => {
     for (let i = 0; i < 50; i++) {
       state.auditEvents.push({
         id: `AUDIT-TEST-${i}`,
-        engagementId: 'ENG-2025-01',
+        engagementId: 'ENG-2026-01',
         tenantId: 'TENANT-001',
         actorId: 'USR-PARTNER-01',
         actorName: 'Haidar, CPA',

@@ -7,7 +7,7 @@ describe('R05, R06 / PRD §44, §45: Workpaper Population & Evidence Lineage', (
     const state = repo.getState();
     const result = calculateWorkpaperVersion({
       tenantId: 'TENANT-001',
-      engagementId: 'ENG-2025-01',
+      engagementId: 'ENG-2026-01',
       datasetVersionId: 'DSV-001',
       mappingSetId: 'MAPSET-001',
       accounts: state.accounts,

@@ -22,7 +22,7 @@ export const VALID_ACCESS_KEYS: Record<string, AccessKeyConfig> = {
     title: 'Senior Financial Advisory Partner & Former Corporate CFO',
     cpaLicense: 'AK.7821-CFO',
     variant: 'variant_b_advisory',
-    targetPath: '/engagements/ENG-2025-01/advisory',
+    targetPath: '/engagements/ENG-2026-01/advisory',
     description: 'A/B Variant B: Fokus Strategic Advisory, Diagnosa Biaya Membengkak, HPP Manufaktur & Simulasi What-If',
   },
   'RINA-CFO': {
@@ -33,7 +33,7 @@ export const VALID_ACCESS_KEYS: Record<string, AccessKeyConfig> = {
     title: 'Senior Financial Advisory Partner & Former Corporate CFO',
     cpaLicense: 'AK.7821-CFO',
     variant: 'variant_b_advisory',
-    targetPath: '/engagements/ENG-2025-01/advisory',
+    targetPath: '/engagements/ENG-2026-01/advisory',
     description: 'A/B Variant B: Fokus Strategic Advisory, Diagnosa Biaya Membengkak, HPP Manufaktur & Simulasi What-If',
   },
   'FINOVA-BUNDA-TAX': {
@@ -44,7 +44,7 @@ export const VALID_ACCESS_KEYS: Record<string, AccessKeyConfig> = {
     title: 'Partner Kepatuhan Pajak & Audit Operasional',
     cpaLicense: 'BKP.9921',
     variant: 'variant_a_compliance',
-    targetPath: '/engagements/ENG-2025-01/tax',
+    targetPath: '/engagements/ENG-2026-01/tax',
     description: 'A/B Variant A: Fokus Kepatuhan Pajak PPh 21 TER, Ekualisasi PPN 1111, dan Smart Payroll Importer',
   },
   'BUNDA-TAX': {
@@ -55,7 +55,7 @@ export const VALID_ACCESS_KEYS: Record<string, AccessKeyConfig> = {
     title: 'Partner Kepatuhan Pajak & Audit Operasional',
     cpaLicense: 'BKP.9921',
     variant: 'variant_a_compliance',
-    targetPath: '/engagements/ENG-2025-01/tax',
+    targetPath: '/engagements/ENG-2026-01/tax',
     description: 'A/B Variant A: Fokus Kepatuhan Pajak PPh 21 TER, Ekualisasi PPN 1111, dan Smart Payroll Importer',
   },
   'FINOVA-MASTER-2026': {
@@ -66,7 +66,7 @@ export const VALID_ACCESS_KEYS: Record<string, AccessKeyConfig> = {
     title: 'Managing Engagement Partner & Lead Auditor',
     cpaLicense: 'AP.0942',
     variant: 'variant_master',
-    targetPath: '/engagements/ENG-2025-01/overview',
+    targetPath: '/engagements/ENG-2026-01/overview',
     description: 'A/B Master Mode: Akses Penuh ke Semua Modul dengan Live Switcher A/B Testing di Header',
   },
   'VIP-AUDIT': {
@@ -77,7 +77,7 @@ export const VALID_ACCESS_KEYS: Record<string, AccessKeyConfig> = {
     title: 'Managing Engagement Partner & Lead Auditor',
     cpaLicense: 'AP.0942',
     variant: 'variant_master',
-    targetPath: '/engagements/ENG-2025-01/overview',
+    targetPath: '/engagements/ENG-2026-01/overview',
     description: 'A/B Master Mode: Akses Penuh ke Semua Modul dengan Live Switcher A/B Testing di Header',
   },
 };
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
           title: 'Guest Audit Partner Evaluator',
           cpaLicense: 'DEMO.999',
           variant: 'variant_master',
-          targetPath: '/engagements/ENG-2025-01/overview',
+          targetPath: '/engagements/ENG-2026-01/overview',
           description: 'Akses Evaluasi Cepat',
         };
       } else {

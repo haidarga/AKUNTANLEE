@@ -40,7 +40,7 @@ describe('R04 / PRD §40: Domain State Machines & Staleness Invariants', () => {
     const user = repo.getState().users.find((u) => u.role === 'senior')!;
     const prevVersionNumber = repo.getState().workpaperVersions[0].versionNumber;
 
-    const recalculated = repo.recalculateWorkpaper('ENG-2025-01', user);
+    const recalculated = repo.recalculateWorkpaper('ENG-2026-01', user);
 
     expect(recalculated.isStale).toBe(false);
     expect(recalculated.versionNumber).toBeGreaterThan(prevVersionNumber);

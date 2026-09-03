@@ -23,6 +23,13 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+    // Redirect legacy 2025 engagement links to 2026
+  if (pathname.includes('/ENG-2025-01')) {
+    const newUrl = req.nextUrl.clone();
+    newUrl.pathname = pathname.replace('/ENG-2025-01', '/ENG-2026-01');
+    return NextResponse.redirect(newUrl);
+  }
+
   const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   // Seamless Mode for Evaluators: Auto-mint session if accessing protected routes without login

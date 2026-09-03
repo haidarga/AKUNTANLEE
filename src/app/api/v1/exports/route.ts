@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     // Authorization check
     repo.assertPermission(user.role, 'authorize_export');
 
-    const result = repo.generateExport(engagementId || 'ENG-2025-01', user);
+    const result = repo.generateExport(engagementId || 'ENG-2026-01', user);
     return NextResponse.json({ data: result.artifact, request_id: `req-${Date.now()}` }, { status: 202 });
   } catch (err: any) {
     return NextResponse.json(

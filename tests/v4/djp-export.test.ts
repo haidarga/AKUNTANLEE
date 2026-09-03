@@ -5,7 +5,7 @@ import { generateDefaultPpnFilings } from '../../src/lib/tax/ppn-equalization';
 
 describe('Official DJP CSV Exporters (e-Bupot 21 & e-Faktur Pajak)', () => {
   it('generates semicolon-delimited e-Bupot 21/26 CSV matching PER-2/PJ/2024 specifications', () => {
-    const csv = generateEBupot21Csv(DEFAULT_COMPANY_EMPLOYEES, '2025', '12');
+    const csv = generateEBupot21Csv(DEFAULT_COMPANY_EMPLOYEES, '2026', '12');
     const lines = csv.split('\r\n');
 
     expect(lines.length).toBe(DEFAULT_COMPANY_EMPLOYEES.length + 1); // Header + data
@@ -16,7 +16,7 @@ describe('Official DJP CSV Exporters (e-Bupot 21 & e-Faktur Pajak)', () => {
 
     const firstDataCols = lines[1].split(';');
     expect(firstDataCols[0]).toBe('12'); // Masa 12
-    expect(firstDataCols[1]).toBe('2025');
+    expect(firstDataCols[1]).toBe('2026');
     expect(firstDataCols[6]).toBe('21-100-01'); // Kode Objek Pajak Pegawai Tetap
     expect(Number(firstDataCols[7])).toBeGreaterThan(0); // Bruto
     expect(Number(firstDataCols[9])).toBeGreaterThan(0); // PPh dipotong
@@ -24,7 +24,7 @@ describe('Official DJP CSV Exporters (e-Bupot 21 & e-Faktur Pajak)', () => {
 
   it('generates semicolon-delimited e-Faktur FK CSV matching DJP import standards', () => {
     const filings = generateDefaultPpnFilings(24_000_000_000);
-    const csv = generateEFakturPpnCsv(filings, '2025');
+    const csv = generateEFakturPpnCsv(filings, '2026');
     const lines = csv.split('\r\n');
 
     expect(lines.length).toBe(filings.length + 1);

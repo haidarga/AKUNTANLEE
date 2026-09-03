@@ -110,7 +110,7 @@ function LoginFormContent() {
         localStorage.setItem('finova_user_name', data.user.name);
       }
 
-      const redirectPath = searchParams.get('redirect') || '/engagements/ENG-2025-01/overview';
+      const redirectPath = searchParams.get('redirect') || '/engagements/ENG-2026-01/overview';
       router.push(redirectPath);
     } catch (err: any) {
       setErrorMessage('Terjadi kesalahan jaringan saat autentikasi.');
