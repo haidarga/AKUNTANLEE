@@ -16,6 +16,9 @@ function getFsModules() {
 // Authoritative Source: Sections 40, 41, 46 of FINOVA PRD v4.0
 
 import {
+  AuditAdjustmentEntry,
+  ReviewerNote,
+  EvidenceAttachment,
   Tenant,
   FirmProfile,
   TeamMemberProfile,
@@ -61,6 +64,9 @@ export interface FinovaV4State {
   auditEvents: AuditEventV4[];
   reusableMappings: ReusableMapping[];
   firmProfile: FirmProfile;
+  adjustments: AuditAdjustmentEntry[];
+  reviewerNotes: ReviewerNote[];
+  evidenceAttachments: EvidenceAttachment[];
 }
 
 // Initial State Generator
@@ -489,6 +495,70 @@ function createInitialState(): FinovaV4State {
     auditEvents,
     reusableMappings,
     firmProfile,
+    adjustments: [
+      {
+        id: 'AJE-001',
+        tenantId: 'TENANT-001',
+        engagementId: 'ENG-2026-01',
+        entryNumber: 1,
+        type: 'reclassification',
+        referenceWp: 'WP-C.1 / WP-F.4',
+        description: 'Reklasifikasi saldo penampungan selisih kurs menggantung di liabilitas ke Beban Lain-lain sesuai PSAK 10',
+        standardReference: 'PSAK 10 & SAK Indonesia',
+        debitLineId: 'WP-F.4',
+        debitAmountIdr: 310_000_000,
+        creditLineId: 'WP-C.1',
+        creditAmountIdr: 310_000_000,
+        preparedByUserId: 'USR-SENIOR-01',
+        preparedByName: 'Ahmad Pratama, S.Ak',
+        approvedByUserId: 'USR-PARTNER-01',
+        status: 'approved',
+        createdAt: '2026-01-20T14:30:00Z',
+      }
+    ],
+    reviewerNotes: [
+      {
+        id: 'NOTE-001',
+        tenantId: 'TENANT-001',
+        engagementId: 'ENG-2026-01',
+        targetLineId: 'WP-A.2',
+        authorId: 'USR-MANAGER-01',
+        authorName: 'Siti Rahmawati, CA',
+        authorRole: 'manager',
+        content: 'Konfirmasi saldo piutang material PT Mitra Abadi (Rp 9,85 M) telah terkonfirmasi 100% klop dengan lembar konfirmasi bank tertanggal 15 Jan 2026.',
+        status: 'resolved',
+        resolvedByUserId: 'USR-PARTNER-01',
+        resolvedAt: '2026-01-21T10:00:00Z',
+        createdAt: '2026-01-20T09:15:00Z',
+      },
+      {
+        id: 'NOTE-002',
+        tenantId: 'TENANT-001',
+        engagementId: 'ENG-2026-01',
+        targetLineId: 'WP-F.4',
+        authorId: 'USR-PARTNER-01',
+        authorName: 'Haidar, CPA, CA',
+        authorRole: 'partner',
+        content: 'Periksa reklasifikasi akun 2199-00 ke WP-F.4 dan pastikan tidak ada dampak penambahan beban pajak non-deductible.',
+        status: 'addressed',
+        createdAt: '2026-01-20T11:00:00Z',
+      }
+    ],
+    evidenceAttachments: [
+      {
+        id: 'ATT-001',
+        tenantId: 'TENANT-001',
+        engagementId: 'ENG-2026-01',
+        targetLineId: 'WP-A.1',
+        fileName: 'Rekening_Koran_Mandiri_Des2026_Sealed.pdf',
+        fileSizeBytes: 2457600,
+        mediaType: 'application/pdf',
+        checksumSha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+        uploadedByUserId: 'USR-SENIOR-01',
+        uploadedByName: 'Ahmad Pratama, S.Ak',
+        createdAt: '2026-01-19T10:20:00Z',
+      }
+    ],
   };
 }
 
@@ -648,6 +718,115 @@ class FinovaV4Repository {
     const current = this.getFirmProfile();
     const updatedMembers = (current.teamMembers || []).filter((m: TeamMemberProfile) => m.id !== memberId);
     this.updateFirmProfile({ teamMembers: updatedMembers });
+  }
+
+
+  // P1: Audit Adjusting & Reclassification Entries
+  getAdjustments(engagementId: string): AuditAdjustmentEntry[] {
+    return (this.state.adjustments || []).filter((a) => a.engagementId === engagementId);
+  }
+
+  createAdjustmentEntry(entry: Omit<AuditAdjustmentEntry, 'id' | 'createdAt'>, actor: UserV4): AuditAdjustmentEntry {
+    this.assertTenantAccess(actor.tenantId, entry.tenantId);
+    if (!this.state.adjustments) this.state.adjustments = [];
+    const newEntry: AuditAdjustmentEntry = {
+      ...entry,
+      id: `AJE-${Date.now().toString(36).toUpperCase()}`,
+      createdAt: new Date().toISOString(),
+    };
+    this.state.adjustments.push(newEntry);
+
+    // Recalculate workpaper with adjustments
+    this.recalculateCurrentWorkpaper(entry.engagementId, actor);
+    this.persist();
+    return newEntry;
+  }
+
+  // P1: Reviewer Notes & Resolution
+  getReviewerNotes(engagementId: string): ReviewerNote[] {
+    return (this.state.reviewerNotes || []).filter((n) => n.engagementId === engagementId);
+  }
+
+  addReviewerNote(note: Omit<ReviewerNote, 'id' | 'createdAt'>, actor: UserV4): ReviewerNote {
+    this.assertTenantAccess(actor.tenantId, note.tenantId);
+    if (!this.state.reviewerNotes) this.state.reviewerNotes = [];
+    const newNote: ReviewerNote = {
+      ...note,
+      id: `NOTE-${Date.now().toString(36).toUpperCase()}`,
+      createdAt: new Date().toISOString(),
+    };
+    this.state.reviewerNotes.unshift(newNote);
+    this.persist();
+    return newNote;
+  }
+
+  resolveReviewerNote(noteId: string, actor: UserV4): ReviewerNote {
+    if (!this.state.reviewerNotes) this.state.reviewerNotes = [];
+    const note = this.state.reviewerNotes.find((n) => n.id === noteId);
+    if (!note) throw new Error(`Review note ${noteId} tidak ditemukan.`);
+    this.assertTenantAccess(actor.tenantId, note.tenantId);
+    note.status = 'resolved';
+    note.resolvedByUserId = actor.id;
+    note.resolvedAt = new Date().toISOString();
+    this.persist();
+    return note;
+  }
+
+  // P1: Maker-Checker Partner Seal & Digital Audit Certificate
+  sealEngagementWithPartnerCertificate(engagementId: string, partnerApNumber: string, actor: UserV4): { engagement: EngagementV4; certificateHash: string } {
+    this.assertTenantAccess(actor.tenantId, actor.tenantId);
+    this.assertPermission(actor.role, 'authorize_export'); // Must be Partner
+    const eng = this.state.engagements.find((e) => e.id === engagementId);
+    if (!eng) throw new Error(`Perikatan ${engagementId} tidak ditemukan.`);
+
+    const sealHash = `FINOVA-SEAL-${Date.now().toString(16).toUpperCase()}-AP0942`;
+    eng.status = 'partner_sealed';
+    (eng as any).sealedAt = new Date().toISOString();
+    (eng as any).sealedByApNumber = partnerApNumber || 'AP.0942';
+    (eng as any).sealHash = sealHash;
+
+    this.state.auditEvents.unshift({
+      id: `AUD-SEAL-${Date.now().toString(36).toUpperCase()}`,
+      tenantId: eng.tenantId,
+      engagementId: eng.id,
+      actorId: actor.id,
+      actorRole: actor.role,
+      actorName: actor.name,
+      action: 'partner_sign_off_seal',
+      resourceType: 'Engagement',
+      resourceId: eng.id,
+      timestamp: new Date().toISOString(),
+      requestId: `req-seal-${Date.now()}`,
+      metadata: { apNumber: partnerApNumber, sealHash },
+    });
+
+    this.persist();
+    return { engagement: eng, certificateHash: sealHash };
+  }
+
+  // Helper to recalculate active workpaper with adjustments
+  private recalculateCurrentWorkpaper(engagementId: string, actor: UserV4) {
+    const eng = this.state.engagements.find((e) => e.id === engagementId);
+    if (!eng) return;
+    const dsv = this.state.datasetVersions.find((d) => d.engagementId === engagementId) || this.state.datasetVersions[0];
+    const mapSet = this.state.mappingSets.find((m) => m.engagementId === engagementId) || this.state.mappingSets[0];
+    const adjs = (this.state.adjustments || []).filter((a) => a.engagementId === engagementId);
+
+    const calc = calculateWorkpaperVersion({
+      tenantId: eng.tenantId,
+      engagementId: eng.id,
+      datasetVersionId: dsv?.id || 'DSV-001',
+      mappingSetId: mapSet?.id || 'MAPSET-001',
+      accounts: this.state.accounts,
+      mappingDecisions: this.state.mappingDecisions,
+      adjustments: adjs,
+      template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
+      versionNumber: this.state.workpaperVersions.length + 1,
+    });
+
+    this.state.workpaperVersions.unshift(calc.workpaperVersion);
+    this.state.workpaperLines = calc.lines;
+    this.state.validationChecks = calc.checks;
   }
 
   getState(): FinovaV4State {

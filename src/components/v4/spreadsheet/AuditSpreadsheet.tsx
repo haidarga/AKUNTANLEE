@@ -193,10 +193,12 @@ export function AuditSpreadsheet({ lines, onOpenEvidence, onOpenComment }: Audit
             <tr className="bg-[#F6F7F5] border-b border-[#DDE4E2] text-[#52636A] font-semibold text-[11px] sticky top-0 z-10 shadow-2xs">
               <th className="py-2.5 px-3 border-r border-[#DDE4E2] w-24">Kode</th>
               <th className="py-2.5 px-3 border-r border-[#DDE4E2]">Deskripsi Akun Induk</th>
-              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-36">FY 2026 (Berjalan)</th>
-              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-36">FY 2024 (Komparatif)</th>
-              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-32">Varians (IDR)</th>
-              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-24">Varians (%)</th>
+              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-32">Saldo Unadjusted</th>
+              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-28">Koreksi (AJE/RJE)</th>
+              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-36 bg-[#E8F5F1]/50 text-[#0F8F7A] font-bold">Audited Final (2026)</th>
+              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-32">FY 2024 (Komparatif)</th>
+              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-28">Varians (IDR)</th>
+              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-20">Varians %</th>
               <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-center w-20">Catatan</th>
               <th className="py-2.5 px-3 text-center w-28">Jejak Bukti</th>
             </tr>

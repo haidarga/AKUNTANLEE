@@ -59,7 +59,7 @@ export interface ClientV4 {
   createdAt: string;
 }
 
-export type EngagementStatusV4 = 'draft' | 'preparing' | 'ready_for_review' | 'approved' | 'archived';
+export type EngagementStatusV4 = 'draft' | 'preparing' | 'ready_for_review' | 'approved' | 'archived' | 'senior_approved' | 'partner_sealed' | 'locked';
 
 export interface EngagementV4 {
   id: string; // e.g. "ENG-2025-01"
@@ -255,6 +255,8 @@ export interface WorkpaperLineItem {
   sectionId: string;
   label: string;
   accountCodes: string[];
+  unadjustedCurrentPeriodIdr?: number;
+  adjustmentNetIdr?: number;
   currentPeriodIdr: number;
   comparativePeriodIdr?: number;
   varianceAmountIdr?: number;
@@ -372,4 +374,53 @@ export interface ReusableMapping {
   approvedAt: string;
   timesReused: number;
   status: 'active' | 'revoked';
+}
+
+export interface AuditAdjustmentEntry {
+  id: string;
+  tenantId: string;
+  engagementId: string;
+  entryNumber: number;
+  type: 'adjustment' | 'reclassification';
+  referenceWp: string;
+  description: string;
+  standardReference: string;
+  debitLineId: string;
+  debitAmountIdr: number;
+  creditLineId: string;
+  creditAmountIdr: number;
+  preparedByUserId: string;
+  preparedByName: string;
+  approvedByUserId?: string;
+  status: 'draft' | 'approved';
+  createdAt: string;
+}
+
+export interface ReviewerNote {
+  id: string;
+  tenantId: string;
+  engagementId: string;
+  targetLineId: string;
+  authorId: string;
+  authorName: string;
+  authorRole: UserRoleV4;
+  content: string;
+  status: 'open' | 'addressed' | 'resolved';
+  resolvedByUserId?: string;
+  resolvedAt?: string;
+  createdAt: string;
+}
+
+export interface EvidenceAttachment {
+  id: string;
+  tenantId: string;
+  engagementId: string;
+  targetLineId: string;
+  fileName: string;
+  fileSizeBytes: number;
+  mediaType: string;
+  checksumSha256: string;
+  uploadedByUserId: string;
+  uploadedByName: string;
+  createdAt: string;
 }

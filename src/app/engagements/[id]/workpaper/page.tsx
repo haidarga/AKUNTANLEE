@@ -32,6 +32,11 @@ import { EvidenceDrawerV4 } from '@/components/v4/EvidenceDrawerV4';
 import { BalanceScaleIllustration } from '@/components/v4/visuals/WorkflowIllustrations';
 import { FinancialWaterfallChart } from '@/components/v4/visuals/FinancialWaterfallChart';
 import { AuditSpreadsheet } from '@/components/v4/spreadsheet/AuditSpreadsheet';
+import { AuditAdjustmentsModal } from '@/components/v4/workpaper/AuditAdjustmentsModal';
+import { AuditSealModal } from '@/components/v4/workpaper/AuditSealModal';
+import { ReviewerNotesDrawer } from '@/components/v4/workpaper/ReviewerNotesDrawer';
+import { Scale, Lock } from 'lucide-react';
+
 
 export default function WorkpaperPage() {
   const routeParams = useParams();
@@ -51,6 +56,16 @@ export default function WorkpaperPage() {
 
   // Comment Modal State
   const [activeCommentLine, setActiveCommentLine] = useState<WorkpaperLineItem | null>(null);
+
+  // P1: Adjustments, Seal & Reviewer Notes State
+  const [isAdjustmentsOpen, setIsAdjustmentsOpen] = useState(false);
+  const [isSealOpen, setIsSealOpen] = useState(false);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [selectedNoteLine, setSelectedNoteLine] = useState<WorkpaperLineItem | null>(null);
+  const [adjustments, setAdjustments] = useState(repo.getAdjustments(engagementId));
+  const [notes, setNotes] = useState(repo.getReviewerNotes(engagementId));
+  const [currentEngagement, setCurrentEngagement] = useState(engagement);
+
   const [newCommentBody, setNewCommentBody] = useState('');
 
   useEffect(() => {
@@ -234,7 +249,10 @@ export default function WorkpaperPage() {
         <AuditSpreadsheet
           lines={lines}
           onOpenEvidence={handleOpenEvidence}
-          onOpenComment={(line) => setActiveCommentLine(line)}
+          onOpenComment={(line) => {
+            setSelectedNoteLine(line);
+            setIsNotesOpen(true);
+          }}
         />
 
         {/* Totals Summary Footer Card */}

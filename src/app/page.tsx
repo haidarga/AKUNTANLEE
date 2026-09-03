@@ -85,19 +85,39 @@ export default function LandingPage() {
             <span>Standar Akuntansi Keuangan (SAK) Indonesia</span>
           </div>
 
-          {/* Headline */}
+          {/* Headline (Outcome-Driven) */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#102A32] leading-[1.15]">
-            Platform Kertas Kerja Audit & Konsultasi Finansial
+            Ubah Trial Balance Mentah Menjadi Kertas Kerja Audit SAK
             <br />
             <span className="bg-gradient-to-r from-[#0F8F7A] via-[#0C7564] to-[#102A32] bg-clip-text text-transparent">
-              Cepat, Presisi, dan Berstandar SAK Indonesia
+              Siap Review dalam 5 Menit.
             </span>
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-sm sm:text-lg text-[#52636A] max-w-2xl mx-auto leading-relaxed">
-            Otomasi lengkap proses audit dan perpajakan untuk Kantor Akuntan Publik (KAP) serta penasihat keuangan: dari verifikasi neraca saldo Excel, otomasi pajak PPh 21 TER dan PPN 1111, hingga simulasi keputusan bisnis strategis bagi direksi perusahaan.
+          {/* Subtitle (Outcome-Driven) */}
+          <p className="text-sm sm:text-lg text-[#52636A] max-w-3xl mx-auto leading-relaxed">
+            Tinggalkan pemetaan manual Excel yang berulang. FINOVA AI membedah neraca saldo klien, menguji tie-out neraca secara deterministik, menghitung kepatuhan pajak TER PP 58/2023, membukukan jurnal penyesuaian (AJE/RJE), dan menghasilkan Master Lead Schedule siap sign-off Partner.
           </p>
+
+          {/* Value Stats Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto pt-2 text-left">
+            <div className="p-3.5 rounded-2xl bg-white border border-[#DDE4E2] shadow-2xs">
+              <span className="text-xl sm:text-2xl font-extrabold text-[#0F8F7A] block font-mono">85%</span>
+              <span className="text-[11px] text-[#52636A] font-medium">Jam Kerja Manual Terpangkas</span>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-white border border-[#DDE4E2] shadow-2xs">
+              <span className="text-xl sm:text-2xl font-extrabold text-[#102A32] block font-mono">Rp 0</span>
+              <span className="text-[11px] text-[#52636A] font-medium">Selisih Uji Tie-Out Neraca</span>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-white border border-[#DDE4E2] shadow-2xs">
+              <span className="text-xl sm:text-2xl font-extrabold text-[#0F8F7A] block font-mono">100%</span>
+              <span className="text-[11px] text-[#52636A] font-medium">Standar SAK Indonesia</span>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-white border border-[#DDE4E2] shadow-2xs">
+              <span className="text-xl sm:text-2xl font-extrabold text-[#102A32] block font-mono">AP.0942</span>
+              <span className="text-[11px] text-[#52636A] font-medium">Segel Digital Partner Legal</span>
+            </div>
+          </div>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
@@ -498,6 +518,108 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      {/* P2: Pricing Matrix Section */}
+      <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto relative z-10 text-center">
+        <div className="space-y-3 mb-14">
+          <span className="font-mono text-xs font-bold px-3 py-1 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]">
+            MODEL LISENSI TRANSPARAN
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#102A32]">
+            Investasi Terukur untuk Efisiensi Tim Audit Anda
+          </h2>
+          <p className="text-sm text-[#52636A] max-w-2xl mx-auto">
+            Pilih paket yang sesuai dengan kapasitas dan jumlah perikatan Kantor Akuntan Publik Anda.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          {/* Plan 1: KAP Mandiri */}
+          <div className="p-6 rounded-3xl bg-white border border-[#DDE4E2] shadow-sm flex flex-col justify-between space-y-6 hover:border-[#0F8F7A] transition-all">
+            <div className="space-y-4">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#52636A]">Solo Practitioner</span>
+                <h3 className="text-xl font-bold text-[#102A32] mt-1">KAP Mandiri</h3>
+                <p className="text-xs text-[#52636A] mt-1">Cocok untuk Akuntan Publik perseorangan dengan perikatan terbatas.</p>
+              </div>
+              <div className="pt-2">
+                <span className="text-3xl font-extrabold text-[#102A32] font-mono">Rp 1.500.000</span>
+                <span className="text-xs text-[#52636A]"> / perikatan</span>
+              </div>
+              <ul className="space-y-2 text-xs text-[#52636A] pt-4 border-t border-[#F1F4F3]">
+                <li className="flex items-center gap-2">✓ <span>Hingga 500 baris akun neraca saldo</span></li>
+                <li className="flex items-center gap-2">✓ <span>Pemetaan otomatis Taksonomi SAK</span></li>
+                <li className="flex items-center gap-2">✓ <span>Ekspor Master Lead Schedule XLSX</span></li>
+                <li className="flex items-center gap-2">✓ <span>Modul PPh 21 TER 5 pegawai</span></li>
+              </ul>
+            </div>
+            <Link
+              href="/login"
+              className="w-full py-3 rounded-xl border border-[#DDE4E2] hover:border-[#0F8F7A] text-[#102A32] font-bold text-xs text-center block transition-colors"
+            >
+              Mulai Perikatan Mandiri
+            </Link>
+          </div>
+
+          {/* Plan 2: KAP Profesional (Recommended) */}
+          <div className="p-6 rounded-3xl bg-[#102A32] text-white border-2 border-[#0F8F7A] shadow-xl flex flex-col justify-between space-y-6 relative overflow-hidden">
+            <div className="absolute top-4 right-4 px-2.5 py-0.5 rounded-full bg-[#0F8F7A] text-[10px] font-bold uppercase tracking-wide">
+              Paling Populer
+            </div>
+            <div className="space-y-4">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#0F8F7A]">Kantor Menengah</span>
+                <h3 className="text-xl font-bold text-white mt-1">KAP Profesional</h3>
+                <p className="text-xs text-[#A0AEC0] mt-1">Untuk firma dengan tim senior dan kebutuhan otomasi volume tinggi.</p>
+              </div>
+              <div className="pt-2">
+                <span className="text-3xl font-extrabold text-white font-mono">Rp 7.500.000</span>
+                <span className="text-xs text-[#A0AEC0]"> / bulan</span>
+              </div>
+              <ul className="space-y-2 text-xs text-[#CBD5E0] pt-4 border-t border-[#1E3A44]">
+                <li className="flex items-center gap-2"><span className="text-[#0F8F7A]">✓</span> <span><strong>Unlimited</strong> Perikatan Klien per tahun</span></li>
+                <li className="flex items-center gap-2"><span className="text-[#0F8F7A]">✓</span> <span>Maker–Checker & Segel Digital Partner AP</span></li>
+                <li className="flex items-center gap-2"><span className="text-[#0F8F7A]">✓</span> <span>Jurnal Penyesuaian & Reklasifikasi (AJE/RJE)</span></li>
+                <li className="flex items-center gap-2"><span className="text-[#0F8F7A]">✓</span> <span>Modul Pajak TER & Ekualisasi PPN Lengkap</span></li>
+                <li className="flex items-center gap-2"><span className="text-[#0F8F7A]">✓</span> <span>Akses Tim: 1 Partner, 2 Manager, 5 Senior</span></li>
+              </ul>
+            </div>
+            <Link
+              href="/login"
+              className="w-full py-3 rounded-xl bg-[#0F8F7A] hover:bg-[#0C7564] text-white font-bold text-xs text-center block shadow-md transition-all"
+            >
+              Langganan KAP Profesional
+            </Link>
+          </div>
+
+          {/* Plan 3: KAP Enterprise */}
+          <div className="p-6 rounded-3xl bg-white border border-[#DDE4E2] shadow-sm flex flex-col justify-between space-y-6 hover:border-[#0F8F7A] transition-all">
+            <div className="space-y-4">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#52636A]">Multi-Cabang</span>
+                <h3 className="text-xl font-bold text-[#102A32] mt-1">KAP Enterprise</h3>
+                <p className="text-xs text-[#52636A] mt-1">Kustomisasi on-premise, integrasi ERP, dan tata kelola khusus.</p>
+              </div>
+              <div className="pt-2">
+                <span className="text-2xl font-extrabold text-[#102A32]">Kustomisasi SLA</span>
+                <span className="text-xs text-[#52636A] block mt-1">Hubungi Tim Sales KAP</span>
+              </div>
+              <ul className="space-y-2 text-xs text-[#52636A] pt-4 border-t border-[#F1F4F3]">
+                <li className="flex items-center gap-2">✓ <span>Dedicated On-Premise / Private Cloud</span></li>
+                <li className="flex items-center gap-2">✓ <span>Local AI Inference (vLLM Engine)</span></li>
+                <li className="flex items-center gap-2">✓ <span>Custom CoA Mapping & ERP Integrator</span></li>
+                <li className="flex items-center gap-2">✓ <span>SLA Dukungan 24/7 & Training Partner</span></li>
+              </ul>
+            </div>
+            <Link
+              href="mailto:haidar.hga@gmail.com?subject=Konsultasi%20KAP%20Enterprise%20FINOVA"
+              className="w-full py-3 rounded-xl border border-[#DDE4E2] hover:border-[#0F8F7A] text-[#102A32] font-bold text-xs text-center block transition-colors"
+            >
+              Hubungi Konsultan Enterprise
+            </Link>
+          </div>
+        </div>
+      </section>
+
 
       {/* Footer */}
       <footer className="border-t border-[#DDE4E2] py-8 text-center text-xs text-[#52636A] space-y-2">

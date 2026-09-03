@@ -1,7 +1,7 @@
 // FINOVA AI v4.0 — Deterministic Workpaper Calculation & Tie-Out Engine
 // Authoritative Source: Sections 44 & 45 of FINOVA PRD v4.0
 
-import {
+import { AuditAdjustmentEntry, 
   AccountRow,
   MappingDecision,
   WorkpaperVersion,
@@ -75,6 +75,7 @@ export function calculateWorkpaperVersion(params: {
   mappingSetId: string;
   accounts: AccountRow[];
   mappingDecisions: MappingDecision[];
+  adjustments?: AuditAdjustmentEntry[];
   template?: WorkpaperTemplateDef;
   versionNumber?: number;
 }): {
@@ -129,9 +130,21 @@ export function calculateWorkpaperVersion(params: {
   const lines: WorkpaperLineItem[] = [];
   const evidenceLinks: EvidenceLink[] = [];
 
+  const approvedAdjs = (params.adjustments || []).filter((a) => a.status === 'approved');
+
   for (const lineDef of template.lines) {
     const bucket = linesMap[lineDef.lineId];
-    const currentVal = bucket.totalCurrent.toNumber();
+    const unadjustedVal = bucket.totalCurrent.toNumber();
+
+    // Sum adjustments for this line
+    let adjDebit = 0;
+    let adjCredit = 0;
+    for (const adj of approvedAdjs) {
+      if (adj.debitLineId === lineDef.lineId) adjDebit += adj.debitAmountIdr;
+      if (adj.creditLineId === lineDef.lineId) adjCredit += adj.creditAmountIdr;
+    }
+    const netAdj = lineDef.signPolicy === 'credit_positive' ? (adjCredit - adjDebit) : (adjDebit - adjCredit);
+    const currentVal = unadjustedVal + netAdj;
     const compVal = lineDef.comparativeDefaultIdr;
     const variance = calculateVariance(currentVal, compVal);
 
@@ -174,6 +187,8 @@ export function calculateWorkpaperVersion(params: {
       sectionId: lineDef.sectionId,
       label: lineDef.label,
       accountCodes: bucket.accounts.map((a) => a.accountCode),
+      unadjustedCurrentPeriodIdr: unadjustedVal,
+      adjustmentNetIdr: netAdj,
       currentPeriodIdr: currentVal,
       comparativePeriodIdr: compVal,
       varianceAmountIdr: variance.amount,
