@@ -264,43 +264,41 @@ export function AuditSpreadsheet({ lines, onOpenEvidence, onOpenComment }: Audit
                     )}
                   </td>
 
-                  {/* Col 4: Variance Amount */}
-                  <td
-                    onClick={() => setActiveColIdx(4)}
-                    className={`py-2.5 px-3 font-mono text-right text-[#52636A] border-r border-[#DDE4E2] relative ${
-                      isRowActive && activeColIdx === 4 ? 'ring-2 ring-inset ring-[#0F8F7A] bg-[#E8F5F1]/70' : ''
-                    }`}
-                  >
-                    {l.varianceAmountIdr !== undefined ? (
-                      <span className={l.varianceAmountIdr < 0 ? 'text-[#C83E4D]' : ''}>
-                        {formatIdrNumber(l.varianceAmountIdr)}
-                      </span>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
+                  {/* Col 4: Variance Amount (Deterministic Sign Policy) */}
+                  {(() => {
+                    const isContra = l.lineId === 'WP-A.3' || l.lineId === 'WP-B.2';
+                    const curVal = isContra ? Math.abs(l.currentPeriodIdr) : l.currentPeriodIdr;
+                    const compVal = l.comparativePeriodIdr !== undefined ? (isContra ? Math.abs(l.comparativePeriodIdr) : l.comparativePeriodIdr) : undefined;
+                    const varAmount = compVal !== undefined ? (curVal - compVal) : (l.varianceAmountIdr ?? 0);
+                    const varPercent = compVal !== undefined && compVal !== 0 ? Math.round(((curVal - compVal) / Math.abs(compVal)) * 1000) / 10 : (l.variancePercent ?? 0);
 
-                  {/* Col 5: Variance Percent */}
-                  <td
-                    onClick={() => setActiveColIdx(5)}
-                    className={`py-2.5 px-3 font-mono text-right border-r border-[#DDE4E2] relative ${
-                      isRowActive && activeColIdx === 5 ? 'ring-2 ring-inset ring-[#0F8F7A] bg-[#E8F5F1]/70' : ''
-                    }`}
-                  >
-                    {l.variancePercent !== undefined ? (
-                      <span
-                        className={
-                          l.variancePercent < 0
-                            ? 'text-[#C83E4D] font-bold'
-                            : 'text-[#0F8F7A] font-bold'
-                        }
-                      >
-                        {l.variancePercent > 0 ? `+${l.variancePercent}%` : `${l.variancePercent}%`}
-                      </span>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
+                    return (
+                      <>
+                        <td
+                          onClick={() => setActiveColIdx(4)}
+                          className={`py-2.5 px-3 font-mono text-right text-[#52636A] border-r border-[#DDE4E2] relative ${
+                            isRowActive && activeColIdx === 4 ? 'ring-2 ring-inset ring-[#0F8F7A] bg-[#E8F5F1]/70' : ''
+                          }`}
+                        >
+                          <span className={varAmount < 0 ? 'text-[#C83E4D]' : ''}>
+                            {formatIdrNumber(varAmount)}
+                          </span>
+                        </td>
+
+                        {/* Col 5: Variance Percent */}
+                        <td
+                          onClick={() => setActiveColIdx(5)}
+                          className={`py-2.5 px-3 font-mono text-right border-r border-[#DDE4E2] relative ${
+                            isRowActive && activeColIdx === 5 ? 'ring-2 ring-inset ring-[#0F8F7A] bg-[#E8F5F1]/70' : ''
+                          }`}
+                        >
+                          <span className={varPercent < 0 ? 'text-[#C83E4D] font-bold' : 'text-[#0F8F7A] font-bold'}>
+                            {varPercent > 0 ? `+${varPercent}%` : `${varPercent}%`}
+                          </span>
+                        </td>
+                      </>
+                    );
+                  })()}
 
                   {/* Col 6: Comments */}
                   <td
