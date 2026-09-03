@@ -64,6 +64,7 @@ export default function AccountMappingPage() {
   };
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [focusedRowIdx, setFocusedRowIdx] = useState<number>(0);
+  const [mounted, setMounted] = useState(false);
 
   // Modal State for Override / Exclude
   const [editingDecision, setEditingDecision] = useState<MappingDecision | null>(null);
@@ -73,6 +74,7 @@ export default function AccountMappingPage() {
   const [exclusionReason, setExclusionReason] = useState('');
 
   useEffect(() => {
+    setMounted(true);
     const saved = localStorage.getItem('finova_v4_role');
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setActiveRole(saved as UserRoleV4);

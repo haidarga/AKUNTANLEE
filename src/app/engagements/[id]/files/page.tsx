@@ -241,6 +241,17 @@ export default function FilesPage() {
           ))}
         </div>
       </div>
+      {/* Step Navigation Footer */}
+      <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-[#DDE4E2] shadow-2xs">
+        <Link href={`/engagements/${engagement.id}/overview`} className="text-xs font-semibold text-[#52636A] hover:text-[#102A32] flex items-center gap-1.5">
+          <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+          <span>Kembali ke 1. Ringkasan</span>
+        </Link>
+        <Link href={`/engagements/${engagement.id}/mapping`} className="px-4 py-2 bg-[#0F8F7A] hover:bg-[#0C7564] text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2">
+          <span>Lanjut ke 3. Pemetaan SAK</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
     </div>
   );
 }

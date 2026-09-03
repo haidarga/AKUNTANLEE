@@ -499,6 +499,20 @@ class FinovaV4Repository {
   private state: FinovaV4State;
 
   constructor() {
+    if (typeof window !== 'undefined') {
+      let clientState: FinovaV4State | null = null;
+      try {
+        const el = document.getElementById('__FINOVA_INITIAL_STATE__');
+        if (el && el.textContent) {
+          clientState = JSON.parse(el.textContent);
+        }
+      } catch (e) {
+        console.warn('Fallback to initial state in browser:', e);
+      }
+      this.state = clientState || createInitialState();
+      return;
+    }
+
     const disk = this.loadFromDisk();
     this.state = disk || createInitialState();
     if (!this.state.firmProfile) {

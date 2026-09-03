@@ -14,6 +14,7 @@ import {
   FileText,
   Clock,
   ArrowLeft,
+  ArrowRight,
   Sparkles,
   Lock,
 } from 'lucide-react';
@@ -30,8 +31,10 @@ export default function ExportsPage() {
   const [generationStep, setGenerationStep] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeRole, setActiveRole] = useState<UserRoleV4>('partner');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const saved = localStorage.getItem('finova_v4_role');
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setActiveRole(saved as UserRoleV4);
@@ -274,7 +277,7 @@ export default function ExportsPage() {
                   </div>
 
                   <div className="text-[11px] text-[#52636A]">
-                    Dibuat: {new Date(art.createdAt).toLocaleString('id-ID')} &bull; Memuat Sheet <strong className="text-[#102A32]">Lead Schedule</strong> & <strong className="text-[#102A32]">Manifest</strong>
+                    Dibuat: <span suppressHydrationWarning>{mounted ? new Date(art.createdAt).toLocaleDateString('id-ID') : ''}</span> &bull; Memuat Sheet <strong className="text-[#102A32]">Lead Schedule</strong> & <strong className="text-[#102A32]">Manifest</strong>
                   </div>
                 </div>
 
@@ -293,6 +296,17 @@ export default function ExportsPage() {
             ))}
           </div>
         )}
+      </div>
+      {/* Step Navigation Footer */}
+      <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-[#DDE4E2] shadow-2xs">
+        <Link href={`/engagements/${engagement.id}/workpaper`} className="text-xs font-semibold text-[#52636A] hover:text-[#102A32] flex items-center gap-1.5">
+          <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+          <span>Kembali ke 4. Kertas Kerja Lead Schedule</span>
+        </Link>
+        <Link href={`/engagements/${engagement.id}/overview`} className="px-4 py-2 bg-[#102A32] hover:bg-[#0F8F7A] text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2">
+          <span>Selesai &bull; Kembali ke 1. Ringkasan</span>
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+        </Link>
       </div>
     </div>
   );

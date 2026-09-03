@@ -40,6 +40,7 @@ export default function WorkpaperPage() {
   const [checks, setChecks] = useState<ValidationCheckResult[]>(state.validationChecks);
   const [activeRole, setActiveRole] = useState<UserRoleV4>('senior');
   const [isRecalculating, setIsRecalculating] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Evidence Drawer State
   const [selectedEvidence, setSelectedEvidence] = useState<EvidenceLink | null>(null);
@@ -49,6 +50,7 @@ export default function WorkpaperPage() {
   const [newCommentBody, setNewCommentBody] = useState('');
 
   useEffect(() => {
+    setMounted(true);
     const saved = localStorage.getItem('finova_v4_role');
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setActiveRole(saved as UserRoleV4);
@@ -303,6 +305,17 @@ export default function WorkpaperPage() {
           </div>
         </div>
       )}
+      {/* Step Navigation Footer */}
+      <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-[#DDE4E2] shadow-2xs">
+        <Link href={`/engagements/${engagement.id}/mapping`} className="text-xs font-semibold text-[#52636A] hover:text-[#102A32] flex items-center gap-1.5">
+          <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+          <span>Kembali ke 3. Pemetaan SAK</span>
+        </Link>
+        <Link href={`/engagements/${engagement.id}/exports`} className="px-4 py-2 bg-[#0F8F7A] hover:bg-[#0C7564] text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2">
+          <span>Lanjut ke 5. Ekspor Resmi XLSX</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
     </div>
   );
 }

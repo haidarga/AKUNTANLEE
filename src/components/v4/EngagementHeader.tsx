@@ -42,11 +42,11 @@ export function EngagementHeader({
   const pathname = usePathname();
 
   const tabs = [
-    { label: 'Overview', href: `/engagements/${engagementId}/overview`, icon: Layers },
-    { label: 'Files', href: `/engagements/${engagementId}/files`, icon: UploadCloud },
-    { label: 'Account Mapping', href: `/engagements/${engagementId}/mapping`, icon: Table },
-    { label: 'Workpaper', href: `/engagements/${engagementId}/workpaper`, icon: FileSpreadsheet },
-    { label: 'Exports', href: `/engagements/${engagementId}/exports`, icon: Download },
+    { label: '1. Ringkasan', sub: 'Overview', href: `/engagements/${engagementId}/overview`, icon: Layers },
+    { label: '2. Berkas Sumber', sub: 'Files', href: `/engagements/${engagementId}/files`, icon: UploadCloud },
+    { label: '3. Pemetaan SAK', sub: 'Mapping', href: `/engagements/${engagementId}/mapping`, icon: Table },
+    { label: '4. Kertas Kerja', sub: 'Lead Schedule', href: `/engagements/${engagementId}/workpaper`, icon: FileSpreadsheet },
+    { label: '5. Ekspor Resmi', sub: 'XLSX', href: `/engagements/${engagementId}/exports`, icon: Download },
   ];
 
   const getStatusBadge = (s: EngagementStatusV4) => {
@@ -113,7 +113,10 @@ export function EngagementHeader({
                 }`}
               >
                 <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#0F8F7A]' : 'text-[#7A8C93]'}`} />
-                <span>{tab.label}</span>
+                <div className="flex flex-col text-left">
+                  <span className="leading-tight">{tab.label}</span>
+                  <span className="text-[10px] text-[#7A8C93] font-normal leading-tight">{tab.sub}</span>
+                </div>
 
                 {isActive && (
                   <motion.div
