@@ -11,9 +11,9 @@ export default function NewEngagementPage() {
   const state = repo.getState();
 
   const [clientId, setClientId] = useState(state.clients[0]?.id || 'CLI-001');
-  const [name, setName] = useState('Financial Review & Lead Schedule FY 2025');
-  const [periodStart, setPeriodStart] = useState('2025-01-01');
-  const [periodEnd, setPeriodEnd] = useState('2025-12-31');
+  const [name, setName] = useState('Financial Review & Lead Schedule FY 2026');
+  const [periodStart, setPeriodStart] = useState('2026-01-01');
+  const [periodEnd, setPeriodEnd] = useState('2026-12-31');
   const [materialityIdr, setMaterialityIdr] = useState('250000000');
   const [leadPartnerId, setLeadPartnerId] = useState('USR-PARTNER-01');
   const [managerId, setManagerId] = useState('USR-MANAGER-01');
@@ -93,7 +93,7 @@ export default function NewEngagementPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
-              placeholder="Contoh: Financial Review & Lead Schedule FY 2025"
+              placeholder="Contoh: Financial Review & Lead Schedule FY 2026"
             />
           </div>
 

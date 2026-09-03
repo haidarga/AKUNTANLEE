@@ -222,7 +222,7 @@ export default function LandingPage() {
                       <div className="grid grid-cols-12 bg-[#F6F7F5] p-2.5 font-bold text-[#52636A] border-b border-[#DDE4E2]">
                         <div className="col-span-2">Kode WP</div>
                         <div className="col-span-5">Deskripsi Akun SAK</div>
-                        <div className="col-span-3 text-right">FY 2025 (Berjalan)</div>
+                        <div className="col-span-3 text-right">FY 2026 (Berjalan)</div>
                         <div className="col-span-2 text-right">Varians %</div>
                       </div>
                       <div className="grid grid-cols-12 p-2.5 bg-[#E8F5F1]/30 border-l-4 border-[#0F8F7A] items-center">
@@ -339,7 +339,7 @@ export default function LandingPage() {
                           Sheet 1: Lead Schedule
                         </div>
                         <p className="text-[11px] text-[#52636A]">
-                          18 baris akun induk SAK komparatif FY 2025 vs FY 2024 berformula agregasi murni.
+                          18 baris akun induk SAK komparatif FY 2026 vs FY 2025 berformula agregasi murni.
                         </p>
                       </div>
 

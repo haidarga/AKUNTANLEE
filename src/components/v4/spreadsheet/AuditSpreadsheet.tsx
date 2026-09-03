@@ -31,7 +31,7 @@ export function AuditSpreadsheet({ lines, onOpenEvidence, onOpenComment }: Audit
   const columns = [
     { key: 'lineId', label: 'Kode', width: 'w-24' },
     { key: 'label', label: 'Deskripsi Akun Induk', width: 'flex-1' },
-    { key: 'currentPeriodIdr', label: 'FY 2025 (Berjalan)', width: 'w-36' },
+    { key: 'currentPeriodIdr', label: 'FY 2026 (Berjalan)', width: 'w-36' },
     { key: 'comparativePeriodIdr', label: 'FY 2024 (Komparatif)', width: 'w-36' },
     { key: 'varianceAmountIdr', label: 'Varians (IDR)', width: 'w-32' },
     { key: 'variancePercent', label: 'Varians (%)', width: 'w-24' },
@@ -193,7 +193,7 @@ export function AuditSpreadsheet({ lines, onOpenEvidence, onOpenComment }: Audit
             <tr className="bg-[#F6F7F5] border-b border-[#DDE4E2] text-[#52636A] font-semibold text-[11px] sticky top-0 z-10 shadow-2xs">
               <th className="py-2.5 px-3 border-r border-[#DDE4E2] w-24">Kode</th>
               <th className="py-2.5 px-3 border-r border-[#DDE4E2]">Deskripsi Akun Induk</th>
-              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-36">FY 2025 (Berjalan)</th>
+              <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-36">FY 2026 (Berjalan)</th>
               <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-36">FY 2024 (Komparatif)</th>
               <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-32">Varians (IDR)</th>
               <th className="py-2.5 px-3 border-r border-[#DDE4E2] text-right w-24">Varians (%)</th>

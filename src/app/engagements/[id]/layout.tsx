@@ -23,7 +23,7 @@ export default async function EngagementV4Layout({
         clientName={client.legalName}
         clientCode={client.code}
         title={engagement.name}
-        periodYear="2025"
+        periodYear="2026"
         materialityIdr={engagement.materialityIdr}
         status={engagement.status}
         isStale={wp?.isStale}

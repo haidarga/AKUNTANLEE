@@ -559,7 +559,7 @@ export default function AdvisoryAnalyticsPage() {
               <div>
                 <span className="text-[10px] font-bold text-[#0F8F7A] uppercase tracking-wider block">MEMO EKSEKUTIF KONSULTAN FINANSIAL</span>
                 <h2 className="text-lg font-bold text-[#102A32]">PT Nusantara Sukses Makmur — Dewan Direksi &amp; Komisaris</h2>
-                <span className="text-xs text-[#52636A]">Diterbitkan oleh Tim Advisory FINOVA AI &bull; Periode Evaluasi FY 2025</span>
+                <span className="text-xs text-[#52636A]">Diterbitkan oleh Tim Advisory FINOVA AI &bull; Periode Evaluasi FY 2026</span>
               </div>
               <button
                 onClick={() => window.print()}

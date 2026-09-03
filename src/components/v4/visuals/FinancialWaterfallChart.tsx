@@ -16,7 +16,7 @@ interface WaterfallStep {
 export function FinancialWaterfallChart() {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  // FY 2025 Financial Bridge Steps
+  // FY 2026 Financial Bridge Steps
   const revenue = 52_400_000_000;
   const cogs = 35_950_000_000;
   const grossProfit = revenue - cogs; // 16_450_000_000
@@ -85,7 +85,7 @@ export function FinancialWaterfallChart() {
                 </span>
               </h3>
               <p className="text-[11px] text-[#52636A]">
-                Visualisasi dekomposisi pergerakan dari Pendapatan Usaha hingga Laba Bersih Kertas Kerja FY 2025.
+                Visualisasi dekomposisi pergerakan dari Pendapatan Usaha hingga Laba Bersih Kertas Kerja FY 2026.
               </p>
             </div>
           </div>
