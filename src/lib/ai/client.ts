@@ -24,7 +24,9 @@ export interface AccountAnalysisResponse {
   cached?: boolean;
 }
 
-const AI_BASE_URL = process.env.AI_API_BASE_URL || 'https://cakaiuniverseshipudden.tailbb2126.ts.net/v1';
+const PRIMARY_AI_URL = process.env.AI_API_BASE_URL || 'https://cakgpt.tailbb2126.ts.net:10000/v1';
+const SECONDARY_AI_URL = 'https://cakaiuniverseshipudden.tailbb2126.ts.net/v1';
+const AI_BASE_URL = PRIMARY_AI_URL;
 const AI_API_KEY = process.env.AI_API_KEY || 'cak_oro_bfzy25HQ1Mw-jnzrD0t-pO0dkNfeRKplFtspdnM';
 const AI_MODEL = process.env.AI_MODEL || 'qwen3.8-nvfp4';
 

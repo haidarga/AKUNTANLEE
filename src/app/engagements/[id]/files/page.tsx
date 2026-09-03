@@ -24,6 +24,7 @@ export default function FilesPage() {
   const state = repo.getState();
   const engagement = state.engagements[0];
   const [fileVersions, setFileVersions] = useState<FileVersion[]>(state.fileVersions);
+  const [extractedCount, setExtractedCount] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatusText, setUploadStatusText] = useState('Memindai & Menghitung Hash...');
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -55,6 +56,69 @@ export default function FilesPage() {
       setUploadProgress(100);
       setUploadStatusText('Pemeriksaan selesai!');
 
+      // Parse real worksheets rows with SheetJS
+      const firstSheetName = sheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const rawRows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      let codeCol = 0;
+      let nameCol = 1;
+      let debitCol = 2;
+      let creditCol = 3;
+      let balanceCol = 4;
+      let startRowIdx = 0;
+
+      for (let r = 0; r < Math.min(rawRows.length, 10); r++) {
+        const row = rawRows[r] || [];
+        for (let c = 0; c < row.length; c++) {
+          const val = String(row[c] || '').toLowerCase();
+          if (val.includes('kode') || val.includes('code') || (val.includes('akun') && !val.includes('nama'))) codeCol = c;
+          if (val.includes('nama') || val.includes('deskripsi') || val.includes('name') || val.includes('keterangan')) nameCol = c;
+          if (val.includes('debit') || val.includes('debet')) debitCol = c;
+          if (val.includes('kredit') || val.includes('credit')) creditCol = c;
+          if (val.includes('saldo') || val.includes('balance') || val.includes('akhir')) balanceCol = c;
+        }
+        if (row.some((cell: any) => String(cell || '').toLowerCase().includes('akun') || String(cell || '').toLowerCase().includes('code'))) {
+          startRowIdx = r + 1;
+          break;
+        }
+      }
+
+      const parseNum = (val: any) => {
+        if (typeof val === 'number') return val;
+        if (!val) return 0;
+        const cleaned = String(val).replace(/[^0-9.-]/g, '');
+        return parseFloat(cleaned) || 0;
+      };
+
+      const extractedAccounts: any[] = [];
+      const newDsvId = `DSV-${Date.now().toString(36).toUpperCase()}`;
+
+      for (let i = startRowIdx; i < rawRows.length; i++) {
+        const r = rawRows[i];
+        if (!r || r.length < 2) continue;
+        const code = String(r[codeCol] || '').trim();
+        const name = String(r[nameCol] || '').trim();
+        if (!code || !name || code.toLowerCase().includes('total') || name.toLowerCase().includes('total')) continue;
+
+        const debit = parseNum(r[debitCol]);
+        const credit = parseNum(r[creditCol]);
+        const balance = balanceCol !== codeCol && balanceCol !== nameCol && r[balanceCol] !== undefined ? parseNum(r[balanceCol]) : (debit - credit);
+
+        extractedAccounts.push({
+          id: `ACC-UP-${extractedAccounts.length + 1}`,
+          datasetVersionId: newDsvId,
+          accountCode: code,
+          accountName: name,
+          openingBalanceIdr: 0,
+          debitIdr: debit,
+          creditIdr: credit,
+          closingBalanceIdr: balance,
+          periodEnd: '2026-12-31',
+          currency: 'IDR',
+        });
+      }
+
       setTimeout(() => {
         const user = state.users.find((u) => u.role === 'senior') || state.users[0];
         const newFv: FileVersion = {
@@ -77,6 +141,39 @@ export default function FilesPage() {
         };
 
         repo.addFileVersion(newFv, user);
+
+        // If valid accounts were extracted from the uploaded spreadsheet, publish them into live repo!
+        if (extractedAccounts.length >= 3) {
+          const importJob: any = {
+            id: `IMP-${Date.now().toString(36).toUpperCase()}`,
+            tenantId: user.tenantId,
+            engagementId: engagement.id,
+            sourceFileVersionId: newFv.id,
+            status: 'completed',
+            startedAt: new Date().toISOString(),
+            completedAt: new Date().toISOString(),
+          };
+
+          const newDsv: any = {
+            id: newDsvId,
+            tenantId: user.tenantId,
+            engagementId: engagement.id,
+            versionNumber: state.datasetVersions.length + 1,
+            sourceFileVersionId: newFv.id,
+            datasetType: 'trial_balance',
+            rowCount: extractedAccounts.length,
+            totals: {
+              totalDebitIdr: extractedAccounts.reduce((s: number, a: any) => s + (a.debitIdr || 0), 0),
+              totalCreditIdr: extractedAccounts.reduce((s: number, a: any) => s + (a.creditIdr || 0), 0),
+              netBalanceIdr: extractedAccounts.reduce((s: number, a: any) => s + (a.closingBalanceIdr || 0), 0),
+            },
+            publishedAt: new Date().toISOString(),
+          };
+
+          repo.publishImportDataset(importJob, newDsv, extractedAccounts, user);
+          setExtractedCount(extractedAccounts.length);
+        }
+
         setFileVersions([newFv, ...fileVersions]);
         setIsUploading(false);
       }, 400);
@@ -112,6 +209,33 @@ export default function FilesPage() {
         accept=".xlsx,.xls,.csv,.tsv"
         className="hidden"
       />
+
+      
+      {/* Extracted Accounts Live Success Banner */}
+      {extractedCount !== null && (
+        <div className="p-4 bg-[#ECFDF5] border-2 border-[#10B981] rounded-2xl shadow-sm flex items-center justify-between animate-finova-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#10B981] text-white flex items-center justify-center font-bold">
+              ✓
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-[#064E3B]">
+                Berkas Excel Berhasil Diproses Secara Riil!
+              </h3>
+              <p className="text-xs text-[#047857]">
+                Sebanyak <strong>{extractedCount} baris akun</strong> berhasil diekstrak dan langsung terhubung ke Pemetaan SAK dan Lead Schedule.
+              </p>
+            </div>
+          </div>
+          <Link
+            href={`/engagements/${engagement.id}/mapping`}
+            className="px-4 py-2 bg-[#0F8F7A] hover:bg-[#0C7564] text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2"
+          >
+            <span>Buka Pemetaan SAK & AI</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
 
       {/* Upload Dropzone Surface with Real Drag-and-Drop */}
       <div className="bg-white rounded-2xl border border-[#DDE4E2] p-6 shadow-2xs space-y-4">
