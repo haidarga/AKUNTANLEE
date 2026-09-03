@@ -12,6 +12,62 @@ interface ChatMessage {
   latencyMs?: number;
 }
 
+
+function FormattedMessage({ content, isUser }: { content: string; isUser: boolean }) {
+  const paragraphs = content.split(/\n\n+/);
+
+  return (
+    <div className="space-y-2 text-[11px] leading-relaxed">
+      {paragraphs.map((p, pIdx) => {
+        const lines = p.split('\n');
+        const isList = lines.some((l) => /^(\d+\.|[-•*])\s+/.test(l.trim()));
+
+        if (isList) {
+          return (
+            <ul key={pIdx} className="space-y-1 my-1 pl-1">
+              {lines.map((line, lIdx) => {
+                const cleanLine = line.replace(/^(\d+\.|[-•*])\s+/, '');
+                return (
+                  <li key={lIdx} className="flex items-start gap-1.5">
+                    <span className={isUser ? "text-emerald-300 font-bold shrink-0" : "text-[#0F8F7A] font-bold shrink-0"}>•</span>
+                    <div>{renderInlineFormatting(cleanLine, isUser)}</div>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+
+        return (
+          <p key={pIdx}>
+            {renderInlineFormatting(p, isUser)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
+function renderInlineFormatting(text: string, isUser: boolean) {
+  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const inner = part.slice(2, -2);
+      return (
+        <strong key={i} className={isUser ? "font-bold text-white underline decoration-emerald-400/40" : "font-bold text-[#102A32] bg-emerald-50 px-1 py-0.5 rounded text-[#0C7564]"}>
+          {inner}
+        </strong>
+      );
+    }
+    if (part.startsWith('*') && part.endsWith('*')) {
+      const inner = part.slice(1, -1);
+      return <em key={i} className="italic font-medium">{inner}</em>;
+    }
+    return part;
+  });
+}
+
 export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -20,7 +76,7 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
     {
       id: 'msg-0',
       role: 'assistant',
-      content: 'Halo! Saya **FINOVA AI Copilot** (bertenaga model *Qwen 3.8 Reasoning*). Saya memegang seluruh konteks kertas kerja PT Nusantara Sukses Makmur untuk perikatan aktif Anda. Anda bisa menanyakan analisis SAK, selisih neraca, kepatuhan PSAK, atau justifikasi pemetaan akun.',
+      content: 'Halo! Saya FINOVA AI Copilot (bertenaga model Qwen 3.8 & SAK Indonesia Engine). Saya memegang seluruh data kertas kerja audit PT Nusantara Sukses Makmur untuk Tahun Fiskal 2026. Silakan tanyakan apapun seputar laba bersih, EBITDA, uji keseimbangan neraca, pembengkakan biaya, atau simulasi pajak.',
       timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       model: 'qwen3.8-nvfp4',
     },
@@ -163,7 +219,7 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
                         : 'bg-white border border-[#DDE4E2] text-[#102A32] shadow-xs rounded-bl-xs'
                     }`}
                   >
-                    <p className="whitespace-pre-line leading-relaxed text-[11px]">{m.content}</p>
+                    <FormattedMessage content={m.content} isUser={isUser} />
                     <div className="flex items-center justify-between text-[9px] text-[#7A8C93] pt-1">
                       <span>{m.timestamp}</span>
                       {m.latencyMs && (
