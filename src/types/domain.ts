@@ -13,7 +13,7 @@ export type UserRole =
 
 export interface Firm {
   id: string;
-  name: string; // e.g. "KAP Tanudiredja & Rekan"
+  name: string;
   taxId: string; // NPWP Firm
   country: 'ID';
   createdAt: string;

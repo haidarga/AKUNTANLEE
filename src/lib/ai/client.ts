@@ -215,7 +215,7 @@ Berikan evaluasi standar akuntansi SAK Indonesia dalam format JSON.`;
 export async function chatWithAuditCopilot(messages: { role: string; content: string }[], engagementContext: string): Promise<{ reply: string; model: string; latencyMs: number }> {
   const startTime = Date.now();
 
-  const systemPrompt = `You are FINOVA AI Audit Copilot, a senior advisory AI embedded inside an Indonesian CPA firm audit engagement (KAP Tanudiredja, Wibisana, Rintis & Rekan).
+  const systemPrompt = `You are FINOVA AI Audit Copilot, a senior advisory AI embedded inside an Indonesian CPA firm audit engagement.
 You have deep expertise in Indonesian SAK (Standar Akuntansi Keuangan), PSAK, SPAP (Standar Profesional Akuntan Publik), and Tax Regulations.
 Answer concisely and authoritatively in Indonesian (2-3 paragraphs maximum). Cite exact PSAK / SAK references.
 

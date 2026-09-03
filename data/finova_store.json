@@ -2,7 +2,7 @@
   "tenants": [
     {
       "id": "TENANT-001",
-      "name": "KAP Tanudiredja, Wibisana, Rintis & Rekan",
+      "name": "KAP Haidar & Rekan",
       "region": "id-jkt",
       "status": "active",
       "createdAt": "2024-01-01T00:00:00Z"
@@ -1861,5 +1861,52 @@
       "timesReused": 24,
       "status": "active"
     }
-  ]
+  ],
+  "firmProfile": {
+    "id": "FIRM-001",
+    "name": "KAP Haidar & Rekan",
+    "shortName": "KAP Haidar",
+    "licenseNumber": "KMK No. 492/KM.1/2024",
+    "managingPartnerName": "Haidar, CPA, CA",
+    "managingPartnerApNumber": "AP.0942",
+    "address": "Menara Finansial Indonesia Lt. 18, Jl. Jend. Sudirman Kav. 52-53",
+    "city": "Jakarta Selatan",
+    "email": "contact@kaphaidar.co.id",
+    "phone": "+62 21 5299 8800",
+    "defaultAccountingStandard": "SAK_INDONESIA",
+    "defaultMaterialityIdr": 250000000,
+    "teamMembers": [
+      {
+        "id": "usr-1",
+        "name": "Haidar, CPA, CA",
+        "title": "Audit Partner (Signing Partner)",
+        "email": "haidar@kaphaidar.co.id",
+        "role": "partner",
+        "cpaLicense": "AP.0942"
+      },
+      {
+        "id": "usr-2",
+        "name": "Siti Rahmawati, CA",
+        "title": "Engagement Manager",
+        "email": "siti.r@kaphaidar.co.id",
+        "role": "manager",
+        "cpaLicense": "CA.18471"
+      },
+      {
+        "id": "usr-3",
+        "name": "Ahmad Pratama, S.Ak",
+        "title": "Senior In-Charge (Field Senior)",
+        "email": "ahmad.p@kaphaidar.co.id",
+        "role": "senior"
+      },
+      {
+        "id": "usr-4",
+        "name": "Budi Santoso, S.Ak",
+        "title": "Preparer (Junior Associate)",
+        "email": "budi.s@kaphaidar.co.id",
+        "role": "preparer"
+      }
+    ],
+    "updatedAt": "2026-09-02T10:30:00.000Z"
+  }
 }

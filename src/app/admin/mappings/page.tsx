@@ -77,7 +77,7 @@ export default function AdminMappingMemoryPage() {
           <div className="space-y-2 max-w-xl">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F5F1] text-[#0F8F7A] text-xs font-semibold border border-[#B2DFD6]">
               <Database className="w-3.5 h-3.5" />
-              <span>Memori Intelijen Kantor &bull; KAP Tanudiredja</span>
+              <span>Memori Intelijen Kantor &bull; {repo.getFirmProfile()?.name || "KAP Terdaftar"}</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#102A32]">
               Penyimpanan Memori Pemetaan Akun (Mapping Memory)

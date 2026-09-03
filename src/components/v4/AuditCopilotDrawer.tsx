@@ -20,7 +20,7 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
     {
       id: 'msg-0',
       role: 'assistant',
-      content: 'Halo! Saya **FINOVA AI Copilot** (bertenaga model *Qwen 3.8 Reasoning*). Saya memegang seluruh konteks kertas kerja PT Nusantara Sukses Makmur untuk KAP Tanudiredja. Anda bisa menanyakan analisis SAK, selisih neraca, kepatuhan PSAK, atau justifikasi pemetaan akun.',
+      content: 'Halo! Saya **FINOVA AI Copilot** (bertenaga model *Qwen 3.8 Reasoning*). Saya memegang seluruh konteks kertas kerja PT Nusantara Sukses Makmur untuk perikatan aktif Anda. Anda bisa menanyakan analisis SAK, selisih neraca, kepatuhan PSAK, atau justifikasi pemetaan akun.',
       timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       model: 'qwen3.8-nvfp4',
     },
@@ -130,7 +130,7 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
                   </span>
                 </h3>
                 <p className="text-[10px] text-white/75">
-                  KAP Tanudiredja &bull; PT Nusantara Sukses Makmur
+                  Audit Workspace &bull; PT Nusantara Sukses Makmur
                 </p>
               </div>
             </div>

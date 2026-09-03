@@ -1,11 +1,15 @@
 'use client';
 
+import { repo } from '@/lib/db/repo-v4';
+import Link from 'next/link';
+
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShieldCheck, ArrowRight, UserCheck, Building, Sparkles } from 'lucide-react';
 import { UserRoleV4 } from '@/types/domain-v4';
 
 export default function LoginPage() {
+  const firmProfile = repo.getFirmProfile();
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<UserRoleV4>('senior');
   const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +77,7 @@ export default function LoginPage() {
               <div>
                 <h3 className="font-bold text-sm text-[#102A32]">Pilih Persona Pengguna (Internal KAP)</h3>
                 <p className="text-[11px] text-[#52636A] mt-0.5">
-                  Tenant: <strong className="text-[#102A32]">KAP Tanudiredja, Wibisana, Rintis & Rekan</strong>
+                  Tenant: <strong className="text-[#102A32]">{firmProfile?.name || "KAP Haidar & Rekan"}</strong>
                 </p>
               </div>
               <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]">
@@ -130,6 +134,12 @@ export default function LoginPage() {
                   <ArrowRight className="w-3.5 h-3.5 text-white" />
                 </div>
               </button>
+            </div>
+            <div className="pt-2 text-center text-xs text-[#52636A] flex items-center justify-center gap-2">
+              <span>Ingin setup KAP baru?</span>
+              <Link href="/onboarding" className="text-[#0F8F7A] font-bold underline hover:text-[#0C7564]">
+                Onboarding KAP &rarr;
+              </Link>
             </div>
           </div>
         </div>

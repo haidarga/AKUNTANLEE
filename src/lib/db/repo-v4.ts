@@ -17,6 +17,8 @@ function getFsModules() {
 
 import {
   Tenant,
+  FirmProfile,
+  TeamMemberProfile,
   UserV4,
   UserRoleV4,
   ClientV4,
@@ -58,13 +60,62 @@ export interface FinovaV4State {
   exportArtifacts: ExportArtifact[];
   auditEvents: AuditEventV4[];
   reusableMappings: ReusableMapping[];
+  firmProfile: FirmProfile;
 }
 
 // Initial State Generator
 function createInitialState(): FinovaV4State {
+  const firmProfile: FirmProfile = {
+    id: 'FIRM-001',
+    name: 'KAP Haidar & Rekan',
+    shortName: 'KAP Haidar',
+    licenseNumber: 'KMK No. 492/KM.1/2024',
+    managingPartnerName: 'Haidar, CPA, CA',
+    managingPartnerApNumber: 'AP.0942',
+    address: 'Menara Finansial Indonesia Lt. 18, Jl. Jend. Sudirman Kav. 52-53',
+    city: 'Jakarta Selatan',
+    email: 'contact@kaphaidar.co.id',
+    phone: '+62 21 5299 8800',
+    defaultAccountingStandard: 'SAK_INDONESIA',
+    defaultMaterialityIdr: 250000000,
+    teamMembers: [
+      {
+        id: 'usr-1',
+        name: 'Haidar, CPA, CA',
+        title: 'Audit Partner (Signing Partner)',
+        email: 'haidar@kaphaidar.co.id',
+        role: 'partner',
+        cpaLicense: 'AP.0942',
+      },
+      {
+        id: 'usr-2',
+        name: 'Siti Rahmawati, CA',
+        title: 'Engagement Manager',
+        email: 'siti.r@kaphaidar.co.id',
+        role: 'manager',
+        cpaLicense: 'CA.18471',
+      },
+      {
+        id: 'usr-3',
+        name: 'Ahmad Pratama, S.Ak',
+        title: 'Senior In-Charge (Field Senior)',
+        email: 'ahmad.p@kaphaidar.co.id',
+        role: 'senior',
+      },
+      {
+        id: 'usr-4',
+        name: 'Budi Santoso, S.Ak',
+        title: 'Preparer (Junior Associate)',
+        email: 'budi.s@kaphaidar.co.id',
+        role: 'preparer',
+      },
+    ],
+    updatedAt: new Date().toISOString(),
+  };
+
   const tenant1: Tenant = {
     id: 'TENANT-001',
-    name: 'KAP Tanudiredja, Wibisana, Rintis & Rekan',
+    name: firmProfile.name,
     region: 'id-jkt',
     status: 'active',
     createdAt: '2024-01-01T00:00:00Z',
@@ -437,6 +488,7 @@ function createInitialState(): FinovaV4State {
     ],
     auditEvents,
     reusableMappings,
+    firmProfile,
   };
 }
 
@@ -449,6 +501,10 @@ class FinovaV4Repository {
   constructor() {
     const disk = this.loadFromDisk();
     this.state = disk || createInitialState();
+    if (!this.state.firmProfile) {
+      this.state.firmProfile = createInitialState().firmProfile;
+      this.persist();
+    }
     if (!disk) {
       this.persist();
     }
@@ -521,6 +577,47 @@ class FinovaV4Repository {
     if (roleRank[role] < min) {
       throw new Error(`Akses Ditolak: Peran "${role}" tidak memiliki otorisasi untuk tindakan "${action}".`);
     }
+  }
+
+
+  getFirmProfile(): FirmProfile {
+    if (!this.state.firmProfile) {
+      this.state.firmProfile = createInitialState().firmProfile;
+      this.persist();
+    }
+    return this.state.firmProfile;
+  }
+
+  updateFirmProfile(data: Partial<FirmProfile>): FirmProfile {
+    const current = this.getFirmProfile();
+    const updated: FirmProfile = {
+      ...current,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    this.state.firmProfile = updated;
+    if (this.state.tenants && this.state.tenants[0]) {
+      this.state.tenants[0].name = updated.name;
+    }
+    this.persist();
+    return updated;
+  }
+
+  addTeamMember(member: Omit<TeamMemberProfile, 'id'>): TeamMemberProfile {
+    const current = this.getFirmProfile();
+    const newMember: TeamMemberProfile = {
+      ...member,
+      id: 'usr-' + Date.now(),
+    };
+    const updatedMembers = [...(current.teamMembers || []), newMember];
+    this.updateFirmProfile({ teamMembers: updatedMembers });
+    return newMember;
+  }
+
+  removeTeamMember(memberId: string): void {
+    const current = this.getFirmProfile();
+    const updatedMembers = (current.teamMembers || []).filter((m: TeamMemberProfile) => m.id !== memberId);
+    this.updateFirmProfile({ teamMembers: updatedMembers });
   }
 
   getState(): FinovaV4State {

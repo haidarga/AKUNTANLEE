@@ -1,5 +1,7 @@
 'use client';
 
+import { repo } from '@/lib/db/repo-v4';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -25,6 +27,11 @@ export function V4Shell({ children }: ShellProps) {
   const pathname = usePathname();
   const [role, setRole] = useState<UserRoleV4>('senior');
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
+
+  // Clean bypass for landing, onboarding, and login pages
+  if (pathname === '/' || pathname === '/onboarding' || pathname === '/login') {
+    return <>{children}</>;
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem('finova_v4_role');
@@ -56,7 +63,7 @@ export function V4Shell({ children }: ShellProps) {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           {/* Brand & Platform Identity */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 group">
+            <Link href="/engagements" className="flex items-center gap-2.5 group">
               <div className="w-8 h-8 rounded-lg bg-[#0F8F7A] text-white flex items-center justify-center font-bold text-xs shadow-sm transition-transform group-hover:scale-105">
                 FN
               </div>
@@ -75,7 +82,7 @@ export function V4Shell({ children }: ShellProps) {
             {/* Tenant Identity per PRD Section 41.1 */}
             <div className="hidden md:flex items-center gap-1.5 text-xs text-[#52636A]">
               <Building className="w-3.5 h-3.5 text-[#7A8C93]" />
-              <span className="font-medium text-[#102A32]">KAP Tanudiredja, Wibisana, Rintis & Rekan</span>
+              <Link href="/settings" className="font-semibold text-[#102A32] hover:text-[#0F8F7A] transition-colors flex items-center gap-1" title="Klik untuk ubah profil KAP"><span>{repo.getFirmProfile()?.name || "KAP Haidar & Rekan"}</span></Link>
             </div>
           </div>
 
@@ -83,9 +90,9 @@ export function V4Shell({ children }: ShellProps) {
           <div className="flex items-center gap-3">
             {/* Global Nav Link */}
             <Link
-              href="/"
+              href="/engagements"
               className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                pathname === '/' || pathname.startsWith('/engagements/new')
+                pathname.startsWith('/engagements') || pathname.startsWith('/engagements/new')
                   ? 'bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]'
                   : 'text-[#52636A] hover:text-[#102A32] hover:bg-black/5'
               }`}

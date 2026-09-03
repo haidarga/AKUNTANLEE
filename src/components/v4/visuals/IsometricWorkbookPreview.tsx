@@ -21,7 +21,7 @@ export function IsometricWorkbookPreview() {
             Pratinjau Arsitektur Workbook XLSX (.xlsx)
           </h2>
           <p className="text-xs text-[#A1B8C0] leading-relaxed">
-            Workbook yang dihasilkan mematuhi standar atestasi KAP Tanudiredja. Setiap berkas memuat struktur multi-sheet berpenanda tangan digital yang lolos uji baca ulang kriptografi (*read-back verification*).
+            Workbook yang dihasilkan mematuhi standar atestasi Kantor Akuntan Publik. Setiap berkas memuat struktur multi-sheet berpenanda tangan digital yang lolos uji baca ulang kriptografi (*read-back verification*).
           </p>
 
           <div className="grid grid-cols-2 gap-3 pt-2 text-xs">

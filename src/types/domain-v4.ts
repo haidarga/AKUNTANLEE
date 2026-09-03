@@ -3,9 +3,37 @@
 
 export type UserRoleV4 = 'preparer' | 'senior' | 'manager' | 'partner';
 
+
+export interface TeamMemberProfile {
+  id: string;
+  name: string;
+  title: string;
+  email: string;
+  role: UserRoleV4;
+  cpaLicense?: string;
+  phone?: string;
+}
+
+export interface FirmProfile {
+  id: string;
+  name: string;
+  shortName: string;
+  licenseNumber: string;
+  managingPartnerName: string;
+  managingPartnerApNumber: string;
+  address: string;
+  city: string;
+  email: string;
+  phone: string;
+  defaultAccountingStandard: 'SAK_INDONESIA' | 'SAK_EP' | 'PSAK_IFRS';
+  defaultMaterialityIdr: number;
+  teamMembers: TeamMemberProfile[];
+  updatedAt?: string;
+}
+
 export interface Tenant {
   id: string; // e.g. "TENANT-001"
-  name: string; // "KAP Tanudiredja & Rekan"
+  name: string;
   region: string; // "id-jkt"
   status: 'active' | 'suspended';
   createdAt: string;
