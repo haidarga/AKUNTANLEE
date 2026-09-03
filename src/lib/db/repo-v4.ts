@@ -526,6 +526,15 @@ class FinovaV4Repository {
 
   private loadFromDisk(): FinovaV4State | null {
     if (typeof window !== 'undefined' || process.env.VITEST) return null;
+    try {
+      // Load directly from ACID SQLite engine
+      const { loadStateFromDb } = require('./sqlite');
+      const dbState = loadStateFromDb();
+      if (dbState) return dbState;
+    } catch (e) {
+      console.error('Failed to load from SQLite, falling back to disk JSON:', e);
+    }
+
     const { fs, path: pathMod } = getFsModules();
     if (!fs || !pathMod) return null;
     try {
@@ -535,24 +544,31 @@ class FinovaV4Repository {
         return JSON.parse(raw);
       }
     } catch (e) {
-      console.error('Failed to load store:', e);
+      console.error('Failed to load store JSON:', e);
     }
     return null;
   }
 
   private persist(): void {
     if (typeof window !== 'undefined' || process.env.VITEST) return;
-    const { fs, path: pathMod } = getFsModules();
-    if (!fs || !pathMod) return;
     try {
-      const dataDir = pathMod.join(process.cwd(), 'data');
-      const storePath = pathMod.join(dataDir, 'finova_store.json');
-      if (!fs.existsSync(dataDir)) {
-        fs.mkdirSync(dataDir, { recursive: true });
-      }
-      fs.writeFileSync(storePath, JSON.stringify(this.state, null, 2), 'utf-8');
+      // Save atomically to SQLite with Write-Ahead Logging & transactions
+      const { saveStateToDb } = require('./sqlite');
+      saveStateToDb(this.state);
     } catch (e) {
-      console.error('Failed to persist store:', e);
+      console.error('Failed to persist to SQLite:', e);
+      const { fs, path: pathMod } = getFsModules();
+      if (!fs || !pathMod) return;
+      try {
+        const dataDir = pathMod.join(process.cwd(), 'data');
+        const storePath = pathMod.join(dataDir, 'finova_store.json');
+        if (!fs.existsSync(dataDir)) {
+          fs.mkdirSync(dataDir, { recursive: true });
+        }
+        fs.writeFileSync(storePath, JSON.stringify(this.state, null, 2), 'utf-8');
+      } catch (err) {
+        console.error('Failed to persist store fallback:', err);
+      }
     }
   }
 
