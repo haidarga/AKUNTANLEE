@@ -1,0 +1,1865 @@
+{
+  "tenants": [
+    {
+      "id": "TENANT-001",
+      "name": "KAP Tanudiredja, Wibisana, Rintis & Rekan",
+      "region": "id-jkt",
+      "status": "active",
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "TENANT-002",
+      "name": "KAP Siddharta Widjaja & Rekan",
+      "region": "id-jkt",
+      "status": "active",
+      "createdAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "USR-PARTNER-01",
+      "tenantId": "TENANT-001",
+      "name": "Bambang Hendrawan, CPA",
+      "email": "bambang.hendrawan@tanudiredja.id",
+      "role": "partner",
+      "title": "Audit & Advisory Partner",
+      "status": "active"
+    },
+    {
+      "id": "USR-MANAGER-01",
+      "tenantId": "TENANT-001",
+      "name": "Siti Rahmawati, CPA",
+      "email": "siti.rahmawati@tanudiredja.id",
+      "role": "manager",
+      "title": "Engagement Manager",
+      "status": "active"
+    },
+    {
+      "id": "USR-SENIOR-01",
+      "tenantId": "TENANT-001",
+      "name": "Ahmad Pratama, S.Ak",
+      "email": "ahmad.pratama@tanudiredja.id",
+      "role": "senior",
+      "title": "Senior Field In-Charge",
+      "status": "active"
+    },
+    {
+      "id": "USR-PREPARER-01",
+      "tenantId": "TENANT-001",
+      "name": "Dewi Lestari, S.Ak",
+      "email": "dewi.lestari@tanudiredja.id",
+      "role": "preparer",
+      "title": "Junior Audit Associate",
+      "status": "active"
+    },
+    {
+      "id": "USR-EXT-01",
+      "tenantId": "TENANT-002",
+      "name": "Hendrik Susanto, CPA",
+      "email": "hendrik.susanto@siddharta.id",
+      "role": "partner",
+      "title": "Lead Partner",
+      "status": "active"
+    }
+  ],
+  "clients": [
+    {
+      "id": "CLI-001",
+      "tenantId": "TENANT-001",
+      "legalName": "PT Nusantara Sukses Makmur",
+      "code": "NSM",
+      "industry": "Manufaktur Komponen Presisi & Otomotif",
+      "status": "active",
+      "createdAt": "2024-06-01T00:00:00Z"
+    }
+  ],
+  "engagements": [
+    {
+      "id": "ENG-2025-01",
+      "tenantId": "TENANT-001",
+      "clientId": "CLI-001",
+      "name": "Financial Review & Lead Schedule FY 2025",
+      "periodStart": "2025-01-01",
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "materialityIdr": 250000000,
+      "status": "preparing",
+      "leadPartnerId": "USR-PARTNER-01",
+      "managerId": "USR-MANAGER-01",
+      "seniorId": "USR-SENIOR-01",
+      "preparerId": "USR-PREPARER-01",
+      "createdAt": "2026-01-15T08:00:00Z",
+      "updatedAt": "2026-02-14T10:00:00Z"
+    }
+  ],
+  "fileVersions": [
+    {
+      "id": "FV-001",
+      "assetId": "FA-TB-2025-NSM",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "versionNumber": 1,
+      "originalName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "storageKey": "engagements/ENG-2025-01/sources/9f83a48e_TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "checksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "sizeBytes": 684200,
+      "status": "ready",
+      "uploadedByUserId": "USR-SENIOR-01",
+      "scanStatus": "clean",
+      "sheetCount": 3,
+      "sheetNames": [
+        "Trial Balance",
+        "General Ledger Sample",
+        "Notes"
+      ],
+      "createdAt": "2026-01-18T09:30:00Z"
+    }
+  ],
+  "importJobs": [],
+  "datasetVersions": [
+    {
+      "id": "DSV-001",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "importJobId": "IMP-001",
+      "fileVersionId": "FV-001",
+      "datasetType": "trial_balance",
+      "rowCount": 22,
+      "totals": {
+        "totalDebitIdr": 52400000000,
+        "totalCreditIdr": 52400000000,
+        "netBalanceIdr": 0
+      },
+      "publishedAt": "2026-01-18T09:40:00Z"
+    }
+  ],
+  "accounts": [
+    {
+      "id": "ACC-1110-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1110-00",
+      "accountName": "Kas di Bank Mandiri (IDR)",
+      "openingBalanceIdr": 0,
+      "debitIdr": 1850000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 1850000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 2,
+        "cellRange": "Trial Balance!A2:F2"
+      }
+    },
+    {
+      "id": "ACC-1111-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1111-00",
+      "accountName": "Kas di Bank BCA Operasional",
+      "openingBalanceIdr": 0,
+      "debitIdr": 2650000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 2650000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 3,
+        "cellRange": "Trial Balance!A3:F3"
+      }
+    },
+    {
+      "id": "ACC-1120-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1120-00",
+      "accountName": "Piutang Usaha Pihak Ketiga",
+      "openingBalanceIdr": 0,
+      "debitIdr": 9850000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 9850000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 4,
+        "cellRange": "Trial Balance!A4:F4"
+      }
+    },
+    {
+      "id": "ACC-1129-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1129-00",
+      "accountName": "Cadangan Kerugian Penurunan Nilai Piutang (CKPN)",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 200000000,
+      "closingBalanceIdr": -200000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 5,
+        "cellRange": "Trial Balance!A5:F5"
+      }
+    },
+    {
+      "id": "ACC-1130-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1130-00",
+      "accountName": "Persediaan Bahan Baku & Pembantu",
+      "openingBalanceIdr": 0,
+      "debitIdr": 4350000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 4350000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 6,
+        "cellRange": "Trial Balance!A6:F6"
+      }
+    },
+    {
+      "id": "ACC-1131-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1131-00",
+      "accountName": "Persediaan Barang Jadi (Finished Goods)",
+      "openingBalanceIdr": 0,
+      "debitIdr": 4100000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 4100000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 7,
+        "cellRange": "Trial Balance!A7:F7"
+      }
+    },
+    {
+      "id": "ACC-1140-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1140-00",
+      "accountName": "Uang Muka Pembelian & Sewa Dibayar Dimuka",
+      "openingBalanceIdr": 0,
+      "debitIdr": 450000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 450000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 8,
+        "cellRange": "Trial Balance!A8:F8"
+      }
+    },
+    {
+      "id": "ACC-1210-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1210-00",
+      "accountName": "Aset Tetap Mesin & Peralatan Pabrik",
+      "openingBalanceIdr": 0,
+      "debitIdr": 11200000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 11200000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 9,
+        "cellRange": "Trial Balance!A9:F9"
+      }
+    },
+    {
+      "id": "ACC-1220-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1220-00",
+      "accountName": "Aset Tetap Kendaraan & Logistik",
+      "openingBalanceIdr": 0,
+      "debitIdr": 4300000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 4300000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 10,
+        "cellRange": "Trial Balance!A10:F10"
+      }
+    },
+    {
+      "id": "ACC-1290-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1290-00",
+      "accountName": "Akumulasi Penyusutan Mesin & Kendaraan",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 4650000000,
+      "closingBalanceIdr": -4650000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 11,
+        "cellRange": "Trial Balance!A11:F11"
+      }
+    },
+    {
+      "id": "ACC-1300-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "1300-00",
+      "accountName": "Aset Hak Guna & Jaminan Utilitas",
+      "openingBalanceIdr": 0,
+      "debitIdr": 650000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 650000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 12,
+        "cellRange": "Trial Balance!A12:F12"
+      }
+    },
+    {
+      "id": "ACC-2110-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "2110-00",
+      "accountName": "Utang Usaha Supplier Logam & Komponen",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 4850000000,
+      "closingBalanceIdr": -4850000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 13,
+        "cellRange": "Trial Balance!A13:F13"
+      }
+    },
+    {
+      "id": "ACC-2120-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "2120-00",
+      "accountName": "Utang PPN & PPh 21/23",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 380000000,
+      "closingBalanceIdr": -380000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 14,
+        "cellRange": "Trial Balance!A14:F14"
+      }
+    },
+    {
+      "id": "ACC-2130-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "2130-00",
+      "accountName": "Beban Akrual Gaji & Bonus Karyawan",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 540000000,
+      "closingBalanceIdr": -540000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 15,
+        "cellRange": "Trial Balance!A15:F15"
+      }
+    },
+    {
+      "id": "ACC-2199-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "2199-00",
+      "accountName": "Akun Penampungan Selisih Kurs Sementara",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 310000000,
+      "closingBalanceIdr": -310000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 16,
+        "cellRange": "Trial Balance!A16:F16"
+      }
+    },
+    {
+      "id": "ACC-2210-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "2210-00",
+      "accountName": "Utang Bank Mandiri Jangka Panjang",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 5500000000,
+      "closingBalanceIdr": -5500000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 17,
+        "cellRange": "Trial Balance!A17:F17"
+      }
+    },
+    {
+      "id": "ACC-2220-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "2220-00",
+      "accountName": "Kewajiban Imbalan Pasca Kerja (PSAK 24)",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 780000000,
+      "closingBalanceIdr": -780000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 18,
+        "cellRange": "Trial Balance!A18:F18"
+      }
+    },
+    {
+      "id": "ACC-3100-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "3100-00",
+      "accountName": "Modal Saham Ditempatkan dan Disetor Penuh",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 8000000000,
+      "closingBalanceIdr": -8000000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 19,
+        "cellRange": "Trial Balance!A19:F19"
+      }
+    },
+    {
+      "id": "ACC-3200-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "3200-00",
+      "accountName": "Saldo Laba Ditahan s.d. Tahun Lalu",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 9940000000,
+      "closingBalanceIdr": -9940000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 20,
+        "cellRange": "Trial Balance!A20:F20"
+      }
+    },
+    {
+      "id": "ACC-4100-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "4100-00",
+      "accountName": "Pendapatan Usaha Penjualan Komponen",
+      "openingBalanceIdr": 0,
+      "debitIdr": 0,
+      "creditIdr": 52400000000,
+      "closingBalanceIdr": -52400000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 21,
+        "cellRange": "Trial Balance!A21:F21"
+      }
+    },
+    {
+      "id": "ACC-5100-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "5100-00",
+      "accountName": "Beban Pokok Penjualan (HPP)",
+      "openingBalanceIdr": 0,
+      "debitIdr": 35950000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 35950000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 22,
+        "cellRange": "Trial Balance!A22:F22"
+      }
+    },
+    {
+      "id": "ACC-6100-00",
+      "datasetVersionId": "DSV-001",
+      "accountCode": "6100-00",
+      "accountName": "Beban Operasional, Gaji & Umum",
+      "openingBalanceIdr": 0,
+      "debitIdr": 12200000000,
+      "creditIdr": 0,
+      "closingBalanceIdr": 12200000000,
+      "periodEnd": "2025-12-31",
+      "currency": "IDR",
+      "sourceLocator": {
+        "fileVersionId": "FV-001",
+        "sheetName": "Trial Balance",
+        "rowNumber": 23,
+        "cellRange": "Trial Balance!A23:F23"
+      }
+    }
+  ],
+  "mappingSets": [
+    {
+      "id": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "datasetVersionId": "DSV-001",
+      "versionNumber": 1,
+      "status": "draft",
+      "createdAt": "2026-01-18T09:45:00Z"
+    }
+  ],
+  "mappingDecisions": [
+    {
+      "id": "MAPDEC-1110-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1110-00",
+      "sourceAccountCode": "1110-00",
+      "sourceAccountName": "Kas di Bank Mandiri (IDR)",
+      "amountIdr": 1850000000,
+      "proposedTarget": "WP-A.1",
+      "effectiveTarget": "WP-A.1",
+      "confidenceScore": 0.96,
+      "confidenceLevel": "high",
+      "rationale": "Pola standar Kas & Bank (1110)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-09-02T08:40:30.145Z",
+      "overrideReason": "Penyesuaian kas kecil"
+    },
+    {
+      "id": "MAPDEC-1111-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1111-00",
+      "sourceAccountCode": "1111-00",
+      "sourceAccountName": "Kas di Bank BCA Operasional",
+      "amountIdr": 2650000000,
+      "proposedTarget": "WP-A.1",
+      "effectiveTarget": "WP-A.1",
+      "confidenceScore": 0.97,
+      "confidenceLevel": "high",
+      "rationale": "Pola standar Kas & Bank (1111)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-1120-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1120-00",
+      "sourceAccountCode": "1120-00",
+      "sourceAccountName": "Piutang Usaha Pihak Ketiga",
+      "amountIdr": 9850000000,
+      "proposedTarget": "WP-A.2",
+      "effectiveTarget": "WP-A.2",
+      "confidenceScore": 0.95,
+      "confidenceLevel": "high",
+      "rationale": "Pola standar Piutang Dagang (1120)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-1129-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1129-00",
+      "sourceAccountCode": "1129-00",
+      "sourceAccountName": "Cadangan Kerugian Penurunan Nilai Piutang (CKPN)",
+      "amountIdr": -200000000,
+      "proposedTarget": "WP-A.3",
+      "effectiveTarget": "WP-A.3",
+      "confidenceScore": 0.92,
+      "confidenceLevel": "high",
+      "rationale": "Kontra aset piutang (1129)",
+      "status": "mapped",
+      "isMaterial": false,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-1130-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1130-00",
+      "sourceAccountCode": "1130-00",
+      "sourceAccountName": "Persediaan Bahan Baku & Pembantu",
+      "amountIdr": 4350000000,
+      "proposedTarget": "WP-A.4",
+      "effectiveTarget": "WP-A.4",
+      "confidenceScore": 0.94,
+      "confidenceLevel": "high",
+      "rationale": "Pola persediaan manufaktur (1130)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-1131-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1131-00",
+      "sourceAccountCode": "1131-00",
+      "sourceAccountName": "Persediaan Barang Jadi (Finished Goods)",
+      "amountIdr": 4100000000,
+      "proposedTarget": "WP-A.4",
+      "effectiveTarget": "WP-A.4",
+      "confidenceScore": 0.93,
+      "confidenceLevel": "high",
+      "rationale": "Persediaan barang jadi (1131)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-1140-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1140-00",
+      "sourceAccountCode": "1140-00",
+      "sourceAccountName": "Uang Muka Pembelian & Sewa Dibayar Dimuka",
+      "amountIdr": 450000000,
+      "proposedTarget": "WP-A.5",
+      "effectiveTarget": "WP-A.5",
+      "confidenceScore": 0.91,
+      "confidenceLevel": "high",
+      "rationale": "Beban dibayar dimuka (1140)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-1210-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1210-00",
+      "sourceAccountCode": "1210-00",
+      "sourceAccountName": "Aset Tetap Mesin & Peralatan Pabrik",
+      "amountIdr": 11200000000,
+      "proposedTarget": "WP-B.1",
+      "effectiveTarget": "WP-B.1",
+      "confidenceScore": 0.95,
+      "confidenceLevel": "high",
+      "rationale": "Aset tetap pabrik (1210)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-1220-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1220-00",
+      "sourceAccountCode": "1220-00",
+      "sourceAccountName": "Aset Tetap Kendaraan & Logistik",
+      "amountIdr": 4300000000,
+      "proposedTarget": "WP-B.1",
+      "effectiveTarget": "WP-B.1",
+      "confidenceScore": 0.94,
+      "confidenceLevel": "high",
+      "rationale": "Aset tetap kendaraan (1220)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-1290-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1290-00",
+      "sourceAccountCode": "1290-00",
+      "sourceAccountName": "Akumulasi Penyusutan Mesin & Kendaraan",
+      "amountIdr": -4650000000,
+      "proposedTarget": "WP-B.2",
+      "effectiveTarget": "WP-B.2",
+      "confidenceScore": 0.92,
+      "confidenceLevel": "high",
+      "rationale": "Kontra aset tetap (1290)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-1300-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-1300-00",
+      "sourceAccountCode": "1300-00",
+      "sourceAccountName": "Aset Hak Guna & Jaminan Utilitas",
+      "amountIdr": 650000000,
+      "proposedTarget": "WP-B.3",
+      "effectiveTarget": "WP-B.3",
+      "confidenceScore": 0.88,
+      "confidenceLevel": "high",
+      "rationale": "Aset tidak lancar lainnya (1300)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-2110-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-2110-00",
+      "sourceAccountCode": "2110-00",
+      "sourceAccountName": "Utang Usaha Supplier Logam & Komponen",
+      "amountIdr": -4850000000,
+      "proposedTarget": "WP-C.1",
+      "effectiveTarget": "WP-C.1",
+      "confidenceScore": 0.95,
+      "confidenceLevel": "high",
+      "rationale": "Utang dagang pihak ketiga (2110)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-2120-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-2120-00",
+      "sourceAccountCode": "2120-00",
+      "sourceAccountName": "Utang PPN & PPh 21/23",
+      "amountIdr": -380000000,
+      "proposedTarget": "WP-C.2",
+      "effectiveTarget": "WP-C.2",
+      "confidenceScore": 0.91,
+      "confidenceLevel": "high",
+      "rationale": "Kewajiban perpajakan lancar (2120)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-2130-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-2130-00",
+      "sourceAccountCode": "2130-00",
+      "sourceAccountName": "Beban Akrual Gaji & Bonus Karyawan",
+      "amountIdr": -540000000,
+      "proposedTarget": "WP-C.3",
+      "effectiveTarget": "WP-C.3",
+      "confidenceScore": 0.9,
+      "confidenceLevel": "high",
+      "rationale": "Biaya masih harus dibayar (2130)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-2199-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-2199-00",
+      "sourceAccountCode": "2199-00",
+      "sourceAccountName": "Akun Penampungan Selisih Kurs Sementara",
+      "amountIdr": -310000000,
+      "proposedTarget": "WP-C.1",
+      "confidenceScore": 0.38,
+      "confidenceLevel": "low",
+      "rationale": "Akun antara/suspense dengan saldo penampungan kurs",
+      "status": "mapped",
+      "isMaterial": true,
+      "effectiveTarget": "WP-F.4",
+      "overrideReason": "Direklasifikasi ke Beban Lain-lain",
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-09-02T08:40:30.144Z"
+    },
+    {
+      "id": "MAPDEC-2210-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-2210-00",
+      "sourceAccountCode": "2210-00",
+      "sourceAccountName": "Utang Bank Mandiri Jangka Panjang",
+      "amountIdr": -5500000000,
+      "proposedTarget": "WP-D.1",
+      "effectiveTarget": "WP-D.1",
+      "confidenceScore": 0.96,
+      "confidenceLevel": "high",
+      "rationale": "Pinjaman bank jangka panjang (2210)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-2220-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-2220-00",
+      "sourceAccountCode": "2220-00",
+      "sourceAccountName": "Kewajiban Imbalan Pasca Kerja (PSAK 24)",
+      "amountIdr": -780000000,
+      "proposedTarget": "WP-D.2",
+      "effectiveTarget": "WP-D.2",
+      "confidenceScore": 0.89,
+      "confidenceLevel": "high",
+      "rationale": "Kewajiban imbalan kerja (2220)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-3100-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-3100-00",
+      "sourceAccountCode": "3100-00",
+      "sourceAccountName": "Modal Saham Ditempatkan dan Disetor Penuh",
+      "amountIdr": -8000000000,
+      "proposedTarget": "WP-E.1",
+      "effectiveTarget": "WP-E.1",
+      "confidenceScore": 0.98,
+      "confidenceLevel": "high",
+      "rationale": "Modal saham terdaftar (3100)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-3200-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-3200-00",
+      "sourceAccountCode": "3200-00",
+      "sourceAccountName": "Saldo Laba Ditahan s.d. Tahun Lalu",
+      "amountIdr": -9940000000,
+      "proposedTarget": "WP-E.2",
+      "effectiveTarget": "WP-E.2",
+      "confidenceScore": 0.96,
+      "confidenceLevel": "high",
+      "rationale": "Retained earnings awal (3200)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-4100-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-4100-00",
+      "sourceAccountCode": "4100-00",
+      "sourceAccountName": "Pendapatan Usaha Penjualan Komponen",
+      "amountIdr": -52400000000,
+      "proposedTarget": "WP-F.1",
+      "effectiveTarget": "WP-F.1",
+      "confidenceScore": 0.98,
+      "confidenceLevel": "high",
+      "rationale": "Omset pendapatan operasional (4100)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-5100-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-5100-00",
+      "sourceAccountCode": "5100-00",
+      "sourceAccountName": "Beban Pokok Penjualan (HPP)",
+      "amountIdr": 35950000000,
+      "proposedTarget": "WP-F.2",
+      "effectiveTarget": "WP-F.2",
+      "confidenceScore": 0.97,
+      "confidenceLevel": "high",
+      "rationale": "Biaya bahan baku dan pabrikasi (5100)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "MAPDEC-6100-00",
+      "mappingSetId": "MAPSET-001",
+      "tenantId": "TENANT-001",
+      "accountRowId": "ACC-6100-00",
+      "sourceAccountCode": "6100-00",
+      "sourceAccountName": "Beban Operasional, Gaji & Umum",
+      "amountIdr": 12200000000,
+      "proposedTarget": "WP-F.3",
+      "effectiveTarget": "WP-F.3",
+      "confidenceScore": 0.95,
+      "confidenceLevel": "high",
+      "rationale": "Beban operasional OPEX (6100)",
+      "status": "mapped",
+      "isMaterial": true,
+      "decidedByUserId": "USR-SENIOR-01",
+      "decidedAt": "2026-01-18T10:00:00Z"
+    }
+  ],
+  "workpaperVersions": [
+    {
+      "id": "WPV-MTJUFL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "datasetVersionIds": [
+        "DSV-001"
+      ],
+      "mappingSetId": "MAPSET-001",
+      "templateVersion": "FINOVA-LEAD-v1.0",
+      "versionNumber": 1,
+      "status": "review_ready",
+      "totals": {
+        "totalAssetsIdr": 34550000000,
+        "totalLiabilitiesIdr": 12360000000,
+        "totalEquityIdr": 22190000000,
+        "netIncomeIdr": 4250000000,
+        "tbDebitCreditDiffIdr": 0,
+        "balanceSheetDiffIdr": 0
+      },
+      "isStale": true,
+      "calculatedAt": "2026-09-02T08:37:50.907Z",
+      "staleReason": "Perubahan pemetaan akun 1110-00 oleh Ahmad Pratama, S.Ak."
+    }
+  ],
+  "workpaperLines": [
+    {
+      "lineId": "WP-A.1",
+      "sectionId": "SEC-A",
+      "label": "Kas & Setara Kas (Cash & Cash Equivalents)",
+      "accountCodes": [
+        "1110-00",
+        "1111-00"
+      ],
+      "currentPeriodIdr": 4500000000,
+      "comparativePeriodIdr": 4200000000,
+      "varianceAmountIdr": 300000000,
+      "variancePercent": 7.1,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-A-1-FL4J"
+    },
+    {
+      "lineId": "WP-A.2",
+      "sectionId": "SEC-A",
+      "label": "Piutang Usaha Bruto (Accounts Receivable)",
+      "accountCodes": [
+        "1120-00"
+      ],
+      "currentPeriodIdr": 9850000000,
+      "comparativePeriodIdr": 6850000000,
+      "varianceAmountIdr": 3000000000,
+      "variancePercent": 43.8,
+      "validationState": "valid",
+      "commentCount": 1,
+      "primaryEvidenceLinkId": "EVL-WP-A-2-FL4J"
+    },
+    {
+      "lineId": "WP-A.3",
+      "sectionId": "SEC-A",
+      "label": "Cadangan Penurunan Nilai Piutang (ECL)",
+      "accountCodes": [
+        "1129-00"
+      ],
+      "currentPeriodIdr": 200000000,
+      "comparativePeriodIdr": -150000000,
+      "varianceAmountIdr": 350000000,
+      "variancePercent": 233.3,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-A-3-FL4J"
+    },
+    {
+      "lineId": "WP-A.4",
+      "sectionId": "SEC-A",
+      "label": "Persediaan Barang (Inventories)",
+      "accountCodes": [
+        "1130-00",
+        "1131-00"
+      ],
+      "currentPeriodIdr": 8450000000,
+      "comparativePeriodIdr": 7100000000,
+      "varianceAmountIdr": 1350000000,
+      "variancePercent": 19,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-A-4-FL4J"
+    },
+    {
+      "lineId": "WP-A.5",
+      "sectionId": "SEC-A",
+      "label": "Uang Muka & Biaya Dibayar Dimuka",
+      "accountCodes": [
+        "1140-00"
+      ],
+      "currentPeriodIdr": 450000000,
+      "comparativePeriodIdr": 400000000,
+      "varianceAmountIdr": 50000000,
+      "variancePercent": 12.5,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-A-5-FL4J"
+    },
+    {
+      "lineId": "WP-B.1",
+      "sectionId": "SEC-B",
+      "label": "Aset Tetap - Biaya Perolehan (Fixed Assets Gross)",
+      "accountCodes": [
+        "1210-00",
+        "1220-00"
+      ],
+      "currentPeriodIdr": 15500000000,
+      "comparativePeriodIdr": 14000000000,
+      "varianceAmountIdr": 1500000000,
+      "variancePercent": 10.7,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-B-1-FL4J"
+    },
+    {
+      "lineId": "WP-B.2",
+      "sectionId": "SEC-B",
+      "label": "Akumulasi Penyusutan Aset Tetap",
+      "accountCodes": [
+        "1290-00"
+      ],
+      "currentPeriodIdr": 4650000000,
+      "comparativePeriodIdr": -3800000000,
+      "varianceAmountIdr": 8450000000,
+      "variancePercent": 222.4,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-B-2-FL4J"
+    },
+    {
+      "lineId": "WP-B.3",
+      "sectionId": "SEC-B",
+      "label": "Aset Lain-lain & Hak Guna",
+      "accountCodes": [
+        "1300-00"
+      ],
+      "currentPeriodIdr": 650000000,
+      "comparativePeriodIdr": 600000000,
+      "varianceAmountIdr": 50000000,
+      "variancePercent": 8.3,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-B-3-FL4J"
+    },
+    {
+      "lineId": "WP-C.1",
+      "sectionId": "SEC-C",
+      "label": "Utang Usaha (Trade Accounts Payable)",
+      "accountCodes": [
+        "2110-00",
+        "2199-00"
+      ],
+      "currentPeriodIdr": 5160000000,
+      "comparativePeriodIdr": 4100000000,
+      "varianceAmountIdr": 1060000000,
+      "variancePercent": 25.9,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-C-1-FL4J"
+    },
+    {
+      "lineId": "WP-C.2",
+      "sectionId": "SEC-C",
+      "label": "Utang Pajak (Tax Payable)",
+      "accountCodes": [
+        "2120-00"
+      ],
+      "currentPeriodIdr": 380000000,
+      "comparativePeriodIdr": 320000000,
+      "varianceAmountIdr": 60000000,
+      "variancePercent": 18.8,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-C-2-FL4J"
+    },
+    {
+      "lineId": "WP-C.3",
+      "sectionId": "SEC-C",
+      "label": "Beban Akrual & Utang Jangka Pendek Lainnya",
+      "accountCodes": [
+        "2130-00"
+      ],
+      "currentPeriodIdr": 540000000,
+      "comparativePeriodIdr": 480000000,
+      "varianceAmountIdr": 60000000,
+      "variancePercent": 12.5,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-C-3-FL4J"
+    },
+    {
+      "lineId": "WP-D.1",
+      "sectionId": "SEC-D",
+      "label": "Utang Bank Jangka Panjang (Long-Term Loans)",
+      "accountCodes": [
+        "2210-00"
+      ],
+      "currentPeriodIdr": 5500000000,
+      "comparativePeriodIdr": 5000000000,
+      "varianceAmountIdr": 500000000,
+      "variancePercent": 10,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-D-1-FL4J"
+    },
+    {
+      "lineId": "WP-D.2",
+      "sectionId": "SEC-D",
+      "label": "Kewajiban Imbalan Pasca Kerja",
+      "accountCodes": [
+        "2220-00"
+      ],
+      "currentPeriodIdr": 780000000,
+      "comparativePeriodIdr": 700000000,
+      "varianceAmountIdr": 80000000,
+      "variancePercent": 11.4,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-D-2-FL4J"
+    },
+    {
+      "lineId": "WP-E.1",
+      "sectionId": "SEC-E",
+      "label": "Modal Disetor (Paid-in Capital)",
+      "accountCodes": [
+        "3100-00"
+      ],
+      "currentPeriodIdr": 8000000000,
+      "comparativePeriodIdr": 8000000000,
+      "varianceAmountIdr": 0,
+      "variancePercent": 0,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-E-1-FL4J"
+    },
+    {
+      "lineId": "WP-E.2",
+      "sectionId": "SEC-E",
+      "label": "Saldo Laba Ditahan (Retained Earnings)",
+      "accountCodes": [
+        "3200-00"
+      ],
+      "currentPeriodIdr": 9940000000,
+      "comparativePeriodIdr": 10600000000,
+      "varianceAmountIdr": -660000000,
+      "variancePercent": -6.2,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-E-2-FL4J"
+    },
+    {
+      "lineId": "WP-F.1",
+      "sectionId": "SEC-F",
+      "label": "Pendapatan Usaha (Revenue)",
+      "accountCodes": [
+        "4100-00"
+      ],
+      "currentPeriodIdr": 52400000000,
+      "comparativePeriodIdr": 48000000000,
+      "varianceAmountIdr": 4400000000,
+      "variancePercent": 9.2,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-F-1-FL4J"
+    },
+    {
+      "lineId": "WP-F.2",
+      "sectionId": "SEC-F",
+      "label": "Beban Pokok Penjualan (Cost of Goods Sold)",
+      "accountCodes": [
+        "5100-00"
+      ],
+      "currentPeriodIdr": 35950000000,
+      "comparativePeriodIdr": 29664000000,
+      "varianceAmountIdr": 6286000000,
+      "variancePercent": 21.2,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-F-2-FL4J"
+    },
+    {
+      "lineId": "WP-F.3",
+      "sectionId": "SEC-F",
+      "label": "Beban Operasional & Umum (OPEX)",
+      "accountCodes": [
+        "6100-00"
+      ],
+      "currentPeriodIdr": 12200000000,
+      "comparativePeriodIdr": 11200000000,
+      "varianceAmountIdr": 1000000000,
+      "variancePercent": 8.9,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-F-3-FL4J"
+    },
+    {
+      "lineId": "WP-F.4",
+      "sectionId": "SEC-F",
+      "label": "Pendapatan / (Beban) Lain-lain Bersih",
+      "accountCodes": [],
+      "currentPeriodIdr": 0,
+      "comparativePeriodIdr": -250000000,
+      "varianceAmountIdr": 250000000,
+      "variancePercent": 100,
+      "validationState": "unmapped",
+      "commentCount": 0
+    }
+  ],
+  "evidenceLinks": [
+    {
+      "id": "EVL-WP-A-1-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-A.1",
+      "targetAmountIdr": 4500000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A3:F3",
+      "sourceRowNumber": 3,
+      "sourceRawValue": 2650000000,
+      "normalizedValueIdr": 4500000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 1111-00 Kas di Bank BCA Operasional",
+        "Mapping Target Applied: WP-A.1 (Kas & Setara Kas (Cash & Cash Equivalents))",
+        "Aggregated with 2 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-A-2-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-A.2",
+      "targetAmountIdr": 9850000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A4:F4",
+      "sourceRowNumber": 4,
+      "sourceRawValue": 9850000000,
+      "normalizedValueIdr": 9850000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 1120-00 Piutang Usaha Pihak Ketiga",
+        "Mapping Target Applied: WP-A.2 (Piutang Usaha Bruto (Accounts Receivable))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-A-3-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-A.3",
+      "targetAmountIdr": 200000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A5:F5",
+      "sourceRowNumber": 5,
+      "sourceRawValue": -200000000,
+      "normalizedValueIdr": 200000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 1129-00 Cadangan Kerugian Penurunan Nilai Piutang (CKPN)",
+        "Mapping Target Applied: WP-A.3 (Cadangan Penurunan Nilai Piutang (ECL))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-A-4-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-A.4",
+      "targetAmountIdr": 8450000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A6:F6",
+      "sourceRowNumber": 6,
+      "sourceRawValue": 4350000000,
+      "normalizedValueIdr": 8450000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 1130-00 Persediaan Bahan Baku & Pembantu",
+        "Mapping Target Applied: WP-A.4 (Persediaan Barang (Inventories))",
+        "Aggregated with 2 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-A-5-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-A.5",
+      "targetAmountIdr": 450000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A8:F8",
+      "sourceRowNumber": 8,
+      "sourceRawValue": 450000000,
+      "normalizedValueIdr": 450000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 1140-00 Uang Muka Pembelian & Sewa Dibayar Dimuka",
+        "Mapping Target Applied: WP-A.5 (Uang Muka & Biaya Dibayar Dimuka)",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-B-1-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-B.1",
+      "targetAmountIdr": 15500000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A9:F9",
+      "sourceRowNumber": 9,
+      "sourceRawValue": 11200000000,
+      "normalizedValueIdr": 15500000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 1210-00 Aset Tetap Mesin & Peralatan Pabrik",
+        "Mapping Target Applied: WP-B.1 (Aset Tetap - Biaya Perolehan (Fixed Assets Gross))",
+        "Aggregated with 2 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-B-2-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-B.2",
+      "targetAmountIdr": 4650000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A11:F11",
+      "sourceRowNumber": 11,
+      "sourceRawValue": -4650000000,
+      "normalizedValueIdr": 4650000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 1290-00 Akumulasi Penyusutan Mesin & Kendaraan",
+        "Mapping Target Applied: WP-B.2 (Akumulasi Penyusutan Aset Tetap)",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-B-3-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-B.3",
+      "targetAmountIdr": 650000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A12:F12",
+      "sourceRowNumber": 12,
+      "sourceRawValue": 650000000,
+      "normalizedValueIdr": 650000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 1300-00 Aset Hak Guna & Jaminan Utilitas",
+        "Mapping Target Applied: WP-B.3 (Aset Lain-lain & Hak Guna)",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-C-1-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-C.1",
+      "targetAmountIdr": 5160000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A13:F13",
+      "sourceRowNumber": 13,
+      "sourceRawValue": -4850000000,
+      "normalizedValueIdr": 5160000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 2110-00 Utang Usaha Supplier Logam & Komponen",
+        "Mapping Target Applied: WP-C.1 (Utang Usaha (Trade Accounts Payable))",
+        "Aggregated with 2 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-C-2-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-C.2",
+      "targetAmountIdr": 380000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A14:F14",
+      "sourceRowNumber": 14,
+      "sourceRawValue": -380000000,
+      "normalizedValueIdr": 380000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 2120-00 Utang PPN & PPh 21/23",
+        "Mapping Target Applied: WP-C.2 (Utang Pajak (Tax Payable))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-C-3-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-C.3",
+      "targetAmountIdr": 540000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A15:F15",
+      "sourceRowNumber": 15,
+      "sourceRawValue": -540000000,
+      "normalizedValueIdr": 540000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 2130-00 Beban Akrual Gaji & Bonus Karyawan",
+        "Mapping Target Applied: WP-C.3 (Beban Akrual & Utang Jangka Pendek Lainnya)",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-D-1-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-D.1",
+      "targetAmountIdr": 5500000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A17:F17",
+      "sourceRowNumber": 17,
+      "sourceRawValue": -5500000000,
+      "normalizedValueIdr": 5500000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 2210-00 Utang Bank Mandiri Jangka Panjang",
+        "Mapping Target Applied: WP-D.1 (Utang Bank Jangka Panjang (Long-Term Loans))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-D-2-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-D.2",
+      "targetAmountIdr": 780000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A18:F18",
+      "sourceRowNumber": 18,
+      "sourceRawValue": -780000000,
+      "normalizedValueIdr": 780000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 2220-00 Kewajiban Imbalan Pasca Kerja (PSAK 24)",
+        "Mapping Target Applied: WP-D.2 (Kewajiban Imbalan Pasca Kerja)",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-E-1-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-E.1",
+      "targetAmountIdr": 8000000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A19:F19",
+      "sourceRowNumber": 19,
+      "sourceRawValue": -8000000000,
+      "normalizedValueIdr": 8000000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 3100-00 Modal Saham Ditempatkan dan Disetor Penuh",
+        "Mapping Target Applied: WP-E.1 (Modal Disetor (Paid-in Capital))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-E-2-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-E.2",
+      "targetAmountIdr": 9940000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A20:F20",
+      "sourceRowNumber": 20,
+      "sourceRawValue": -9940000000,
+      "normalizedValueIdr": 9940000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 3200-00 Saldo Laba Ditahan s.d. Tahun Lalu",
+        "Mapping Target Applied: WP-E.2 (Saldo Laba Ditahan (Retained Earnings))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-F-1-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-F.1",
+      "targetAmountIdr": 52400000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A21:F21",
+      "sourceRowNumber": 21,
+      "sourceRawValue": -52400000000,
+      "normalizedValueIdr": 52400000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 4100-00 Pendapatan Usaha Penjualan Komponen",
+        "Mapping Target Applied: WP-F.1 (Pendapatan Usaha (Revenue))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-F-2-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-F.2",
+      "targetAmountIdr": 35950000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A22:F22",
+      "sourceRowNumber": 22,
+      "sourceRawValue": 35950000000,
+      "normalizedValueIdr": 35950000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 5100-00 Beban Pokok Penjualan (HPP)",
+        "Mapping Target Applied: WP-F.2 (Beban Pokok Penjualan (Cost of Goods Sold))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-F-3-FL4J",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTJUFL4J",
+      "targetLineId": "WP-F.3",
+      "targetAmountIdr": 12200000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A23:F23",
+      "sourceRowNumber": 23,
+      "sourceRawValue": 12200000000,
+      "normalizedValueIdr": 12200000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 6100-00 Beban Operasional, Gaji & Umum",
+        "Mapping Target Applied: WP-F.3 (Beban Operasional & Umum (OPEX))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    }
+  ],
+  "validationChecks": [
+    {
+      "id": "CHK-01",
+      "ruleId": "RULE-TIE-OUT-TB-DEBIT-CREDIT",
+      "ruleVersion": "v1.0",
+      "title": "Neraca Saldo Seimbang (TB Debit = Credit)",
+      "severity": "blocking",
+      "status": "pass",
+      "inputs": {
+        "totalDebitIdr": 87550000000,
+        "totalCreditIdr": 87550000000
+      },
+      "expected": "Total Debit sama dengan Total Kredit (Selisih = 0)",
+      "actual": "Debit: Rp 87.550.000.000, Kredit: Rp 87.550.000.000",
+      "difference": 0,
+      "affectedArea": "Trial Balance Ingestion",
+      "explanation": "Neraca saldo seimbang sempurna."
+    },
+    {
+      "id": "CHK-02",
+      "ruleId": "RULE-BALANCE-SHEET-EQUATION",
+      "ruleVersion": "v1.0",
+      "title": "Persamaan Neraca (Aset = Liabilitas + Ekuitas)",
+      "severity": "blocking",
+      "status": "pass",
+      "inputs": {
+        "totalAssetsIdr": 34550000000,
+        "totalLiabilitiesIdr": 12360000000,
+        "totalEquityIdr": 22190000000
+      },
+      "expected": "Total Aset sama dengan Liabilitas ditambah Ekuitas",
+      "actual": "Aset: Rp 34.550.000.000, Liab+Ekuitas: Rp 34.550.000.000",
+      "difference": 0,
+      "affectedArea": "Neraca (Balance Sheet)",
+      "explanation": "Persamaan neraca terpenuhi (Assets = Liabilities + Equity)."
+    },
+    {
+      "id": "CHK-03",
+      "ruleId": "RULE-UNMAPPED-CHECK",
+      "ruleVersion": "v1.0",
+      "title": "Kelengkapan Pemetaan Akun (Zero Unmapped)",
+      "severity": "blocking",
+      "status": "pass",
+      "inputs": {
+        "unmappedCount": 0
+      },
+      "expected": "Seluruh akun telah dipetakan atau dieksklusi secara sah",
+      "actual": "0 akun belum dipetakan",
+      "difference": 0,
+      "affectedArea": "Pemetaan Akun (Account Mapping)",
+      "explanation": "Seluruh akun memiliki pemetaan yang sah."
+    }
+  ],
+  "comments": [
+    {
+      "id": "COM-01",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "targetLineId": "WP-A.2",
+      "authorId": "USR-MANAGER-01",
+      "authorName": "Siti Rahmawati, CPA",
+      "authorRole": "manager",
+      "body": "Kenaikan saldo piutang sebesar 43.8% YoY melampaui ambang materialitas Rp 250 Jt. Mohon pastikan konfirmasi 10 debitur terbesar telah dikirimkan.",
+      "createdAt": "2026-01-18T11:00:00Z"
+    }
+  ],
+  "exportArtifacts": [
+    {
+      "id": "EXP-2025-01-V1",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-001",
+      "format": "xlsx",
+      "filename": "Kertas_Kerja_Induk_NSM_FY2025_Final.xlsx",
+      "checksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "status": "complete",
+      "createdByUserId": "USR-PARTNER-01",
+      "readbackVerified": true,
+      "fileSizeBytes": 24810,
+      "createdAt": "2026-09-02T08:37:50.907Z"
+    }
+  ],
+  "auditEvents": [
+    {
+      "id": "EVT-001",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "actorId": "USR-PARTNER-01",
+      "actorName": "Bambang Hendrawan, CPA",
+      "actorRole": "partner",
+      "action": "engagement_created",
+      "resourceType": "Engagement",
+      "resourceId": "ENG-2025-01",
+      "timestamp": "2026-01-15T08:00:00Z",
+      "requestId": "req-init-001"
+    },
+    {
+      "id": "EVT-002",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "actorId": "USR-SENIOR-01",
+      "actorName": "Ahmad Pratama, S.Ak",
+      "actorRole": "senior",
+      "action": "file_uploaded",
+      "resourceType": "FileVersion",
+      "resourceId": "FV-001",
+      "timestamp": "2026-01-18T09:30:00Z",
+      "requestId": "req-up-002",
+      "metadata": {
+        "filename": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+        "size": 684200
+      }
+    },
+    {
+      "id": "EVT-003",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "actorId": "USR-SENIOR-01",
+      "actorName": "Ahmad Pratama, S.Ak",
+      "actorRole": "senior",
+      "action": "dataset_published",
+      "resourceType": "DatasetVersion",
+      "resourceId": "DSV-001",
+      "timestamp": "2026-01-18T09:40:00Z",
+      "requestId": "req-dsv-003",
+      "metadata": {
+        "rowCount": 22,
+        "totalDebitIdr": 52400000000
+      }
+    },
+    {
+      "id": "EVT-004",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "actorId": "USR-MANAGER-01",
+      "actorName": "Siti Rahmawati, CPA",
+      "actorRole": "manager",
+      "action": "workpaper_calculated",
+      "resourceType": "WorkpaperVersion",
+      "resourceId": "WPV-MTJUFL4J",
+      "timestamp": "2026-01-18T10:15:00Z",
+      "requestId": "req-wp-004"
+    }
+  ],
+  "reusableMappings": [
+    {
+      "id": "RM-01",
+      "tenantId": "TENANT-001",
+      "sourceAccountPattern": "1110-*",
+      "targetSection": "WP-A.1",
+      "confidence": 0.98,
+      "approvedByUserId": "USR-MANAGER-01",
+      "approvedAt": "2025-12-01T00:00:00Z",
+      "timesReused": 14,
+      "status": "active"
+    },
+    {
+      "id": "RM-02",
+      "tenantId": "TENANT-001",
+      "sourceAccountPattern": "1120-*",
+      "targetSection": "WP-A.2",
+      "confidence": 0.95,
+      "approvedByUserId": "USR-MANAGER-01",
+      "approvedAt": "2025-12-01T00:00:00Z",
+      "timesReused": 12,
+      "status": "active"
+    },
+    {
+      "id": "RM-03",
+      "tenantId": "TENANT-001",
+      "sourceAccountPattern": "2110-*",
+      "targetSection": "WP-C.1",
+      "confidence": 0.96,
+      "approvedByUserId": "USR-MANAGER-01",
+      "approvedAt": "2025-12-01T00:00:00Z",
+      "timesReused": 18,
+      "status": "active"
+    },
+    {
+      "id": "RM-04",
+      "tenantId": "TENANT-001",
+      "sourceAccountPattern": "4100-*",
+      "targetSection": "WP-F.1",
+      "confidence": 0.99,
+      "approvedByUserId": "USR-PARTNER-01",
+      "approvedAt": "2025-11-15T00:00:00Z",
+      "timesReused": 24,
+      "status": "active"
+    }
+  ]
+}
