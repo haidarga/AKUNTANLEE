@@ -208,12 +208,12 @@ function createInitialState(): FinovaV4State {
 
   const file1: FileVersion = {
     id: 'FV-001',
-    assetId: 'FA-TB-2025-NSM',
+    assetId: 'FA-TB-2026-NSM',
     tenantId: 'TENANT-001',
     engagementId: 'ENG-2026-01',
     versionNumber: 1,
     originalName: 'TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx',
-    storageKey: 'engagements/ENG-2025-01/sources/9f83a48e_TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx',
+    storageKey: 'engagements/ENG-2026-01/sources/9f83a48e_TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx',
     checksumSha256: '9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92',
     mediaType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     sizeBytes: 684200,

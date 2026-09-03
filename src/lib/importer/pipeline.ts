@@ -227,7 +227,7 @@ export function executeImportAndNormalize(
       debitIdr: debit,
       creditIdr: credit,
       closingBalanceIdr: closing,
-      periodEnd: '2025-12-31',
+      periodEnd: '2026-12-31',
       currency: 'IDR',
       sourceLocator: {
         fileVersionId: importJob.fileVersionId,
