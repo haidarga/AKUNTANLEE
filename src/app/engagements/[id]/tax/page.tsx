@@ -66,12 +66,12 @@ export default function TaxCompliancePage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#0F8F7A]/15 text-[#0F8F7A] border border-[#0F8F7A]/30">
-              MODUL PAJAK TERINTEGRASI
+              MODUL KEPATUHAN & REKONSILIASI PERPAJAKAN
             </span>
             <span className="text-[10px] text-[#52636A]">Regulasi: PP 58/2023, PMK 168/2023 & UU HPP</span>
           </div>
           <h2 className="text-base font-bold text-[#102A32]">
-            Pusat Rekonsiliasi & Kepatuhan Pajak (Tax Intelligence Hub)
+            Pusat Kepatuhan Pajak & Rekonsiliasi Fiskal
           </h2>
           <p className="text-xs text-[#52636A] mt-0.5">
             Otomasi perhitungan PPh 21 tarif efektif (TER), ekualisasi omset SPT Masa PPN 1111, dan koreksi fiskal SPT 1771.
@@ -84,7 +84,7 @@ export default function TaxCompliancePage() {
             className="finova-pill-cta bg-[#102A32] hover:bg-[#1E3A44] text-white text-xs shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <UploadCloud className="w-3.5 h-3.5 text-[#B2DFD6]" />
-            <span>Smart Payroll Importer (Excel Klien)</span>
+            <span>Impor Rekap Gaji (Format Bebas Excel Klien)</span>
           </button>
 
           <a
@@ -93,7 +93,7 @@ export default function TaxCompliancePage() {
             className="finova-pill-cta bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Unduh CSV e-Bupot 21 (DJP)</span>
+            <span>Unduh CSV e-Bupot 21 (Format DJP)</span>
           </a>
 
           <a
@@ -102,7 +102,7 @@ export default function TaxCompliancePage() {
             className="finova-pill-cta bg-[#F6F7F5] border border-[#DDE4E2] hover:bg-white text-[#102A32] text-xs shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-[#0F8F7A]" />
-            <span>Unduh CSV e-Faktur (DJP)</span>
+            <span>Unduh CSV e-Faktur (Format DJP)</span>
           </a>
         </div>
       </div>
@@ -117,11 +117,11 @@ export default function TaxCompliancePage() {
                   FUZZY HEADER AUTO-DETECTION
                 </span>
                 <h3 className="font-bold text-xs text-[#102A32]">
-                  Smart Payroll Importer: Baca File Excel Format Bebas Milik Klien
+                  Smart Payroll Importer: Deteksi Otomatis Kolom Excel Rekap Gaji Klien
                 </h3>
               </div>
               <p className="text-[11px] text-[#52636A] mt-0.5">
-                AI mengenali variasi nama kolom (Nama/Employee, Gapok/Salary, Status PTKP/Marital) secara otomatis tanpa perlu diubah manual.
+                Sistem secara cerdas mengenali nama kolom yang bervariasi (misal: "Karyawan" vs "Nama Pegawai", "Gapok" vs "Upah Bruto") tanpa perlu mengubah template Excel milik klien secara manual.
               </p>
             </div>
 
@@ -209,7 +209,7 @@ export default function TaxCompliancePage() {
           }`}
         >
           <Calculator className="w-4 h-4" />
-          <span>1. PPh 21 Pegawai (TER PP 58/2023)</span>
+          <span>1. PPh 21 Karyawan (Tarif Efektif Rata-Rata / TER PP 58/2023)</span>
         </button>
 
         <button
@@ -221,7 +221,7 @@ export default function TaxCompliancePage() {
           }`}
         >
           <Receipt className="w-4 h-4" />
-          <span>2. Ekualisasi Omset SPT Masa PPN 1111</span>
+          <span>2. Ekualisasi Omset Penjualan vs SPT Masa PPN 1111</span>
         </button>
 
         <button
@@ -233,7 +233,7 @@ export default function TaxCompliancePage() {
           }`}
         >
           <Building className="w-4 h-4" />
-          <span>3. Rekonsiliasi Fiskal PPh Badan (SPT 1771)</span>
+          <span>3. Rekonsiliasi &amp; Koreksi Fiskal PPh Badan (SPT Tahunan 1771)</span>
         </button>
       </div>
 

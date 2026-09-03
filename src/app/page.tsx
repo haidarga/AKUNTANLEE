@@ -87,34 +87,42 @@ export default function LandingPage() {
 
           {/* Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#102A32] leading-[1.15]">
-            Sistem Operasi Kertas Kerja Audit Finansial
+            Platform Kertas Kerja Audit & Konsultasi Finansial
             <br />
             <span className="bg-gradient-to-r from-[#0F8F7A] via-[#0C7564] to-[#102A32] bg-clip-text text-transparent">
-              Bertenaga AI & Zero-Float Math
+              Cepat, Presisi, dan Berstandar SAK Indonesia
             </span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-sm sm:text-lg text-[#52636A] max-w-2xl mx-auto leading-relaxed">
-            Otomasi alur atestasi KAP dari ekstraksi berkas Trial Balance mentah, pemetaan akun SAK dengan penalaran AI, jembatan laba bersih visual, hingga ekspor workbook XLSX berlisensi resmi berpenanda tangan digital.
+            Otomasi lengkap proses audit dan perpajakan untuk Kantor Akuntan Publik (KAP) serta penasihat keuangan: dari verifikasi neraca saldo Excel, otomasi pajak PPh 21 TER dan PPN 1111, hingga simulasi keputusan bisnis strategis bagi direksi perusahaan.
           </p>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
             <Link
-              href="/onboarding"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#0F8F7A] hover:bg-[#0C7564] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer"
+              href="/login"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#805AD5] hover:bg-[#6B46C1] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer"
             >
-              <span>Mulai Onboarding Kantor KAP</span>
+              <span className="text-base">🔑</span>
+              <span>Masuk via Access Key (A/B Test)</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
             <Link
               href="/engagements"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white hover:bg-[#F6F7F5] border border-[#DDE4E2] hover:border-[#0F8F7A] text-[#102A32] font-bold text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#0F8F7A] hover:bg-[#0C7564] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Compass className="w-4 h-4 text-[#0F8F7A]" />
-              <span>Buka Direktori Perikatan</span>
+              <Compass className="w-4 h-4 text-white" />
+              <span>Buka Direktori Klien</span>
+            </Link>
+
+            <Link
+              href="/onboarding"
+              className="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-white hover:bg-[#F6F7F5] border border-[#DDE4E2] hover:border-[#0F8F7A] text-[#102A32] font-semibold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Setup Profil KAP Baru</span>
             </Link>
           </div>
 

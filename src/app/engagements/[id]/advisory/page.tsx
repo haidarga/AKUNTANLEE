@@ -87,15 +87,15 @@ export default function AdvisoryAnalyticsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#B7791F]/15 text-[#B7791F] border border-[#B7791F]/30">
-              DNA KONSULTAN STRATEGIS (ANALYTICAL ENGINE)
+              ANALISIS STRATEGIS & KONSULTASI BISNIS
             </span>
-            <span className="text-[10px] text-[#52636A]">Ditenagai AI Reasoning & Barometer Industri</span>
+            <span className="text-[10px] text-[#52636A]">Analisis Data Finansial & Standar Industri Manufaktur</span>
           </div>
           <h2 className="text-base font-bold text-[#102A32]">
             Analisis Kinerja Keuangan & Diagnosa Konsultan (Advisory Hub)
           </h2>
           <p className="text-xs text-[#52636A] mt-0.5">
-            Menjawab: <em>&quot;Biaya Membengkak? So What&apos;s Next?&quot;</em>, Barometer Rasio Finansial, dan Dekomposisi HPP Manufaktur.
+            Menjawab pertanyaan kunci direksi: <em>&quot;Jika biaya operasional membengkak, langkah nyata apa yang harus diambil manajemen?&quot;</em>, didukung evaluasi rasio keuangan dan simulasi biaya pabrikasi.
           </p>
         </div>
 
@@ -121,7 +121,7 @@ export default function AdvisoryAnalyticsPage() {
           }`}
         >
           <AlertOctagon className="w-4 h-4" />
-          <span>1. Diagnosa Biaya Membengkak &amp; What&apos;s Next</span>
+          <span>1. Diagnosa Biaya Membengkak &amp; Solusi Nyata (&quot;What&apos;s Next&quot;)</span>
         </button>
 
         <button
@@ -145,7 +145,7 @@ export default function AdvisoryAnalyticsPage() {
           }`}
         >
           <Factory className="w-4 h-4" />
-          <span>3. Dekomposisi HPP Manufaktur (COGM)</span>
+          <span>3. Analisis Biaya Pokok Produksi Pabrik (HPP / COGM)</span>
         </button>
 
         <button
@@ -157,7 +157,7 @@ export default function AdvisoryAnalyticsPage() {
           }`}
         >
           <Sliders className="w-4 h-4" />
-          <span>4. Simulasi Sensitivitas &quot;What-If&quot;</span>
+          <span>4. Simulasi Sensitivitas Skenario Bisnis (&quot;What-If&quot;)</span>
         </button>
 
         <button
@@ -434,15 +434,15 @@ export default function AdvisoryAnalyticsPage() {
           <div className="bg-white p-5 rounded-2xl border border-[#DDE4E2] shadow-2xs">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">
-                SCENARIO SENSITIVITY ENGINE
+                SIMULATOR SKENARIO KEPUTUSAN DIREKSI
               </span>
               <span className="text-[10px] text-[#52636A]">Dihitung secara presisi dari model HPP Manufaktur</span>
             </div>
             <h3 className="text-base font-bold text-[#102A32]">
-              Simulator Sensitivitas Keputusan Konsultan (&quot;What-If Scenario&quot;)
+              Simulator Sensitivitas Dampak Biaya (&quot;What-If Scenario&quot;)
             </h3>
             <p className="text-xs text-[#52636A]">
-              Menjawab pertanyaan Direksi: <em>&quot;Jika UMR naik 8% dan bahan baku fluktuatif, HPP kita bengkak berapa dan harga jual harus naik berapa persen?&quot;</em>
+              Menjawab pertanyaan strategis manajemen: <em>&quot;Jika UMR naik 8% dan harga bahan baku naik 10%, berapa persen harga jual yang harus dinaikkan agar laba bersih perusahaan tidak merosot?&quot;</em>
             </p>
 
             {/* 3 Interactive Sliders */}
@@ -450,7 +450,7 @@ export default function AdvisoryAnalyticsPage() {
               {/* Slider 1: UMR Hike */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-[#102A32]">1. Kenaikan UMR / Upah Pabrik</span>
+                  <span className="font-bold text-[#102A32]">1. Perkiraan Kenaikan UMR / Upah Tenaga Kerja</span>
                   <span className="font-mono font-extrabold text-[#0F8F7A] text-sm">+{umrHike}%</span>
                 </div>
                 <input
@@ -467,7 +467,7 @@ export default function AdvisoryAnalyticsPage() {
               {/* Slider 2: Raw Material Shock */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-[#102A32]">2. Fluktuasi Bahan Baku / Kurs</span>
+                  <span className="font-bold text-[#102A32]">2. Perkiraan Kenaikan Harga Bahan Baku</span>
                   <span className="font-mono font-extrabold text-[#B7791F] text-sm">+{rawMatShock}%</span>
                 </div>
                 <input
@@ -484,7 +484,7 @@ export default function AdvisoryAnalyticsPage() {
               {/* Slider 3: Logistics Savings */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-[#102A32]">3. Target Efisiensi Logistik (3PL)</span>
+                  <span className="font-bold text-[#102A32]">3. Target Penghematan Biaya Pengiriman (Logistik)</span>
                   <span className="font-mono font-extrabold text-blue-700 text-sm">-{logisticsEff}%</span>
                 </div>
                 <input
@@ -529,7 +529,7 @@ export default function AdvisoryAnalyticsPage() {
                       +{simResults.consultantRecommendations.recommendedPriceMarkupPercent}% Markup
                     </strong>
                     <span className="text-[11px] text-[#52636A] block">
-                      Untuk mengunci laba bersih Rp 4.25 M
+                      Agar laba bersih perusahaan tetap terlindungi di Rp 4,25 Miliar
                     </span>
                   </div>
                 </div>
