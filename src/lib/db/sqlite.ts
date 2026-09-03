@@ -8,11 +8,26 @@ import type {
 } from '../../types/domain-v4';
 import type { FinovaV4State } from './repo-v4';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const IS_VERCEL = Boolean(process.env.VERCEL);
+const ROOT_DATA_DIR = path.join(process.cwd(), 'data');
+const DATA_DIR = IS_VERCEL ? path.join('/tmp', 'finova_data') : ROOT_DATA_DIR;
 const DB_PATH = path.join(DATA_DIR, 'finova.db');
 
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// If running in serverless Vercel, copy seeded database from repository to /tmp
+if (IS_VERCEL && !fs.existsSync(DB_PATH)) {
+  const seedDb = path.join(ROOT_DATA_DIR, 'finova.db');
+  if (fs.existsSync(seedDb)) {
+    try {
+      fs.copyFileSync(seedDb, DB_PATH);
+      console.log('Copied seed database to /tmp for Vercel runtime.');
+    } catch (e) {
+      console.error('Failed copying seed db to /tmp:', e);
+    }
+  }
 }
 
 let dbInstance: Database.Database | null = null;
@@ -90,7 +105,7 @@ function initSchema(db: Database.Database) {
   // Seed initial app_state from finova_store.json if empty
   const stateRow = db.prepare('SELECT key FROM app_state WHERE key = ?').get('finova_v4_state');
   if (!stateRow) {
-    const storePath = path.join(DATA_DIR, 'finova_store.json');
+    const storePath = fs.existsSync(path.join(DATA_DIR, 'finova_store.json')) ? path.join(DATA_DIR, 'finova_store.json') : path.join(ROOT_DATA_DIR, 'finova_store.json');
     if (fs.existsSync(storePath)) {
       try {
         const raw = fs.readFileSync(storePath, 'utf8');
@@ -207,7 +222,7 @@ export function saveStateToDb(state: FinovaV4State): void {
       `).run(jsonStr, now);
 
       // Also mirror to finova_store.json for backwards compatibility
-      const storePath = path.join(DATA_DIR, 'finova_store.json');
+      const storePath = fs.existsSync(path.join(DATA_DIR, 'finova_store.json')) ? path.join(DATA_DIR, 'finova_store.json') : path.join(ROOT_DATA_DIR, 'finova_store.json');
       fs.writeFileSync(storePath, jsonStr, 'utf8');
     });
 
