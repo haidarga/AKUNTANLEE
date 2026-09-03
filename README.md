@@ -47,14 +47,14 @@ npm run typecheck
 # 4. Build production bundle
 npm run build
 
-# 5. Start production server on port 3005 (or custom port)
-PORT=3005 npm start
+# 5. Start production server on port 3008 (or custom port)
+PORT=3008 npm start
 ```
 
 ### Accessing the System
-- **Main Application**: [http://localhost:3005](http://localhost:3005)
-- **Active Engagement (PT Nusantara Sukses Makmur FY 2025)**: [http://localhost:3005/engagements/ENG-2025-01](http://localhost:3005/engagements/ENG-2025-01)
-- **Client Guest PBC Portal**: [http://localhost:3005/portal/pbc/token-nsm-tb2025-secure](http://localhost:3005/portal/pbc/token-nsm-tb2025-secure)
+- **Main Application**: [http://localhost:3008](http://localhost:3008)
+- **Active Engagement (PT Nusantara Sukses Makmur FY 2025)**: [http://localhost:3008/engagements/ENG-2025-01](http://localhost:3008/engagements/ENG-2025-01)
+- **Client Guest PBC Portal**: [http://localhost:3008/portal/pbc/token-nsm-tb2025-secure](http://localhost:3008/portal/pbc/token-nsm-tb2025-secure)
 
 ---
 
