@@ -1,4 +1,5 @@
 'use client';
+import { createPortal } from 'react-dom';
 
 import React, { useState } from 'react';
 import {
@@ -82,7 +83,8 @@ export function ReviewerNotesDrawer({
     }
   };
 
-  return (
+  if (typeof window === 'undefined') return null;
+  return createPortal(
     <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l border-[#DDE4E2] shadow-2xl flex flex-col animate-finova-in text-xs">
       {/* Header */}
       <div className="p-5 bg-[#F6F7F5] border-b border-[#DDE4E2] flex items-center justify-between">
@@ -168,6 +170,7 @@ export function ReviewerNotesDrawer({
           <span>Kirim</span>
         </button>
       </form>
-    </div>
+    </div>,
+    document.body
   );
 }

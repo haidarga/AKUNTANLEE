@@ -1,4 +1,5 @@
 'use client';
+import { createPortal } from 'react-dom';
 
 import React, { useState } from 'react';
 import {
@@ -78,7 +79,8 @@ export function AuditAdjustmentsModal({
     }
   };
 
-  return (
+  if (typeof window === 'undefined') return null;
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-finova-in">
       <div className="bg-white rounded-3xl border border-[#DDE4E2] shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
@@ -307,6 +309,7 @@ export function AuditAdjustmentsModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
