@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FINOVA AI v4.0 — Master Presentation & Blueprint End-to-End (FY 2026)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    :root {
+      --primary: #0F8F7A;
+      --primary-dark: #0A6657;
+      --primary-light: #E8F5F1;
+      --navy: #102A32;
+      --navy-light: #1E3A44;
+      --purple: #7C3AED;
+      --purple-light: #F3E8FF;
+      --amber: #D97706;
+      --amber-light: #FEF3C7;
+      --rose: #E11D48;
+      --rose-light: #FFE4E6;
+      --blue: #2563EB;
+      --blue-light: #DBEAFE;
+      --bg: #F8FAFB;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text: #1E293B;
+      --muted: #64748B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0F172A;
+      color: var(--text);
+      overflow-x: hidden;
+      margin: 0;
+    }
+
+    /* Screen Slide Deck Controls */
+    .deck-nav {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 9999;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .nav-btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .nav-btn.primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .slide-counter {
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0 8px;
+    }
+
+    /* Slide Container */
+    .slide-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      padding: 40px 20px 120px;
+    }
+
+    .slide {
+      width: 100%;
+      max-width: 1280px;
+      aspect-ratio: 16 / 9;
+      min-height: 720px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 48px 56px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #CBD5E1;
+    }
+
+    /* Slide Elements */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+
+    .slide-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .badge-primary { background: var(--primary-light); color: var(--primary); border: 1px solid #B2DFD6; }
+    .badge-purple { background: var(--purple-light); color: var(--purple); border: 1px solid #DDD6FE; }
+    .badge-amber { background: var(--amber-light); color: var(--amber); border: 1px solid #FDE68A; }
+    .badge-blue { background: var(--blue-light); color: var(--blue); border: 1px solid #BFDBFE; }
+    .badge-rose { background: var(--rose-light); color: var(--rose); border: 1px solid #FECDD3; }
+
+    .slide-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    .slide-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      gap: 32px;
+      align-items: stretch;
+      overflow: hidden;
+    }
+
+    .col-left {
+      flex: 1.1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .col-right {
+      flex: 0.9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #F1F5F9;
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid #E2E8F0;
+      overflow: hidden;
+    }
+
+    .screenshot-frame {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      background: white;
+    }
+
+    .slide-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* Content Cards & Grids */
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .metric-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .metric-val {
+      font-size: 24px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--navy);
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    ul.bullet-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    ul.bullet-list li {
+      position: relative;
+      padding-left: 24px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #334155;
+    }
+
+    ul.bullet-list li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      color: var(--primary);
+      font-size: 18px;
+      line-height: 1;
+      top: 1px;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    table.data-table th, table.data-table td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    table.data-table th {
+      background: #F1F5F9;
+      color: var(--navy);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    /* Print Stylesheet for Perfect 1-Click PDF Export */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+
+      .deck-nav {
+        display: none !important;
+      }
+
+      .slide-wrapper {
+        padding: 0 !important;
+        gap: 0 !important;
+      }
+
+      .slide {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        min-height: none !important;
+        aspect-ratio: auto !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        padding: 36px 44px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Navigation Deck for Interactive Screen Presentation -->
+  <div class="deck-nav">
+    <button class="nav-btn" onclick="prevSlide()">
+      <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+      <span>Prev</span>
+    </button>
+    <div class="slide-counter">
+      <span id="curSlide">1</span> / <span id="totSlide">15</span>
+    </div>
+    <button class="nav-btn" onclick="nextSlide()">
+      <span>Next</span>
+      <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+    </button>
+    <button class="nav-btn primary" onclick="window.print()">
+      <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
+      <span>Cetak / Simpan PDF</span>
+    </button>
+  </div>
+
+  <div class="slide-wrapper">
+
+    <!-- ==================== SLIDE 1: COVER ==================== -->
+    <div class="slide" id="slide-1" style="background: linear-gradient(135deg, #102A32 0%, #0A191E 100%); color: white; border-color: #1E3A44;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 44px; height: 44px; background: #0F8F7A; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px;">FN</div>
+          <div>
+            <h2 style="font-size: 18px; font-weight: 800; letter-spacing: -0.02em;">FINOVA AI v4.0</h2>
+            <p style="font-size: 11px; color: #94A3B8;">KAP Haidar & Rekan &bull; Release 0.1 Production</p>
+          </div>
+        </div>
+        <div class="badge badge-primary" style="background: rgba(15, 143, 122, 0.2); color: #34D399; border-color: #0F8F7A;">
+          Tahun Fiskal 2026 (FY 2026 Active)
+        </div>
+      </div>
+
+      <div style="margin: 40px 0;">
+        <div class="badge badge-amber" style="margin-bottom: 16px; background: rgba(217, 119, 6, 0.2); color: #FBBF24; border-color: #D97706;">
+          PANDUAN KOMPREHENSIF ARSITEKTUR &amp; ALUR KERJA END-TO-END
+        </div>
+        <h1 style="font-size: 42px; font-weight: 900; line-height: 1.15; letter-spacing: -0.03em; max-width: 950px;">
+          Platform Kertas Kerja Audit Finansial &amp; Konsultasi Bisnis Terpadu
+        </h1>
+        <p style="font-size: 18px; color: #94A3B8; margin-top: 16px; max-width: 820px; line-height: 1.6;">
+          Otomasi atestasi Kantor Akuntan Publik (KAP), kepatuhan pajak resmi DJP (PPh 21 TER &amp; PPN 1111), dan simulator keputusan strategis Direksi ("What-If Sensitivity").
+        </p>
+      </div>
+
+      <div class="grid-3" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px;">
+        <div>
+          <span style="font-size: 10px; text-transform: uppercase; color: #64748B; font-weight: 700; display: block;">LEAD AUDIT PARTNER</span>
+          <strong style="font-size: 15px; color: white;">Haidar, CPA, CA</strong>
+          <span style="font-size: 11px; color: #94A3B8; display: block;">Izin AP: AP.0942 &bull; Managing Partner</span>
+        </div>
+        <div>
+          <span style="font-size: 10px; text-transform: uppercase; color: #64748B; font-weight: 700; display: block;">SENIOR ADVISORY PARTNER</span>
+          <strong style="font-size: 15px; color: #A78BFA;">Ibu Rina Asmara, Ak.</strong>
+          <span style="font-size: 11px; color: #94A3B8; display: block;">Former Corporate CFO &bull; Strategic Advisory</span>
+        </div>
+        <div>
+          <span style="font-size: 10px; text-transform: uppercase; color: #64748B; font-weight: 700; display: block;">TAX COMPLIANCE PARTNER</span>
+          <strong style="font-size: 15px; color: #34D399;">Bunda</strong>
+          <span style="font-size: 11px; color: #94A3B8; display: block;">BKP.9921 &bull; Kepatuhan Pajak &amp; Audit Lapangan</span>
+        </div>
+      </div>
+
+      <div class="slide-footer" style="border-color: rgba(255,255,255,0.1); color: #64748B;">
+        <span>Standar Akuntansi Keuangan (SAK) Indonesia &bull; DJP Online Integrated</span>
+        <span>Dokumen Resmi Presentasi Tim Finansial &bull; 2026</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 2: PROBLEM STATEMENT ==================== -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-rose">1. LATAR BELAKANG &amp; REALITA LAPANGAN</span>
+          </div>
+          <h2 class="slide-title">Masalah Nyata Industri Audit &amp; Perpajakan di Indonesia</h2>
+          <p class="slide-subtitle">Mengapa akuntan dan konsultan sering lembur berhari-hari tapi tetap rawan denda pajak?</p>
+        </div>
+        <span class="badge badge-primary">PROBLEM IDENTIFICATION</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <div class="card" style="border-left: 4px solid var(--rose);">
+            <div class="card-title" style="color: var(--rose);"><i data-lucide="clock" style="width: 16px; height: 16px;"></i> 1. "Kuli Data Entry" &amp; Format Excel Klien yang Berantakan</div>
+            <p class="card-desc">Tiap klien mengirimkan rekap gaji dan Neraca Saldo (Trial Balance) dengan format berbeda: ada yang meletakkan kode akun di kolom B, ada yang tunjangan di kolom F. Junior auditor habis waktu 3-4 hari cuma untuk merapikan dan *copy-paste* data secara manual.</p>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--amber);">
+            <div class="card-title" style="color: var(--amber);"><i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i> 2. Momok Surat SP2DK &amp; Kerumitan PPh 21 TER 2024–2026</div>
+            <p class="card-desc">Aturan tarif efektif rata-rata (TER PP 58/2023) membagi tarif ke Kategori A, B, C dengan rekonsiliasi Pasal 17 di masa Desember. Salah sedikit, kantor pajak mengirim SP2DK karena selisih omset PPN vs PPh Badan.</p>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--blue);">
+            <div class="card-title" style="color: var(--blue);"><i data-lucide="help-circle" style="width: 16px; height: 16px;"></i> 3. Akuntan Cuma Jadi "Tukang Hitung Masa Lalu"</div>
+            <p class="card-desc">Saat biaya logistik naik 44.5% dan Direksi bertanya: <em>"Berapa harga jual produk yang harus dinaikkan jika UMR naik 8%?"</em>, akuntan biasanya gagap karena tidak memiliki kalkulator simulasi sensitivitas bisnis.</p>
+          </div>
+        </div>
+
+        <div class="col-right" style="justify-content: space-around; background: #FFF1F2; border-color: #FECDD3;">
+          <div style="text-align: center;">
+            <div style="font-size: 48px; font-weight: 900; color: var(--rose); font-family: 'JetBrains Mono', monospace;">80%</div>
+            <div style="font-size: 13px; font-weight: 700; color: #9F1239; margin-top: 4px;">WAKTU TERBUANG UNTUK DATA ENTRY</div>
+            <p style="font-size: 11px; color: #BE123C; margin-top: 4px; max-width: 240px;">Akuntan kelelahan mengurus formula Excel ketimbang memberikan nasihat bisnis.</p>
+          </div>
+          <div style="width: 80%; height: 1px; background: #FECDD3;"></div>
+          <div style="text-align: center;">
+            <div style="font-size: 48px; font-weight: 900; color: var(--amber); font-family: 'JetBrains Mono', monospace;">Rp 0</div>
+            <div style="font-size: 13px; font-weight: 700; color: #92400E; margin-top: 4px;">TOLERANSI SELISIH TIE-OUT (ZERO-FLOAT)</div>
+            <p style="font-size: 11px; color: #B45309; margin-top: 4px; max-width: 240px;">Selisih 1 Rupiah pun membuat opini audit tidak bisa diterbitkan.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>FINOVA AI v4.0 — Solusi Komprehensif Masalah Akuntansi Lapangan</span>
+        <span>Halaman 2 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 3: WHAT IS FINOVA ==================== -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary">2. SOLUSI &amp; DEFINISI</span>
+          </div>
+          <h2 class="slide-title">Apa Sebenarnya FINOVA AI Itu?</h2>
+          <p class="slide-subtitle">Bukan sekadar Chatbot AI generik, dan bukan sekadar software kasir ERP.</p>
+        </div>
+        <span class="badge badge-primary">PRODUCT ARCHITECTURE</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <div class="card" style="background: #F8FAFC;">
+            <h4 style="font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 8px;">📌 Definisi Inti Platform:</h4>
+            <p style="font-size: 13px; color: #334155; line-height: 1.6;">
+              <strong>FINOVA adalah Sistem Operasi Kertas Kerja Audit &amp; Konsultasi Finansial (Audit &amp; Advisory Operating System)</strong> yang mengubah berkas Excel mentah dari klien menjadi paket Kertas Kerja Induk (Lead Schedule) SAK berlisensi resmi, perhitungan pajak terverifikasi DJP, dan simulator keputusan bisnis bagi Direksi.
+            </p>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title" style="color: var(--primary);"><i data-lucide="zap" style="width: 16px; height: 16px;"></i> Otomasi Cepat 80%</div>
+              <p class="card-desc">Ekstraksi berkas sumber, pemetaan ribuan akun, hingga jembatan rekonsiliasi selesai dalam hitungan menit.</p>
+            </div>
+            <div class="card">
+              <div class="card-title" style="color: var(--purple);"><i data-lucide="shield" style="width: 16px; height: 16px;"></i> Presisi Zero-Float</div>
+              <p class="card-desc">Menggunakan kalkulasi fixed-point desimal murni tanpa floating point error yang lazim terjadi di Excel.</p>
+            </div>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--primary);">
+            <div class="card-title" style="color: var(--primary);"><i data-lucide="layers" style="width: 16px; height: 16px;"></i> Dual-Engine Unggulan:</div>
+            <p class="card-desc">
+              <strong>1. Tax Compliance Engine:</strong> Menangani PPh 21 TER, SPT Masa PPN 1111, dan SPT Tahunan 1771.<br>
+              <strong>2. Strategic Advisory Engine:</strong> Menangani Diagnosa Anomali Biaya, Rasio AAA, dan Simulator "What-If".
+            </p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <img src="assets/01_overview_2026.png" alt="FINOVA Overview 2026" class="screenshot-frame">
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Arsitektur Multi-Tenant Terisolasi &bull; Standar SAK Indonesia 2026</span>
+        <span>Halaman 3 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 4: END-TO-END PIPELINE ==================== -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary">3. ALUR KERJA UTUH</span>
+          </div>
+          <h2 class="slide-title">Alur Kerja End-to-End (The 7-Stage Pipeline)</h2>
+          <p class="slide-subtitle">Dari berkas mentah klien hingga laporan audit resmi berpenanda tangan digital.</p>
+        </div>
+        <span class="badge badge-primary">7 TAHAP OTOMASI</span>
+      </div>
+
+      <div class="slide-body" style="flex-direction: column; gap: 16px;">
+        <div class="grid-3" style="grid-template-columns: repeat(4, 1fr); gap: 12px;">
+          <div class="card" style="border-top: 3px solid #0F8F7A;">
+            <div style="font-size: 11px; font-weight: 800; color: #0F8F7A; font-family: 'JetBrains Mono', monospace;">TAHAP 1</div>
+            <strong style="font-size: 13px; color: var(--navy); display: block; margin: 4px 0;">Setup Profil KAP</strong>
+            <p style="font-size: 11px; color: var(--muted);">Konfigurasi nama KAP, izin KMK, materialitas audit, dan hak akses tim auditor.</p>
+          </div>
+
+          <div class="card" style="border-top: 3px solid #0F8F7A;">
+            <div style="font-size: 11px; font-weight: 800; color: #0F8F7A; font-family: 'JetBrains Mono', monospace;">TAHAP 2</div>
+            <strong style="font-size: 13px; color: var(--navy); display: block; margin: 4px 0;">Upload Berkas Sumber</strong>
+            <p style="font-size: 11px; color: var(--muted);">Unggah file Excel Neraca Saldo (Trial Balance). Verifikasi integritas hash SHA-256.</p>
+          </div>
+
+          <div class="card" style="border-top: 3px solid #0F8F7A;">
+            <div style="font-size: 11px; font-weight: 800; color: #0F8F7A; font-family: 'JetBrains Mono', monospace;">TAHAP 3</div>
+            <strong style="font-size: 13px; color: var(--navy); display: block; margin: 4px 0;">Pemetaan Akun SAK (AI)</strong>
+            <p style="font-size: 11px; color: var(--muted);">AI memetakan ribuan akun ke 18 pos laporan keuangan dengan skor keyakinan.</p>
+          </div>
+
+          <div class="card" style="border-top: 3px solid #0F8F7A;">
+            <div style="font-size: 11px; font-weight: 800; color: #0F8F7A; font-family: 'JetBrains Mono', monospace;">TAHAP 4</div>
+            <strong style="font-size: 13px; color: var(--navy); display: block; margin: 4px 0;">Lead Schedule &amp; Tie-Out</strong>
+            <p style="font-size: 11px; color: var(--muted);">Uji keseimbangan neraca (Aset = Liabilitas + Ekuitas) dan grafik waterfall laba rugi.</p>
+          </div>
+        </div>
+
+        <div class="grid-3" style="gap: 12px;">
+          <div class="card" style="border-top: 3px solid #7C3AED; background: #FAF5FF;">
+            <div style="font-size: 11px; font-weight: 800; color: #7C3AED; font-family: 'JetBrains Mono', monospace;">TAHAP 5 (TANTE RINA)</div>
+            <strong style="font-size: 13px; color: var(--navy); display: block; margin: 4px 0;">Analisis Strategis (Advisory)</strong>
+            <p style="font-size: 11px; color: var(--muted);">Diagnosa anomali biaya (+44.5%), rasio finansial AAA, dan simulasi "What-If" kenaikan UMR.</p>
+          </div>
+
+          <div class="card" style="border-top: 3px solid #059669; background: #ECFDF5;">
+            <div style="font-size: 11px; font-weight: 800; color: #059669; font-family: 'JetBrains Mono', monospace;">TAHAP 6 (BUNDA)</div>
+            <strong style="font-size: 13px; color: var(--navy); display: block; margin: 4px 0;">Kepatuhan Pajak (Tax Hub)</strong>
+            <p style="font-size: 11px; color: var(--muted);">PPh 21 TER, Smart Payroll Importer, ekualisasi omset PPN 1111, dan rekonsiliasi SPT 1771.</p>
+          </div>
+
+          <div class="card" style="border-top: 3px solid #2563EB; background: #EFF6FF;">
+            <div style="font-size: 11px; font-weight: 800; color: #2563EB; font-family: 'JetBrains Mono', monospace;">TAHAP 7</div>
+            <strong style="font-size: 13px; color: var(--navy); display: block; margin: 4px 0;">Ekspor Resmi XLSX &amp; CSV DJP</strong>
+            <p style="font-size: 11px; color: var(--muted);">Unduh workbook Excel multi-sheet formula hidup dan file CSV titik koma siap impor DJP.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Sistem Terintegrasi Tanpa Perlu Pindah Software Lain</span>
+        <span>Halaman 4 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 5: MODUL 1 ONBOARDING ==================== -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary">MODUL 1 &bull; TAHAP 1</span>
+          </div>
+          <h2 class="slide-title">Konfigurasi Profil KAP &amp; Onboarding Lembaga</h2>
+          <p class="slide-subtitle">Memastikan setiap perikatan mematuhi izin regulasi Kementerian Keuangan &amp; IAPI.</p>
+        </div>
+        <span class="badge badge-primary">FIRM GOVERNANCE</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <ul class="bullet-list">
+            <li><strong>Legalitas KAP Resmi:</strong> Konfigurasi Nomor Izin Usaha Menkeu (KMK No. 492/KM.1/2024) dan Surat Tanda Terdaftar IAPI.</li>
+            <li><strong>Signing Partner Profile:</strong> Mengunci nama Partner penandatangan resmi laporan (Haidar, CPA, CA - AP.0942).</li>
+            <li><strong>Role-Based Access Control (RBAC):</strong> Hak akses berlapis yang memisahkan peran <em>Partner</em> (approval &amp; sign), <em>Manager</em> (review), <em>Senior</em> (in-charge), dan <em>Preparer</em> (junior input).</li>
+            <li><strong>Benchmark Standar Akuntansi:</strong> Dukungan penuh SAK Umum Indonesia (berlaku penuh FY 2026) dan SAK Entitas Privat.</li>
+            <li><strong>Materialitas Audit Otomatis:</strong> Penentuan threshold materialitas awal (Rp 250.000.000) untuk deteksi temuan audit.</li>
+          </ul>
+
+          <div class="card" style="background: #F8FAFC;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--primary);">GARANSI KEPATUHAN HUKUM:</span>
+            <p style="font-size: 12px; color: #475569; margin-top: 2px;">Seluruh metadata KAP terpasang permanen pada header ekspor XLSX dan hash manifest audit trail.</p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <div style="text-align: center; padding: 20px;">
+            <i data-lucide="building-2" style="width: 56px; height: 56px; color: var(--primary); margin-bottom: 12px;"></i>
+            <h3 style="font-size: 18px; font-weight: 800; color: var(--navy);">KAP Haidar &amp; Rekan</h3>
+            <p style="font-size: 12px; color: #64748B;">Menara Finansial Indonesia Lt. 18, Jakarta Selatan</p>
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 16px;">
+              <span class="badge badge-primary">KMK RESMI</span>
+              <span class="badge badge-blue">4 LEVEL RBAC</span>
+              <span class="badge badge-amber">SAK 2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Pengaturan Tersentralisasi di /settings &bull; Multi-Tenant Database Terisolasi</span>
+        <span>Halaman 5 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 6: MODUL 2 FILES & SOURCES ==================== -->
+    <div class="slide" id="slide-6">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary">MODUL 2 &bull; TAHAP 2</span>
+          </div>
+          <h2 class="slide-title">Ekstraksi Berkas Sumber &amp; Verifikasi Integritas</h2>
+          <p class="slide-subtitle">Menerima lembar kerja Excel mentah dari klien tanpa perlu merapikan kolom secara manual.</p>
+        </div>
+        <span class="badge badge-primary">DATA INGESTION</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <ul class="bullet-list">
+            <li><strong>Penerima Format Bebas:</strong> Mendukung upload format `.xlsx`, `.xls`, dan `.csv` dari berbagai software akuntansi klien (SAP, Oracle, Accurate, Zahir, Jurnal).</li>
+            <li><strong>SHA-256 Immutability Hash:</strong> Setiap file yang masuk langsung dihitung nilai hash kriptografisnya. Jika klien mengirim revisi, sistem mendeteksi perbedaan secara deterministik.</li>
+            <li><strong>Pemeriksaan Saldo Awal Otomatis:</strong> Sistem mengecek apakah Total Debit sama dengan Total Kredit di berkas mentah. Jika tidak balance dari klien, sistem memberi peringatan merah.</li>
+            <li><strong>Isomorphic Pipeline Parser:</strong> Data mentah diurai menjadi baris akun terstruktur: Kode Akun, Deskripsi Akun, Saldo Berjalan FY 2026, dan Saldo Pembanding FY 2025.</li>
+          </ul>
+
+          <div class="card" style="border-left: 4px solid #0F8F7A;">
+            <div class="card-title" style="color: #0F8F7A;">Studi Kasus Klien Aktif:</div>
+            <p class="card-desc"><strong>PT Nusantara Sukses Makmur</strong> &bull; Berkas: <code>TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx</code> &bull; 23 Akun Induk &bull; Nilai Aset Rp 34,55 Miliar (100% Valid).</p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <div class="card" style="width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="font-size: 12px; color: var(--navy);">BERKAS SUMBER AKTIF (FY 2026)</strong>
+              <span class="badge badge-primary">TERVERIFIKASI</span>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #F1F5F9; padding: 10px; border-radius: 6px; word-break: break-all;">
+              SHA-256: 9f83a48e...c421b90a<br>
+              Total Debit: Rp 34.550.000.000<br>
+              Total Kredit: Rp 34.550.000.000<br>
+              Status: SEIMBANG (ZERO-FLOAT)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Menghilangkan Human Error Saat Import File Excel</span>
+        <span>Halaman 6 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 7: MODUL 3 AI MAPPING ==================== -->
+    <div class="slide" id="slide-7">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary">MODUL 3 &bull; TAHAP 3</span>
+          </div>
+          <h2 class="slide-title">Pemetaan Akun SAK dengan Penalaran AI</h2>
+          <p class="slide-subtitle">AI memahami konteks bisnis akun, bukan sekadar mencocokkan kata kunci secara kaku.</p>
+        </div>
+        <span class="badge badge-primary">AI REASONING</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <ul class="bullet-list">
+            <li><strong>Klasifikasi ke 18 Pos Standar SAK:</strong> Kas &amp; Setara Kas, Piutang Usaha, Persediaan, Aset Tetap, Utang Usaha, Pendapatan Usaha, hingga Beban Operasional.</li>
+            <li><strong>Skor Keyakinan Transparan (Confidence Score):</strong> Akun dengan kepastian tinggi (>95%) dipetakan otomatis. Akun abu-abu (misal akun penampungan selisih kurs) diberi tanda kuning untuk diverifikasi auditor.</li>
+            <li><strong>Modal Penjelasan Penalaran AI:</strong> Auditor bisa mengklik tombol AI untuk membaca argumen ilmiah mengapa suatu akun ditempatkan di pos tertentu berdasarkan PSAK/SAK Indonesia.</li>
+            <li><strong>Human-in-the-loop:</strong> Auditor memiliki wewenang 100% untuk menerima (*Apply*) atau menggeser alokasi pos akun jika ada pertimbangan profesional khusus.</li>
+          </ul>
+
+          <div class="card" style="background: #F0FDF4; border-color: #BBF7D0;">
+            <span style="font-size: 11px; font-weight: 700; color: #166534;">EFISIENSI WAKTU PEMETAAN:</span>
+            <p style="font-size: 12px; color: #15803D; margin-top: 2px;">Dari rata-rata 6 jam manual mapping per klien menjadi hanya 45 detik dengan AI Semantic Engine.</p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <img src="assets/10_ai_mapping_modal.png" alt="AI Mapping Modal" class="screenshot-frame">
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Didukung Model Penalaran AI Qwen 3.8 &bull; Jejak Keputusan Disimpan Permanen</span>
+        <span>Halaman 7 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 8: MODUL 4 WORKPAPER TIE-OUT ==================== -->
+    <div class="slide" id="slide-8">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary">MODUL 4 &bull; TAHAP 4</span>
+          </div>
+          <h2 class="slide-title">Kertas Kerja Induk (Lead Schedule) &amp; Tie-Out</h2>
+          <p class="slide-subtitle">Fondasi utama atestasi opini wajar tanpa pengecualian (WTP) oleh Partner Audit.</p>
+        </div>
+        <span class="badge badge-primary">LEAD SCHEDULE ENGINE</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <ul class="bullet-list">
+            <li><strong>Persamaan Fundamental Akuntansi:</strong> Memvalidasi secara matematis bahwa <code>Aset = Liabilitas + Ekuitas</code> (Rp 34,55 M = Rp 12,36 M + Rp 22,19 M).</li>
+            <li><strong>Animasi Timbangan Keseimbangan (Balance Scale):</strong> Memberi kepastian visual instan bagi Partner bahwa neraca berada dalam posisi balance sempurna.</li>
+            <li><strong>Waterfall Chart Finansial Dinamis:</strong> Menampilkan dekomposisi pergerakan visual dari Pendapatan Usaha (Rp 45 M), HPP (Rp 31,5 M), Laba Kotor (Rp 13,5 M), Beban Operasi (Rp 7,8 M), hingga Laba Bersih (Rp 4,25 M).</li>
+            <li><strong>Evidence Drawer (Laci Bukti Audit):</strong> Auditor dapat mengklik angka apapun di kertas kerja untuk menelusuri nomor baris dan sel Excel aslinya.</li>
+          </ul>
+
+          <div class="card" style="border-left: 4px solid #0F8F7A;">
+            <div class="card-title" style="color: #0F8F7A;">Status Validasi Tie-Out FY 2026:</div>
+            <p class="card-desc">Semua 3 uji matematis (Balance Sheet Equation, Profit &amp; Loss Aggregation, Opening Balance Tie-Out) lulus 100% tanpa selisih 1 rupiah pun.</p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <img src="assets/11_workpaper_waterfall.png" alt="Waterfall Workpaper" class="screenshot-frame">
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Menghilangkan Risiko Salah Rumus SUM di Excel Manual</span>
+        <span>Halaman 8 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 9: MODUL 5 ADVISORY (TANTE RINA) ==================== -->
+    <div class="slide" id="slide-9">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-purple">MODUL 5 &bull; TAHAP 5 (KHUSUS TANTE RINA)</span>
+          </div>
+          <h2 class="slide-title">Analisis Kinerja Keuangan &amp; CFO Advisory Hub</h2>
+          <p class="slide-subtitle">Mengubah akuntan dari sekadar pencatat buku menjadi penasihat strategis papan atas bagi Direksi.</p>
+        </div>
+        <span class="badge badge-purple">CFO ADVISORY</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <div class="card" style="border-left: 4px solid var(--purple);">
+            <div class="card-title" style="color: var(--purple);"><i data-lucide="alert-octagon" style="width: 16px; height: 16px;"></i> 1. Diagnosa Anomali Biaya ("What's Next")</div>
+            <p class="card-desc">Mendeteksi lonjakan beban logistik (+44.5% / Rp 1,42 M) yang melebihi batas toleransi. Memberikan 3 rekomendasi taktis (konsolidasi armada 3PL, audit rute gudang, SOP surat jalan) dengan potensi penghematan <strong>Rp 485 Juta</strong>.</p>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--primary);">
+            <div class="card-title" style="color: var(--primary);"><i data-lucide="gauge" style="width: 16px; height: 16px;"></i> 2. Barometer 9 Rasio Keuangan (Rating: AAA)</div>
+            <p class="card-desc">Evaluasi komprehensif 9 rasio: Current Ratio (2.42x), Quick Ratio (1.81x), Debt to Equity (0.56x), Net Profit Margin (9.44%), dan ROE (19.15%) dengan benchmark industri manufaktur.</p>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--amber);">
+            <div class="card-title" style="color: var(--amber);"><i data-lucide="factory" style="width: 16px; height: 16px;"></i> 3. Dekomposisi Biaya Pabrikasi (HPP / COGM)</div>
+            <p class="card-desc">Mengurai 3 unsur biaya pabrik: Bahan Baku Langsung (Rp 18,2 M), Upah Tenaga Kerja Langsung / BTKL (Rp 8,4 M), dan Biaya Overhead Pabrik / BOP (Rp 4,9 M).</p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <img src="assets/06_ratios_barometer.png" alt="Rasio Barometer" class="screenshot-frame">
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Dilengkapi Memo Eksekutif Siap Cetak untuk Rapat Umum Pemegang Saham (RUPS)</span>
+        <span>Halaman 9 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 10: WHAT-IF SIMULATOR ==================== -->
+    <div class="slide" id="slide-10">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-purple">MODUL 5 &bull; FITUR UNGGULAN</span>
+          </div>
+          <h2 class="slide-title">Simulator Sensitivitas Skenario Bisnis ("What-If")</h2>
+          <p class="slide-subtitle">Menjawab pertanyaan Direktur: "Jika UMR naik dan bahan baku fluktuatif, kita harus apa?"</p>
+        </div>
+        <span class="badge badge-purple">WHAT-IF ENGINE</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <p style="font-size: 13px; color: #334155; line-height: 1.6;">
+            Saat meeting dengan Direksi, Tante Rina bisa menggeser 3 slider interaktif secara langsung di layar proyektor / iPad:
+          </p>
+
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--navy);">1. Kenaikan Upah Tenaga Kerja / UMR</span>
+              <strong style="font-size: 14px; color: #0F8F7A; font-family: 'JetBrains Mono', monospace;">+8.0%</strong>
+            </div>
+            <p style="font-size: 11px; color: #64748B; margin-top: 2px;">Dampak langsung: Beban BTKL membengkak +Rp 134.400.000.</p>
+          </div>
+
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--navy);">2. Fluktuasi Harga Bahan Baku / Kurs</span>
+              <strong style="font-size: 14px; color: #D97706; font-family: 'JetBrains Mono', monospace;">+10.0%</strong>
+            </div>
+            <p style="font-size: 11px; color: #64748B; margin-top: 2px;">Dampak langsung: HPP Manufaktur (COGM) naik +Rp 498.000.000.</p>
+          </div>
+
+          <div class="card" style="background: #F0FDF4; border-color: #86EFAC;">
+            <div style="font-size: 11px; font-weight: 800; color: #166534; text-transform: uppercase;">REKOMENDASI NYATA ENGINE KEPADA DIREKSI:</div>
+            <strong style="font-size: 16px; color: #15803D; display: block; margin: 4px 0;">Naikkan Harga Jual Produk Minimal +1.17%</strong>
+            <p style="font-size: 11px; color: #166534;">Kenaikan harga jual 1.17% cukup untuk mengunci laba bersih perusahaan tetap aman di angka Rp 4,25 Miliar.</p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <img src="assets/05_what_if_simulator.png" alt="What-If Simulator" class="screenshot-frame">
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Memberikan Jawaban Kuantitatif Presisi dalam Hitungan Detik</span>
+        <span>Halaman 10 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 11: MODUL 6 TAX COMPLIANCE (BUNDA) ==================== -->
+    <div class="slide" id="slide-11">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary" style="background: #ECFDF5; color: #059669; border-color: #A7F3D0;">MODUL 6 &bull; TAHAP 6 (KHUSUS BUNDA)</span>
+          </div>
+          <h2 class="slide-title">Kepatuhan Pajak &amp; Rekonsiliasi Fiskal Terpadu</h2>
+          <p class="slide-subtitle">Solusi tuntas PPh 21 TER, Ekualisasi PPN 1111 anti-SP2DK, dan Rekonsiliasi SPT 1771.</p>
+        </div>
+        <span class="badge badge-primary">TAX INTELLIGENCE</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <div class="card">
+            <div class="card-title" style="color: #059669;"><i data-lucide="users" style="width: 16px; height: 16px;"></i> 1. PPh 21 Pegawai TER (PP 58/2023)</div>
+            <p class="card-desc">Menghitung otomatis potongan PPh 21 bulanan berdasarkan PTKP (TK/0, K/1, K/2) menggunakan Kategori A, B, C, serta penyesuaian rekonsiliasi Pasal 17 di masa Desember.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="color: #2563EB;"><i data-lucide="file-spreadsheet" style="width: 16px; height: 16px;"></i> 2. Smart Payroll Importer (Format Excel Bebas)</div>
+            <p class="card-desc">Bunda tidak perlu memaksa klien memakai template tertentu. AI mengenali kolom nama (misal "Employee", "Karyawan"), gaji ("Gapok", "Upah"), dan status kawin secara otomatis.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="color: #7C3AED;"><i data-lucide="git-compare" style="width: 16px; height: 16px;"></i> 3. Ekualisasi Omset SPT Masa PPN 1111 (100% Klop)</div>
+            <p class="card-desc">Menjembatani perbedaan omset SPT PPN (Rp 44,2 M) vs Laporan Laba Rugi (Rp 45 M) dengan selisih uang muka dan retur sampai tidak ada selisih yang bisa dipermasalahkan fiskus pajak.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="color: #D97706;"><i data-lucide="file-text" style="width: 16px; height: 16px;"></i> 4. Rekonsiliasi Fiskal PPh Badan (SPT 1771)</div>
+            <p class="card-desc">Koreksi fiskal positif (natura, beban representasi) dan negatif hingga menghasilkan PPh Pasal 29 Kurang Bayar Rp 1,55 Miliar.</p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <img src="assets/08_ppn_equalization.png" alt="Ekualisasi PPN" class="screenshot-frame">
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Menghilangkan Ketakutan Akuntan Terhadap Audit Lapangan Kantor Pajak</span>
+        <span>Halaman 11 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 12: MODUL 7 OFFICIAL EXPORTS ==================== -->
+    <div class="slide" id="slide-12">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary">MODUL 7 &bull; TAHAP 7</span>
+          </div>
+          <h2 class="slide-title">Penerbitan Ekspor Resmi &amp; Format DJP Online</h2>
+          <p class="slide-subtitle">Bukan sekadar tampilan di layar, semua berkas siap diunduh dan digunakan di dunia nyata.</p>
+        </div>
+        <span class="badge badge-primary">DELIVERABLES</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <div class="card" style="border-left: 4px solid #0F8F7A;">
+            <div class="card-title" style="color: #0F8F7A;"><i data-lucide="file-spreadsheet" style="width: 16px; height: 16px;"></i> 1. Master Workbook Excel (.XLSX) Berformula Hidup</div>
+            <p class="card-desc">
+              Bukan data statis hasil copy-paste. Workbook berisi multi-sheet (Cover, Lead Schedule, Mapping Master, Audit Trail) dengan rumus Excel asli (SUM, VLOOKUP) dan tanda tangan digital SHA-256.
+            </p>
+          </div>
+
+          <div class="card" style="border-left: 4px solid #2563EB;">
+            <div class="card-title" style="color: #2563EB;"><i data-lucide="download" style="width: 16px; height: 16px;"></i> 2. CSV Resmi e-Bupot 21 (Format DJP)</div>
+            <p class="card-desc">
+              Berkas CSV bertanda pemisah titik koma (<code>;</code>) yang sesuai dengan format skema DJP Online. Bunda tinggal upload ke portal e-Bupot 21 tanpa perlu convert manual.
+            </p>
+          </div>
+
+          <div class="card" style="border-left: 4px solid #7C3AED;">
+            <div class="card-title" style="color: #7C3AED;"><i data-lucide="file-check" style="width: 16px; height: 16px;"></i> 3. CSV Resmi e-Faktur Pajak Keluaran</div>
+            <p class="card-desc">
+              Daftar rekap faktur pajak dengan header resmi (<code>FK;...</code>) siap impor ke aplikasi e-Faktur Desktop / Web DJP.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <img src="assets/12_exports_djp.png" alt="Exports DJP" class="screenshot-frame">
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Berkas Valid dan Siap Diunggah ke Sistem Pajak Pemerintah</span>
+        <span>Halaman 12 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 13: SECURITY & VIP ACCESS ==================== -->
+    <div class="slide" id="slide-13">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary">ARSITEKTUR &amp; KEAMANAN</span>
+          </div>
+          <h2 class="slide-title">Keamanan Korporat, Akses VIP &amp; A/B Testing</h2>
+          <p class="slide-subtitle">Dirancang tanpa gesekan bagi penguji senior, namun aman dengan standar perbankan.</p>
+        </div>
+        <span class="badge badge-primary">ENTERPRISE SECURITY</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title" style="color: var(--primary);"><i data-lucide="lock" style="width: 16px; height: 16px;"></i> Tenant Isolation</div>
+              <p class="card-desc">Data klien PT Nusantara tidak akan pernah bocor ke perikatan lain karena diproteksi server-derived tenant boundary.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-title" style="color: var(--purple);"><i data-lucide="key" style="width: 16px; height: 16px;"></i> Seamless Auto-Mint</div>
+              <p class="card-desc">Tante Rina &amp; Bunda tidak akan pernah dihadang layar login wall saat mengklik link WhatsApp perikatan.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h4 style="font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 6px;">🔑 Presets VIP Access Key &amp; Akun Terdaftar:</h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Pengguna</th>
+                  <th>VIP Access Key</th>
+                  <th>Email Login</th>
+                  <th>Peran &amp; Halaman Langsung</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Tante Rina</strong></td>
+                  <td><code>FINOVA-RINA-CFO</code></td>
+                  <td><code>rina@kap.id</code></td>
+                  <td>Senior Advisory Partner &bull; Tab 5 Advisory</td>
+                </tr>
+                <tr>
+                  <td><strong>Bunda</strong></td>
+                  <td><code>FINOVA-BUNDA-TAX</code></td>
+                  <td><code>bunda@kap.id</code></td>
+                  <td>Tax Compliance Partner &bull; Tab 6 Pajak</td>
+                </tr>
+                <tr>
+                  <td><strong>Haidar</strong></td>
+                  <td><code>FINOVA-MASTER-2026</code></td>
+                  <td><code>haidar@kaphaidar.co.id</code></td>
+                  <td>Lead Audit Partner &bull; Tab 1 Overview</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card" style="background: #FAF5FF; border-color: #DDD6FE;">
+            <p style="font-size: 12px; color: #6B21A8;">
+              <strong>Live A/B Testing Header Switcher:</strong> Haidar dapat beralih antara <code>🟢 Varian A: Kepatuhan Pajak</code> dan <code>🟣 Varian B: Strategic Advisory</code> dengan 1 klik saat presentasi langsung di depan mereka.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <div style="text-align: center; padding: 24px;">
+            <i data-lucide="shield-check" style="width: 64px; height: 64px; color: var(--primary); margin-bottom: 12px;"></i>
+            <h3 style="font-size: 20px; font-weight: 800; color: var(--navy);">Audit-Grade Security</h3>
+            <p style="font-size: 12px; color: #64748B; margin-top: 4px;">Enkripsi Bcrypt 10 Rounds &bull; JWT HTTP-Only Cookie 7 Hari &bull; SQLite ACID Transactional Engine</p>
+            <div style="margin-top: 20px;">
+              <span class="badge badge-primary">ZERO CRASH REPORT</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Sesi Aman Berstandar ISO 27001 Ready</span>
+        <span>Halaman 13 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 14: BUSINESS VALUE ==================== -->
+    <div class="slide" id="slide-14">
+      <div class="slide-header">
+        <div>
+          <div class="slide-badge-row">
+            <span class="badge badge-primary">RINGKASAN EKSEKUTIF</span>
+          </div>
+          <h2 class="slide-title">Nilai Bisnis &amp; Dampak Finansial Nyata</h2>
+          <p class="slide-subtitle">Berapa efisiensi biaya dan waktu yang diperoleh dengan mengimplementasikan FINOVA AI?</p>
+        </div>
+        <span class="badge badge-primary">ROI &amp; IMPACT</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="col-left">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Aktivitas Audit &amp; Pajak</th>
+                <th>Cara Lama (Excel Manual)</th>
+                <th>Dengan FINOVA AI</th>
+                <th>Efisiensi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Normalisasi &amp; Pemetaan Akun</strong></td>
+                <td>6 – 8 Jam per klien</td>
+                <td><strong>45 Detik</strong> (AI Auto-Map)</td>
+                <td><span class="badge badge-primary">98% Lebih Cepat</span></td>
+              </tr>
+              <tr>
+                <td><strong>Uji Keseimbangan &amp; Tie-Out</strong></td>
+                <td>4 Jam cek rumus SUM</td>
+                <td><strong>Instan (Otomatis)</strong></td>
+                <td><span class="badge badge-primary">Zero Error</span></td>
+              </tr>
+              <tr>
+                <td><strong>Hitung PPh 21 TER (50 Karyawan)</strong></td>
+                <td>3 – 4 Jam per bulan</td>
+                <td><strong>30 Detik</strong> (Smart Importer)</td>
+                <td><span class="badge badge-primary">90% Lebih Cepat</span></td>
+              </tr>
+              <tr>
+                <td><strong>Ekualisasi PPN vs Omset</strong></td>
+                <td>5 Jam rekonsiliasi manual</td>
+                <td><strong>1 Menit</strong> (Jembatan Otomatis)</td>
+                <td><span class="badge badge-primary">Bebas SP2DK</span></td>
+              </tr>
+              <tr>
+                <td><strong>Simulasi Dampak Kenaikan UMR</strong></td>
+                <td>Hampir tidak pernah dibuat</td>
+                <td><strong>Real-Time</strong> (What-If Slider)</td>
+                <td><span class="badge badge-purple">High-Value Advisory</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="card" style="background: #F0FDF4; border-color: #86EFAC; margin-top: 12px;">
+            <div style="font-size: 13px; font-weight: 800; color: #166534;">KESIMPULAN NILAI EKONOMIS:</div>
+            <p style="font-size: 12px; color: #15803D; margin-top: 2px;">
+              Satu kantor KAP dengan 10 klien audit dapat menghemat <strong>lebih dari 180 jam kerja lembur auditor</strong> setiap bulannya, sekaligus meningkatkan tarif penagihan (*billing rate*) karena mampu menyajikan laporan konsultan strategis berbobot tinggi bagi Direksi.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-right" style="background: #F8FAFC;">
+          <div class="metric-box" style="width: 100%; margin-bottom: 12px;">
+            <div class="metric-val" style="color: #0F8F7A;">80%</div>
+            <div class="metric-label">Penghematan Waktu Audit</div>
+          </div>
+          <div class="metric-box" style="width: 100%; margin-bottom: 12px;">
+            <div class="metric-val" style="color: #7C3AED;">Rp 485 Juta</div>
+            <div class="metric-label">Potensi Efisiensi Biaya Klien</div>
+          </div>
+          <div class="metric-box" style="width: 100%;">
+            <div class="metric-val" style="color: #D97706;">100%</div>
+            <div class="metric-label">Akurasi Pajak Bebas SP2DK</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>KAP Modern: Lebih Efisien, Lebih Akurat, Lebih Bernilai Tinggi</span>
+        <span>Halaman 14 / 15</span>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 15: DEMO & ACCESS ==================== -->
+    <div class="slide" id="slide-15" style="background: linear-gradient(135deg, #102A32 0%, #064E3B 100%); color: white; border-color: #047857;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 44px; height: 44px; background: white; color: #0F8F7A; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px;">FN</div>
+          <div>
+            <h2 style="font-size: 18px; font-weight: 800;">FINOVA AI v4.0</h2>
+            <p style="font-size: 11px; color: #A7F3D0;">Production Deployment &bull; akuntanlee.vercel.app</p>
+          </div>
+        </div>
+        <span class="badge" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4);">READY FOR LIVE EVALUATION</span>
+      </div>
+
+      <div style="margin: 32px 0; text-align: center;">
+        <h2 style="font-size: 34px; font-weight: 900; letter-spacing: -0.02em;">Sistem Siap Diuji Coba Langsung di Browser</h2>
+        <p style="font-size: 16px; color: #D1FAE5; margin-top: 8px; max-width: 700px; margin-left: auto; margin-right: auto;">
+          Semua fitur yang dijelaskan dalam presentasi ini sudah aktif, berjalan normal, dan dapat dicoba tanpa registrasi.
+        </p>
+
+        <div style="display: flex; gap: 16px; justify-content: center; margin-top: 28px;">
+          <a href="https://akuntanlee.vercel.app/engagements/ENG-2026-01/advisory" target="_blank" style="background: #A78BFA; color: #1E1B4B; padding: 14px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);">
+            <i data-lucide="sliders" style="width: 18px; height: 18px;"></i>
+            <span>Buka Mode Tante Rina (Advisory)</span>
+          </a>
+
+          <a href="https://akuntanlee.vercel.app/engagements/ENG-2026-01/tax" target="_blank" style="background: #34D399; color: #064E3B; padding: 14px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);">
+            <i data-lucide="calculator" style="width: 18px; height: 18px;"></i>
+            <span>Buka Mode Bunda (Pajak &amp; TER)</span>
+          </a>
+
+          <a href="https://akuntanlee.vercel.app/engagements/ENG-2026-01/overview" target="_blank" style="background: white; color: #102A32; padding: 14px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);">
+            <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
+            <span>Buka Master Overview (Haidar)</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="grid-3" style="border-top: 1px solid rgba(255,255,255,0.15); padding-top: 20px; font-size: 12px; color: #D1FAE5;">
+        <div>
+          <strong>Alamat Domain Live:</strong><br>
+          <span style="font-family: 'JetBrains Mono', monospace; color: white;">akuntanlee.vercel.app</span>
+        </div>
+        <div>
+          <strong>Standar Akuntansi Aktif:</strong><br>
+          <span style="color: white;">SAK Indonesia &bull; Tahun Buku 2026</span>
+        </div>
+        <div>
+          <strong>Kontak &amp; Penanggung Jawab:</strong><br>
+          <span style="color: white;">Haidar, CPA, CA &bull; Managing Partner</span>
+        </div>
+      </div>
+
+      <div class="slide-footer" style="border-color: rgba(255,255,255,0.15); color: #A7F3D0;">
+        <span>© 2026 FINOVA AI &bull; KAP Haidar &amp; Rekan &bull; Hak Cipta Dilindungi Undang-Undang</span>
+        <span>Halaman 15 / 15 &bull; Selesai</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    let currentSlideIndex = 1;
+    const totalSlides = 15;
+
+    function updateCounter() {
+      document.getElementById('curSlide').innerText = currentSlideIndex;
+    }
+
+    function goToSlide(idx) {
+      if (idx < 1) idx = 1;
+      if (idx > totalSlides) idx = totalSlides;
+      currentSlideIndex = idx;
+      const el = document.getElementById('slide-' + idx);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      updateCounter();
+    }
+
+    function nextSlide() {
+      if (currentSlideIndex < totalSlides) {
+        goToSlide(currentSlideIndex + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlideIndex > 1) {
+        goToSlide(currentSlideIndex - 1);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      }
+    });
+
+    window.addEventListener('scroll', () => {
+      const slides = document.querySelectorAll('.slide');
+      const scrollPos = window.scrollY + window.innerHeight / 2;
+      slides.forEach((s, idx) => {
+        const top = s.offsetTop;
+        const bottom = top + s.offsetHeight;
+        if (scrollPos >= top && scrollPos <= bottom) {
+          currentSlideIndex = idx + 1;
+          updateCounter();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
