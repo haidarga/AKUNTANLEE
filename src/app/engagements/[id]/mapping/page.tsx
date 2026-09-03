@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   Table,
   Check,
@@ -26,9 +27,16 @@ import { formatIdrNumber } from '@/lib/decimal';
 import { MappingFlowIllustration } from '@/components/v4/visuals/WorkflowIllustrations';
 
 export default function AccountMappingPage() {
+  const routeParams = useParams();
+  const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
   const state = repo.getState();
-  const engagement = state.engagements[0];
-  const [decisions, setDecisions] = useState<MappingDecision[]>(state.mappingDecisions);
+  const engagement = state.engagements.find((e) => e.id === engagementId) || state.engagements[0];
+  const mapSets = state.mappingSets.filter((ms) => ms.engagementId === engagement.id);
+  const mapSetIds = new Set(mapSets.map((ms) => ms.id));
+  const initialDecisions = state.mappingDecisions.filter(
+    (d) => mapSetIds.has(d.mappingSetId) || (engagement.id === 'ENG-2026-01' && d.mappingSetId === 'MAPSET-001')
+  );
+  const [decisions, setDecisions] = useState<MappingDecision[]>(initialDecisions);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'needs_review' | 'mapped' | 'excluded' | 'material'>('all');
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);

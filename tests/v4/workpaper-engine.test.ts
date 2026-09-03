@@ -38,4 +38,33 @@ describe('R05, R06 / PRD §44, §45: Workpaper Population & Evidence Lineage', (
     expect(ev?.cellRange).toBeDefined();
     expect(ev?.transformChain.length).toBeGreaterThan(0);
   });
+
+  it('correctly calculates contra-account variance with consistent positive comparative signs', () => {
+    const state = repo.getState();
+    const result = calculateWorkpaperVersion({
+      tenantId: 'TENANT-001',
+      engagementId: 'ENG-2026-01',
+      datasetVersionId: 'DSV-001',
+      mappingSetId: 'MAPSET-001',
+      accounts: state.accounts,
+      mappingDecisions: state.mappingDecisions,
+      template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
+    });
+
+    // WP-A.3: Cadangan ECL
+    const ecl = result.lines.find((l) => l.lineId === 'WP-A.3');
+    expect(ecl).toBeDefined();
+    expect(ecl?.currentPeriodIdr).toBe(200_000_000);
+    expect(ecl?.comparativePeriodIdr).toBe(150_000_000);
+    expect(ecl?.varianceAmountIdr).toBe(50_000_000);
+    expect(ecl?.variancePercent).toBe(33.3);
+
+    // WP-B.2: Akumulasi Penyusutan Aset Tetap
+    const dep = result.lines.find((l) => l.lineId === 'WP-B.2');
+    expect(dep).toBeDefined();
+    expect(dep?.currentPeriodIdr).toBe(4_650_000_000);
+    expect(dep?.comparativePeriodIdr).toBe(3_800_000_000);
+    expect(dep?.varianceAmountIdr).toBe(850_000_000);
+    expect(dep?.variancePercent).toBe(22.4);
+  });
 });

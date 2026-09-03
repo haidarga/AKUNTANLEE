@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
 import {
   FileSpreadsheet,
@@ -21,9 +22,12 @@ import { FileVersion } from '@/types/domain-v4';
 import { FileScannerIllustration } from '@/components/v4/visuals/WorkflowIllustrations';
 
 export default function FilesPage() {
+  const routeParams = useParams();
+  const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
   const state = repo.getState();
-  const engagement = state.engagements[0];
-  const [fileVersions, setFileVersions] = useState<FileVersion[]>(state.fileVersions);
+  const engagement = state.engagements.find((e) => e.id === engagementId) || state.engagements[0];
+  const activeFiles = state.fileVersions.filter((f) => f.engagementId === engagement.id);
+  const [fileVersions, setFileVersions] = useState<FileVersion[]>(activeFiles);
   const [extractedCount, setExtractedCount] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatusText, setUploadStatusText] = useState('Memindai & Menghitung Hash...');

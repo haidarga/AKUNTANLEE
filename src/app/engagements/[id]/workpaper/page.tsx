@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   Table,
   CheckCircle2,
@@ -33,9 +34,12 @@ import { FinancialWaterfallChart } from '@/components/v4/visuals/FinancialWaterf
 import { AuditSpreadsheet } from '@/components/v4/spreadsheet/AuditSpreadsheet';
 
 export default function WorkpaperPage() {
+  const routeParams = useParams();
+  const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
   const state = repo.getState();
-  const engagement = state.engagements[0];
-  const [wpVersion, setWpVersion] = useState<WorkpaperVersion>(state.workpaperVersions[0]);
+  const engagement = state.engagements.find((e) => e.id === engagementId) || state.engagements[0];
+  const activeWp = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
+  const [wpVersion, setWpVersion] = useState<WorkpaperVersion>(activeWp);
   const [lines, setLines] = useState<WorkpaperLineItem[]>(state.workpaperLines);
   const [checks, setChecks] = useState<ValidationCheckResult[]>(state.validationChecks);
   const [activeRole, setActiveRole] = useState<UserRoleV4>('senior');

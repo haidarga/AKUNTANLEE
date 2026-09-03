@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   AlertTriangle,
   ArrowRight,
@@ -23,50 +24,124 @@ import { formatIdrNumber } from '@/lib/decimal';
 import { BalanceScaleIllustration } from '@/components/v4/visuals/WorkflowIllustrations';
 
 export default function EngagementOverviewPage() {
+  const routeParams = useParams();
+  const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
   const state = repo.getState();
-  const engagement = state.engagements[0];
-  const client = state.clients.find((c) => c.id === engagement.clientId);
-  const wp = state.workpaperVersions[0];
-  const files = state.fileVersions;
-  const needsReviewDecisions = state.mappingDecisions.filter((d) => d.status === 'needs_review');
+  const engagement = state.engagements.find((e) => e.id === engagementId) || state.engagements[0];
+  const client = state.clients.find((c) => c.id === engagement.clientId) || {
+    id: 'CLI-CUSTOM',
+    legalName: engagement.name,
+    code: 'CLIENT',
+    industry: 'Jasa & Manufaktur',
+  };
+  const wp = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
+  const files = state.fileVersions.filter((f) => f.engagementId === engagement.id);
+  const mapSets = state.mappingSets.filter((ms) => ms.engagementId === engagement.id);
+  const mapSetIds = new Set(mapSets.map((ms) => ms.id));
+  const decisions = state.mappingDecisions.filter(
+    (d) => mapSetIds.has(d.mappingSetId) || (engagement.id === 'ENG-2026-01' && d.mappingSetId === 'MAPSET-001')
+  );
+  const needsReviewDecisions = decisions.filter((d) => d.status === 'needs_review');
+  const isAllMapped = decisions.length > 0 && needsReviewDecisions.length === 0;
+  const hasFiles = files.length > 0;
   const checks = state.validationChecks;
   const auditEvents = state.auditEvents.slice(0, 4);
 
   return (
     <div className="space-y-6 text-[#102A32] animate-finova-in">
-      {/* 1. Next Required Action Surface (Double-Bezel Architecture & Button-in-Button CTA) */}
-      <div className="finova-bezel-outer bg-gradient-to-r from-[#FFF7E8]/60 via-[#FFFDF8] to-[#FFF7E8]/60 border-[#F6E0B5]">
-        <div className="finova-bezel-inner p-5 sm:p-6 border-2 border-[#B7791F]/30 bg-white relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xs">
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FFF7E8] text-[#B7791F] border border-[#F6E0B5] flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#B7791F] animate-ping" />
-                Tindakan Penentu (Next Required Action)
-              </span>
-              <span className="text-xs text-[#52636A] font-medium">
-                1 Akun Ambigu Membutuhkan Keputusan Anda
-              </span>
+      {/* 1. Next Required Action Surface (Dynamic Canonical State Machine) */}
+      {!hasFiles ? (
+        <div className="finova-bezel-outer bg-gradient-to-r from-[#EFF6FF]/60 via-[#F8FAFC] to-[#EFF6FF]/60 border-[#BFDBFE]">
+          <div className="finova-bezel-inner p-5 sm:p-6 border-2 border-[#3B82F6]/30 bg-white relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xs">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] flex items-center gap-1.5">
+                  <UploadCloud className="w-3.5 h-3.5 text-[#2563EB]" />
+                  Tahap Awal: Unggah Berkas Sumber Finansial
+                </span>
+                <span className="text-xs text-[#52636A] font-medium">Perikatan Baru Siap Dijalankan</span>
+              </div>
+              <h2 className="text-lg font-bold text-[#102A32] tracking-tight">
+                Mulai dengan Mengunggah Neraca Saldo (Trial Balance) Klien
+              </h2>
+              <p className="text-xs text-[#52636A] leading-relaxed">
+                Tarik berkas spreadsheet (.xlsx atau .csv) ke sistem. Mesin ekstraksi akan membedah kolom kode akun, nama, debit, kredit, dan saldo secara otomatis.
+              </p>
             </div>
-
-            <h2 className="text-lg font-bold text-[#102A32] tracking-tight">
-              Selesaikan Pemetaan: 2199-00 Akun Penampungan Selisih Kurs Sementara
-            </h2>
-            <p className="text-xs text-[#52636A] leading-relaxed">
-              Sistem mendeteksi saldo penampungan sebesar <strong className="text-[#102A32] font-mono">Rp 310.000.000</strong> dengan tingkat keyakinan rendah (38%). Tinjau alokasi target kertas kerja atau berikan alasan profesional sebelum finalisasi.
-            </p>
+            <Link
+              href={`/engagements/${engagement.id}/files`}
+              className="finova-pill-cta bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs shadow-md shrink-0"
+            >
+              <span>Unggah Berkas Excel Sekarang</span>
+              <div className="icon-circle">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+              </div>
+            </Link>
           </div>
-
-          <Link
-            href={`/engagements/${engagement.id}/mapping`}
-            className="finova-pill-cta bg-[#B7791F] hover:bg-[#9E6516] text-white text-xs shadow-md shrink-0"
-          >
-            <span>Tinjau Pemetaan Sekarang</span>
-            <div className="icon-circle">
-              <ArrowRight className="w-3.5 h-3.5 text-white" />
-            </div>
-          </Link>
         </div>
-      </div>
+      ) : isAllMapped ? (
+        <div className="finova-bezel-outer bg-gradient-to-r from-[#ECFDF5]/60 via-[#F0FDF4] to-[#ECFDF5]/60 border-[#A7F3D0]">
+          <div className="finova-bezel-inner p-5 sm:p-6 border-2 border-[#10B981]/30 bg-white relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xs">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
+                  Status Perikatan: Seluruh Pemetaan Akun Selesai (100% Validasi SAK)
+                </span>
+                <span className="text-xs text-[#065F46] font-medium">
+                  0 Akun Ambigu &bull; Siap untuk Finalisasi & Tanda Tangan Partner
+                </span>
+              </div>
+              <h2 className="text-lg font-bold text-[#102A32] tracking-tight">
+                Pemetaan SAK Selesai & Uji Keseimbangan Neraca Lolos Mutlak
+              </h2>
+              <p className="text-xs text-[#52636A] leading-relaxed">
+                Semua {decisions.length} akun telah berhasil dipetakan ke Pos SAK Indonesia. Persamaan matematis Aset = Liabilitas + Ekuitas terpenuhi mutlak (Selisih Rp 0). Anda dapat meninjau Kertas Kerja atau langsung menghasilkan Berkas Ekspor Resmi.
+              </p>
+            </div>
+            <Link
+              href={`/engagements/${engagement.id}/exports`}
+              className="finova-pill-cta bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs shadow-md shrink-0 cursor-pointer"
+            >
+              <span>Buka Ekspor Resmi & Unduh XLSX</span>
+              <div className="icon-circle">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="finova-bezel-outer bg-gradient-to-r from-[#FFF7E8]/60 via-[#FFFDF8] to-[#FFF7E8]/60 border-[#F6E0B5]">
+          <div className="finova-bezel-inner p-5 sm:p-6 border-2 border-[#B7791F]/30 bg-white relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xs">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FFF7E8] text-[#B7791F] border border-[#F6E0B5] flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#B7791F] animate-ping" />
+                  Tindakan Penentu (Next Required Action)
+                </span>
+                <span className="text-xs text-[#52636A] font-medium">
+                  {needsReviewDecisions.length} Akun Ambigu Membutuhkan Keputusan Anda
+                </span>
+              </div>
+              <h2 className="text-lg font-bold text-[#102A32] tracking-tight">
+                Selesaikan Pemetaan: {needsReviewDecisions[0]?.sourceAccountCode} {needsReviewDecisions[0]?.sourceAccountName}
+              </h2>
+              <p className="text-xs text-[#52636A] leading-relaxed">
+                Sistem mendeteksi saldo penampungan sebesar <strong className="text-[#102A32] font-mono">Rp {Math.abs(needsReviewDecisions[0]?.amountIdr || 0).toLocaleString('id-ID')}</strong> dengan tingkat keyakinan rendah ({((needsReviewDecisions[0]?.confidenceScore || 0) * 100).toFixed(0)}%). Tinjau alokasi target kertas kerja atau berikan alasan profesional sebelum finalisasi.
+              </p>
+            </div>
+            <Link
+              href={`/engagements/${engagement.id}/mapping`}
+              className="finova-pill-cta bg-[#B7791F] hover:bg-[#9E6516] text-white text-xs shadow-md shrink-0"
+            >
+              <span>Tinjau Pemetaan Sekarang</span>
+              <div className="icon-circle">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* 2. Horizontal Workflow Stepper with Connected Progress */}
       <div className="bg-white p-5 rounded-2xl border border-[#DDE4E2] shadow-2xs space-y-3">
@@ -75,7 +150,7 @@ export default function EngagementOverviewPage() {
             Kemajuan Alur Kerja Release 0.1 (Workflow Progress)
           </div>
           <span className="text-[11px] font-mono font-bold text-[#0F8F7A]">
-            80% Selesai (1 Langkah Menuju Ekspor)
+            {!hasFiles ? '20% (Menunggu Berkas Sumber)' : isAllMapped ? '100% Selesai (Siap Finalisasi & Ekspor)' : '80% Selesai (1 Langkah Menuju Ekspor)'}
           </span>
         </div>
 
@@ -107,13 +182,19 @@ export default function EngagementOverviewPage() {
           {/* Step 3 */}
           <Link
             href={`/engagements/${engagement.id}/mapping`}
-            className="p-3 rounded-xl bg-[#FFF7E8] border border-[#F6E0B5] hover:bg-[#FEF0D4] transition-all relative overflow-hidden"
+            className={`p-3 rounded-xl border transition-all ${
+              isAllMapped
+                ? 'bg-[#E8F5F1] border-[#B2DFD6] hover:bg-[#D3EEE7]'
+                : 'bg-[#FFF7E8] border-[#F6E0B5] hover:bg-[#FEF0D4]'
+            }`}
           >
-            <div className="font-bold flex items-center gap-1.5 text-[#B7791F]">
-              <Clock className="w-4 h-4 text-[#B7791F]" />
+            <div className={`font-bold flex items-center gap-1.5 ${isAllMapped ? 'text-[#0F8F7A]' : 'text-[#B7791F]'}`}>
+              {isAllMapped ? <CheckCircle2 className="w-4 h-4 text-[#0F8F7A]" /> : <Clock className="w-4 h-4 text-[#B7791F]" />}
               3. Pemetaan Akun
             </div>
-            <div className="text-[11px] text-[#52636A] mt-1 font-medium">1 Perlu Konfirmasi</div>
+            <div className="text-[11px] text-[#52636A] mt-1 font-medium">
+              {isAllMapped ? `${decisions.length} Akun Terpetakan (100%)` : `${needsReviewDecisions.length} Perlu Konfirmasi`}
+            </div>
           </Link>
 
           {/* Step 4 */}

@@ -311,7 +311,7 @@ Beban Pokok Penjualan (HPP) tercatat Rp 31,5 Miliar sehingga Laba Kotor perusaha
 
 Total Aset: Rp 34,55 Miliar (terdiri dari Aset Lancar Rp 18,25 Miliar dan Aset Tetap Neto Rp 16,30 Miliar).
 Total Liabilitas: Rp 12,36 Miliar (Liabilitas Jangka Pendek Rp 7,54 Miliar dan Utang Bank Jangka Panjang Rp 4,82 Miliar).
-Total Ekuitas: Rp 22,19 Miliar (Modal Disetor Rp 15 Miliar ditambah Saldo Laba Ditahan Rp 7,19 Miliar).
+Total Ekuitas: Rp 22,19 Miliar — bersumber dari WP-E.1 (Modal Disetor Rp 8,00 Miliar), WP-E.2 (Saldo Laba Ditahan Rp 9,94 Miliar), dan Laba Bersih Tahun Berjalan (Rp 4,25 Miliar). Seluruh komponen terverifikasi klop dengan Kertas Kerja Lead Schedule.
 
 Persamaan Akuntansi Aset = Liabilitas + Ekuitas terpenuhi secara mutlak dengan selisih Rp 0 melalui kalkulasi zero-float math.`;
   }

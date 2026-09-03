@@ -5,6 +5,7 @@ import {
   calculateAnnualPph21Pasal17,
   getPtkpAnnualAmount,
   getTerCategory,
+  DEFAULT_COMPANY_EMPLOYEES,
 } from '../../src/lib/tax/pph21';
 import {
   generateDefaultPpnFilings,
@@ -14,6 +15,23 @@ import { calculateCorporateFiscalReconciliation } from '../../src/lib/tax/fiscal
 
 describe('Indonesian Tax Intelligence Engine (PP 58/2023, PPN 1111, SPT 1771)', () => {
   describe('PPh 21 TER Engine', () => {
+    it('verifies strict accounting invariant Gross - NonCashBenefits - PPh21 = TakeHomePay for all staff', () => {
+      for (const emp of DEFAULT_COMPANY_EMPLOYEES) {
+        const result = calculateMonthlyPph21(emp);
+        const cashSalary = emp.monthlyGrossSalaryIdr + emp.monthlyAllowanceIdr;
+        const nonCash = emp.bpjsKetenagakerjaanPaidByCompanyIdr + emp.bpjsKesehatanPaidByCompanyIdr;
+
+        // Invariant 1: Gross Income equals cash salary plus non-cash benefits
+        expect(result.grossIncomeIdr).toBe(cashSalary + nonCash);
+
+        // Invariant 2: Take Home Pay equals cash earnings minus monthly tax
+        expect(result.takeHomePayIdr).toBe(cashSalary - result.monthlyPph21Idr);
+
+        // Invariant 3: Gross - NonCash - Tax = THP
+        expect(result.grossIncomeIdr - nonCash - result.monthlyPph21Idr).toBe(result.takeHomePayIdr);
+      }
+    });
+
     it('correctly maps PTKP to TER Categories A, B, and C', () => {
       expect(getTerCategory('TK/0')).toBe('A');
       expect(getTerCategory('K/0')).toBe('A');

@@ -38,13 +38,13 @@ export const APPROVED_LEAD_SCHEDULE_TEMPLATE: WorkpaperTemplateDef = {
     // SEC-A: Current Assets
     { lineId: 'WP-A.1', sectionId: 'SEC-A', label: 'Kas & Setara Kas (Cash & Cash Equivalents)', targetCode: 'WP-A.1', signPolicy: 'debit_positive', comparativeDefaultIdr: 4_200_000_000 },
     { lineId: 'WP-A.2', sectionId: 'SEC-A', label: 'Piutang Usaha Bruto (Accounts Receivable)', targetCode: 'WP-A.2', signPolicy: 'debit_positive', comparativeDefaultIdr: 6_850_000_000 },
-    { lineId: 'WP-A.3', sectionId: 'SEC-A', label: 'Cadangan Penurunan Nilai Piutang (ECL)', targetCode: 'WP-A.3', signPolicy: 'credit_positive', comparativeDefaultIdr: -150_000_000 },
+    { lineId: 'WP-A.3', sectionId: 'SEC-A', label: 'Cadangan Penurunan Nilai Piutang (ECL)', targetCode: 'WP-A.3', signPolicy: 'credit_positive', comparativeDefaultIdr: 150_000_000 },
     { lineId: 'WP-A.4', sectionId: 'SEC-A', label: 'Persediaan Barang (Inventories)', targetCode: 'WP-A.4', signPolicy: 'debit_positive', comparativeDefaultIdr: 7_100_000_000 },
     { lineId: 'WP-A.5', sectionId: 'SEC-A', label: 'Uang Muka & Biaya Dibayar Dimuka', targetCode: 'WP-A.5', signPolicy: 'debit_positive', comparativeDefaultIdr: 400_000_000 },
 
     // SEC-B: Non-Current Assets
     { lineId: 'WP-B.1', sectionId: 'SEC-B', label: 'Aset Tetap - Biaya Perolehan (Fixed Assets Gross)', targetCode: 'WP-B.1', signPolicy: 'debit_positive', comparativeDefaultIdr: 14_000_000_000 },
-    { lineId: 'WP-B.2', sectionId: 'SEC-B', label: 'Akumulasi Penyusutan Aset Tetap', targetCode: 'WP-B.2', signPolicy: 'credit_positive', comparativeDefaultIdr: -3_800_000_000 },
+    { lineId: 'WP-B.2', sectionId: 'SEC-B', label: 'Akumulasi Penyusutan Aset Tetap', targetCode: 'WP-B.2', signPolicy: 'credit_positive', comparativeDefaultIdr: 3_800_000_000 },
     { lineId: 'WP-B.3', sectionId: 'SEC-B', label: 'Aset Lain-lain & Hak Guna', targetCode: 'WP-B.3', signPolicy: 'debit_positive', comparativeDefaultIdr: 600_000_000 },
 
     // SEC-C: Current Liabilities

@@ -241,8 +241,8 @@ export function AuditSpreadsheet({ lines, onOpenEvidence, onOpenComment }: Audit
                       isRowActive && activeColIdx === 2 ? 'ring-2 ring-inset ring-[#0F8F7A] bg-[#E8F5F1]/70' : ''
                     }`}
                   >
-                    <span className={l.currentPeriodIdr < 0 ? 'text-[#C83E4D]' : ''}>
-                      {formatIdrNumber(l.currentPeriodIdr)}
+                    <span className={l.currentPeriodIdr < 0 || l.lineId === 'WP-A.3' || l.lineId === 'WP-B.2' ? 'text-[#C83E4D]' : ''}>
+                      {l.lineId === 'WP-A.3' || l.lineId === 'WP-B.2' ? `(${formatIdrNumber(Math.abs(l.currentPeriodIdr))})` : formatIdrNumber(l.currentPeriodIdr)}
                     </span>
                   </td>
 
@@ -253,7 +253,15 @@ export function AuditSpreadsheet({ lines, onOpenEvidence, onOpenComment }: Audit
                       isRowActive && activeColIdx === 3 ? 'ring-2 ring-inset ring-[#0F8F7A] bg-[#E8F5F1]/70' : ''
                     }`}
                   >
-                    {l.comparativePeriodIdr !== undefined ? formatIdrNumber(l.comparativePeriodIdr) : '-'}
+                    {l.comparativePeriodIdr !== undefined ? (
+                      l.lineId === 'WP-A.3' || l.lineId === 'WP-B.2' ? (
+                        <span className="text-[#C83E4D]">({formatIdrNumber(Math.abs(l.comparativePeriodIdr))})</span>
+                      ) : (
+                        formatIdrNumber(l.comparativePeriodIdr)
+                      )
+                    ) : (
+                      '-'
+                    )}
                   </td>
 
                   {/* Col 4: Variance Amount */}

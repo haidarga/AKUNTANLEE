@@ -125,12 +125,27 @@ export function EngagementHeader({
   return (
     <div className="bg-white border-b border-[#DDE4E2] px-4 sm:px-6 pt-5 pb-0 shadow-xs space-y-3">
       <div className="max-w-7xl mx-auto space-y-3">
-        {/* Real-Time A/B Testing Switcher Bar */}
+        {/* Persistent Demo & Simulation Environment Notice */}
+        <div className="bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] px-3.5 py-1.5 rounded-xl flex items-center justify-between text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="font-bold px-1.5 py-0.5 rounded bg-[#F59E0B] text-white text-[10px] uppercase tracking-wider">
+              DATA SIMULASI
+            </span>
+            <span>
+              <strong>Lingkungan Demo & Evaluasi FINOVA AI v4.0:</strong> Seluruh entitas klien, nomor izin KAP, dan angka keuangan merupakan data simulasi fiktif untuk keperluan evaluasi fungsional.
+            </span>
+          </div>
+          <span className="font-mono text-[10px] text-[#B45309] hidden md:inline">
+            Sandbox Mode &bull; Non-Production Data
+          </span>
+        </div>
+
+        {/* Real-Time Module Mode Switcher Bar */}
         <div className="bg-[#F6F7F5] border border-[#DDE4E2] px-3.5 py-2 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-[11px] uppercase tracking-wider text-[#52636A] flex items-center gap-1">
               <KeyRound className="w-3.5 h-3.5 text-[#0F8F7A]" />
-              A/B Testing Real-Time:
+              Mode Evaluasi Aktif:
             </span>
             <span className="font-bold text-[#102A32] bg-white px-2 py-0.5 rounded border border-[#DDE4E2] text-[11px]">
               {userName}
@@ -146,7 +161,7 @@ export function EngagementHeader({
                   : 'text-[#52636A] hover:text-[#102A32] hover:bg-[#F6F7F5]'
               }`}
             >
-              <span>🟢 Varian A: Kepatuhan Pajak (Bunda)</span>
+              <span>🟢 Mode Kepatuhan Pajak (Audit & Tax Mode)</span>
             </button>
             <button
               onClick={() => switchVariant('variant_b_advisory')}
@@ -156,7 +171,7 @@ export function EngagementHeader({
                   : 'text-[#52636A] hover:text-[#102A32] hover:bg-[#F6F7F5]'
               }`}
             >
-              <span>🟣 Varian B: Strategic Advisory (Tante Rina)</span>
+              <span>🟣 Mode Analisis Strategis (Strategic Advisory Mode)</span>
             </button>
           </div>
         </div>

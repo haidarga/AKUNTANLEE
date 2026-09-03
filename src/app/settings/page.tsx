@@ -16,27 +16,29 @@ import {
   Sliders,
 } from 'lucide-react';
 import { FirmProfile, TeamMemberProfile, UserRoleV4 } from '@/types/domain-v4';
+import { repo } from '@/lib/db/repo-v4';
 
 export default function SettingsPage() {
+  const initialFirm = repo.getState().firmProfile;
   const [activeTab, setActiveTab] = useState<'profile' | 'team' | 'standards'>('profile');
-  const [profile, setProfile] = useState<FirmProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [profile, setProfile] = useState<FirmProfile | null>(initialFirm);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Form Fields
-  const [name, setName] = useState('');
-  const [shortName, setShortName] = useState('');
-  const [licenseNumber, setLicenseNumber] = useState('');
-  const [managingPartnerName, setManagingPartnerName] = useState('');
-  const [managingPartnerApNumber, setManagingPartnerApNumber] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [defaultAccountingStandard, setDefaultAccountingStandard] = useState<'SAK_INDONESIA' | 'SAK_EP' | 'PSAK_IFRS'>('SAK_INDONESIA');
-  const [defaultMaterialityIdr, setDefaultMaterialityIdr] = useState(250000000);
-  const [teamMembers, setTeamMembers] = useState<TeamMemberProfile[]>([]);
+  // Form Fields initialized with canonical firm profile
+  const [name, setName] = useState(initialFirm?.name || 'KAP Haidar & Rekan');
+  const [shortName, setShortName] = useState(initialFirm?.shortName || 'KAP Haidar');
+  const [licenseNumber, setLicenseNumber] = useState(initialFirm?.licenseNumber || 'KMK No. 492/KM.1/2024');
+  const [managingPartnerName, setManagingPartnerName] = useState(initialFirm?.managingPartnerName || 'Haidar, CPA, CA');
+  const [managingPartnerApNumber, setManagingPartnerApNumber] = useState(initialFirm?.managingPartnerApNumber || 'AP.0942');
+  const [address, setAddress] = useState(initialFirm?.address || 'Menara Finansial Indonesia Lt. 18, Jl. Jend. Sudirman Kav. 52-53');
+  const [city, setCity] = useState(initialFirm?.city || 'Jakarta Selatan');
+  const [email, setEmail] = useState(initialFirm?.email || 'contact@kaphaidar.co.id');
+  const [phone, setPhone] = useState(initialFirm?.phone || '+62 21 5299 8800');
+  const [defaultAccountingStandard, setDefaultAccountingStandard] = useState<'SAK_INDONESIA' | 'SAK_EP' | 'PSAK_IFRS'>(initialFirm?.defaultAccountingStandard || 'SAK_INDONESIA');
+  const [defaultMaterialityIdr, setDefaultMaterialityIdr] = useState(initialFirm?.defaultMaterialityIdr || 250000000);
+  const [teamMembers, setTeamMembers] = useState<TeamMemberProfile[]>(initialFirm?.teamMembers || []);
 
   useEffect(() => {
     fetch('/api/v1/firm')

@@ -1,4 +1,5 @@
 import React from 'react';
+import { notFound } from 'next/navigation';
 import { repo } from '@/lib/db/repo-v4';
 import { EngagementHeader } from '@/components/v4/EngagementHeader';
 import { AuditCopilotDrawer } from '@/components/v4/AuditCopilotDrawer';
@@ -12,9 +13,22 @@ export default async function EngagementV4Layout({
 }) {
   const resolvedParams = await params;
   const state = repo.getState();
-  const engagement = state.engagements.find((e) => e.id === resolvedParams.id) || state.engagements[0];
-  const client = state.clients.find((c) => c.id === engagement.clientId) || state.clients[0];
-  const wp = state.workpaperVersions[0];
+  const engagement = state.engagements.find((e) => e.id === resolvedParams.id);
+
+  if (!engagement) {
+    notFound();
+  }
+
+  const client = state.clients.find((c) => c.id === engagement.clientId) || {
+    id: 'CLI-CUSTOM',
+    legalName: engagement.name,
+    code: 'CLIENT',
+    industry: 'Jasa & Manufaktur',
+    taxIdNpwp: '01.234.567.8-012.000',
+    address: 'Jakarta, Indonesia',
+    createdAt: new Date().toISOString(),
+  };
+  const wp = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
 
   return (
     <div className="flex-1 flex flex-col relative">

@@ -3,6 +3,7 @@ import { IsometricWorkbookPreview } from "@/components/v4/visuals/IsometricWorkb
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   Download,
   CheckCircle2,
@@ -22,9 +23,11 @@ import { repo } from '@/lib/db/repo-v4';
 import { ExportArtifact, UserRoleV4 } from '@/types/domain-v4';
 
 export default function ExportsPage() {
+  const routeParams = useParams();
+  const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
   const state = repo.getState();
-  const engagement = state.engagements[0];
-  const wpVersion = state.workpaperVersions[0];
+  const engagement = state.engagements.find((e) => e.id === engagementId) || state.engagements[0];
+  const wpVersion = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
   const checks = state.validationChecks;
   const [artifacts, setArtifacts] = useState<ExportArtifact[]>(state.exportArtifacts);
   const [isGenerating, setIsGenerating] = useState(false);
