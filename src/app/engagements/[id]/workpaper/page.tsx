@@ -57,17 +57,33 @@ export default function WorkpaperPage() {
     }
   }, []);
 
-  const handleRecalculate = () => {
+  const handleRecalculate = async () => {
     setIsRecalculating(true);
-    const user = state.users.find((u) => u.role === activeRole) || state.users[0];
-
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/v1/workpapers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          engagementId: engagement.id,
+          userRole: activeRole,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data) {
+          setWpVersion(data.data);
+        }
+      }
+      const user = state.users.find((u) => u.role === activeRole) || state.users[0];
       const newWp = repo.recalculateWorkpaper(engagement.id, user);
       setWpVersion(newWp);
       setLines([...repo.getState().workpaperLines]);
       setChecks([...repo.getState().validationChecks]);
+    } catch (e) {
+      console.error('Error during recalculate:', e);
+    } finally {
       setIsRecalculating(false);
-    }, 400);
+    }
   };
 
   const handleOpenEvidence = (line: WorkpaperLineItem) => {

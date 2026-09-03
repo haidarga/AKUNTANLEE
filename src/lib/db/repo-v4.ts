@@ -940,6 +940,7 @@ class FinovaV4Repository {
       metadata: { newVersionNumber: calc.workpaperVersion.versionNumber },
     });
 
+    this.persist();
     return calc.workpaperVersion;
   }
 
