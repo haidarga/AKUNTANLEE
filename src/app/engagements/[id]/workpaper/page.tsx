@@ -382,6 +382,51 @@ export default function WorkpaperPage() {
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
+
+      {/* P1: Audit Adjustments Modal */}
+      <AuditAdjustmentsModal
+        isOpen={isAdjustmentsOpen}
+        onClose={() => setIsAdjustmentsOpen(false)}
+        engagementId={engagementId}
+        adjustments={adjustments}
+        onAdjustmentCreated={(newAdj) => {
+          setAdjustments((prev) => [...prev, newAdj]);
+          const refreshedState = repo.getState();
+          setLines(refreshedState.workpaperLines);
+          setChecks(refreshedState.validationChecks);
+        }}
+      />
+
+      {/* P1: Audit Seal Modal */}
+      <AuditSealModal
+        isOpen={isSealOpen}
+        onClose={() => setIsSealOpen(false)}
+        engagementId={engagementId}
+        onSealed={(hash) => {
+          const refreshedState = repo.getState();
+          const updatedEng = refreshedState.engagements.find((e) => e.id === engagementId) || currentEngagement;
+          setCurrentEngagement({ ...updatedEng, status: "partner_sealed" });
+        }}
+      />
+
+      {/* P1: Reviewer Notes Drawer */}
+      <ReviewerNotesDrawer
+        isOpen={isNotesOpen}
+        onClose={() => {
+          setIsNotesOpen(false);
+          setSelectedNoteLine(null);
+        }}
+        engagementId={engagementId}
+        targetLineId={selectedNoteLine?.lineId || "ALL"}
+        targetLineLabel={selectedNoteLine?.label || "Seluruh Pos Kertas Kerja"}
+        notes={notes}
+        onNoteAdded={(newNote) => setNotes((prev) => [newNote, ...prev])}
+        onNoteResolved={(noteId) => {
+          setNotes((prev) =>
+            prev.map((n) => (n.id === noteId ? { ...n, status: "resolved" as const } : n))
+          );
+        }}
+      />
     </div>
   );
 }
