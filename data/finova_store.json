@@ -945,6 +945,28 @@
   ],
   "workpaperVersions": [
     {
+      "id": "WPV-MTL0JXWX",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "datasetVersionIds": [
+        "DSV-001"
+      ],
+      "mappingSetId": "MAPSET-001",
+      "templateVersion": "FINOVA-LEAD-v1.0",
+      "versionNumber": 2,
+      "status": "review_ready",
+      "totals": {
+        "totalAssetsIdr": 34550000000,
+        "totalLiabilitiesIdr": 12050000000,
+        "totalEquityIdr": 22500000000,
+        "netIncomeIdr": 4560000000,
+        "tbDebitCreditDiffIdr": 0,
+        "balanceSheetDiffIdr": 0
+      },
+      "isStale": false,
+      "calculatedAt": "2026-09-03T04:16:57.969Z"
+    },
+    {
       "id": "WPV-MTJUFL4J",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
@@ -983,7 +1005,7 @@
       "variancePercent": 7.1,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-1-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-A-1-JXWX"
     },
     {
       "lineId": "WP-A.2",
@@ -998,7 +1020,7 @@
       "variancePercent": 43.8,
       "validationState": "valid",
       "commentCount": 1,
-      "primaryEvidenceLinkId": "EVL-WP-A-2-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-A-2-JXWX"
     },
     {
       "lineId": "WP-A.3",
@@ -1013,7 +1035,7 @@
       "variancePercent": 233.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-3-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-A-3-JXWX"
     },
     {
       "lineId": "WP-A.4",
@@ -1029,7 +1051,7 @@
       "variancePercent": 19,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-4-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-A-4-JXWX"
     },
     {
       "lineId": "WP-A.5",
@@ -1044,7 +1066,7 @@
       "variancePercent": 12.5,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-5-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-A-5-JXWX"
     },
     {
       "lineId": "WP-B.1",
@@ -1060,7 +1082,7 @@
       "variancePercent": 10.7,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-1-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-B-1-JXWX"
     },
     {
       "lineId": "WP-B.2",
@@ -1075,7 +1097,7 @@
       "variancePercent": 222.4,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-2-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-B-2-JXWX"
     },
     {
       "lineId": "WP-B.3",
@@ -1090,23 +1112,22 @@
       "variancePercent": 8.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-3-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-B-3-JXWX"
     },
     {
       "lineId": "WP-C.1",
       "sectionId": "SEC-C",
       "label": "Utang Usaha (Trade Accounts Payable)",
       "accountCodes": [
-        "2110-00",
-        "2199-00"
+        "2110-00"
       ],
-      "currentPeriodIdr": 5160000000,
+      "currentPeriodIdr": 4850000000,
       "comparativePeriodIdr": 4100000000,
-      "varianceAmountIdr": 1060000000,
-      "variancePercent": 25.9,
+      "varianceAmountIdr": 750000000,
+      "variancePercent": 18.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-1-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-C-1-JXWX"
     },
     {
       "lineId": "WP-C.2",
@@ -1121,7 +1142,7 @@
       "variancePercent": 18.8,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-2-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-C-2-JXWX"
     },
     {
       "lineId": "WP-C.3",
@@ -1136,7 +1157,7 @@
       "variancePercent": 12.5,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-3-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-C-3-JXWX"
     },
     {
       "lineId": "WP-D.1",
@@ -1151,7 +1172,7 @@
       "variancePercent": 10,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-D-1-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-D-1-JXWX"
     },
     {
       "lineId": "WP-D.2",
@@ -1166,7 +1187,7 @@
       "variancePercent": 11.4,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-D-2-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-D-2-JXWX"
     },
     {
       "lineId": "WP-E.1",
@@ -1181,7 +1202,7 @@
       "variancePercent": 0,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-E-1-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-E-1-JXWX"
     },
     {
       "lineId": "WP-E.2",
@@ -1196,7 +1217,7 @@
       "variancePercent": -6.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-E-2-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-E-2-JXWX"
     },
     {
       "lineId": "WP-F.1",
@@ -1211,7 +1232,7 @@
       "variancePercent": 9.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-1-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-F-1-JXWX"
     },
     {
       "lineId": "WP-F.2",
@@ -1226,7 +1247,7 @@
       "variancePercent": 21.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-2-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-F-2-JXWX"
     },
     {
       "lineId": "WP-F.3",
@@ -1241,27 +1262,30 @@
       "variancePercent": 8.9,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-3-FL4J"
+      "primaryEvidenceLinkId": "EVL-WP-F-3-JXWX"
     },
     {
       "lineId": "WP-F.4",
       "sectionId": "SEC-F",
       "label": "Pendapatan / (Beban) Lain-lain Bersih",
-      "accountCodes": [],
-      "currentPeriodIdr": 0,
+      "accountCodes": [
+        "2199-00"
+      ],
+      "currentPeriodIdr": 310000000,
       "comparativePeriodIdr": -250000000,
-      "varianceAmountIdr": 250000000,
-      "variancePercent": 100,
-      "validationState": "unmapped",
-      "commentCount": 0
+      "varianceAmountIdr": 560000000,
+      "variancePercent": 224,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-F-4-JXWX"
     }
   ],
   "evidenceLinks": [
     {
-      "id": "EVL-WP-A-1-FL4J",
+      "id": "EVL-WP-A-1-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-A.1",
       "targetAmountIdr": 4500000000,
       "sourceFileVersionId": "FV-001",
@@ -1281,10 +1305,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-2-FL4J",
+      "id": "EVL-WP-A-2-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-A.2",
       "targetAmountIdr": 9850000000,
       "sourceFileVersionId": "FV-001",
@@ -1304,10 +1328,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-3-FL4J",
+      "id": "EVL-WP-A-3-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-A.3",
       "targetAmountIdr": 200000000,
       "sourceFileVersionId": "FV-001",
@@ -1327,10 +1351,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-4-FL4J",
+      "id": "EVL-WP-A-4-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-A.4",
       "targetAmountIdr": 8450000000,
       "sourceFileVersionId": "FV-001",
@@ -1350,10 +1374,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-5-FL4J",
+      "id": "EVL-WP-A-5-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-A.5",
       "targetAmountIdr": 450000000,
       "sourceFileVersionId": "FV-001",
@@ -1373,10 +1397,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-1-FL4J",
+      "id": "EVL-WP-B-1-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-B.1",
       "targetAmountIdr": 15500000000,
       "sourceFileVersionId": "FV-001",
@@ -1396,10 +1420,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-2-FL4J",
+      "id": "EVL-WP-B-2-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-B.2",
       "targetAmountIdr": 4650000000,
       "sourceFileVersionId": "FV-001",
@@ -1419,10 +1443,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-3-FL4J",
+      "id": "EVL-WP-B-3-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-B.3",
       "targetAmountIdr": 650000000,
       "sourceFileVersionId": "FV-001",
@@ -1442,12 +1466,12 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-1-FL4J",
+      "id": "EVL-WP-C-1-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-C.1",
-      "targetAmountIdr": 5160000000,
+      "targetAmountIdr": 4850000000,
       "sourceFileVersionId": "FV-001",
       "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
       "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
@@ -1455,20 +1479,20 @@
       "cellRange": "Trial Balance!A13:F13",
       "sourceRowNumber": 13,
       "sourceRawValue": -4850000000,
-      "normalizedValueIdr": 5160000000,
+      "normalizedValueIdr": 4850000000,
       "transformChain": [
         "Raw Row Parse (Section 43.1 Stage 6)",
         "Account Normalized: 2110-00 Utang Usaha Supplier Logam & Komponen",
         "Mapping Target Applied: WP-C.1 (Utang Usaha (Trade Accounts Payable))",
-        "Aggregated with 2 account(s)"
+        "Aggregated with 1 account(s)"
       ],
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-2-FL4J",
+      "id": "EVL-WP-C-2-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-C.2",
       "targetAmountIdr": 380000000,
       "sourceFileVersionId": "FV-001",
@@ -1488,10 +1512,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-3-FL4J",
+      "id": "EVL-WP-C-3-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-C.3",
       "targetAmountIdr": 540000000,
       "sourceFileVersionId": "FV-001",
@@ -1511,10 +1535,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-D-1-FL4J",
+      "id": "EVL-WP-D-1-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-D.1",
       "targetAmountIdr": 5500000000,
       "sourceFileVersionId": "FV-001",
@@ -1534,10 +1558,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-D-2-FL4J",
+      "id": "EVL-WP-D-2-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-D.2",
       "targetAmountIdr": 780000000,
       "sourceFileVersionId": "FV-001",
@@ -1557,10 +1581,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-E-1-FL4J",
+      "id": "EVL-WP-E-1-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-E.1",
       "targetAmountIdr": 8000000000,
       "sourceFileVersionId": "FV-001",
@@ -1580,10 +1604,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-E-2-FL4J",
+      "id": "EVL-WP-E-2-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-E.2",
       "targetAmountIdr": 9940000000,
       "sourceFileVersionId": "FV-001",
@@ -1603,10 +1627,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-1-FL4J",
+      "id": "EVL-WP-F-1-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-F.1",
       "targetAmountIdr": 52400000000,
       "sourceFileVersionId": "FV-001",
@@ -1626,10 +1650,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-2-FL4J",
+      "id": "EVL-WP-F-2-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-F.2",
       "targetAmountIdr": 35950000000,
       "sourceFileVersionId": "FV-001",
@@ -1649,10 +1673,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-3-FL4J",
+      "id": "EVL-WP-F-3-JXWX",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
-      "workpaperVersionId": "WPV-MTJUFL4J",
+      "workpaperVersionId": "WPV-MTL0JXWX",
       "targetLineId": "WP-F.3",
       "targetAmountIdr": 12200000000,
       "sourceFileVersionId": "FV-001",
@@ -1667,6 +1691,29 @@
         "Raw Row Parse (Section 43.1 Stage 6)",
         "Account Normalized: 6100-00 Beban Operasional, Gaji & Umum",
         "Mapping Target Applied: WP-F.3 (Beban Operasional & Umum (OPEX))",
+        "Aggregated with 1 account(s)"
+      ],
+      "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
+    },
+    {
+      "id": "EVL-WP-F-4-JXWX",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTL0JXWX",
+      "targetLineId": "WP-F.4",
+      "targetAmountIdr": 310000000,
+      "sourceFileVersionId": "FV-001",
+      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2025.xlsx",
+      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sheetName": "Trial Balance",
+      "cellRange": "Trial Balance!A16:F16",
+      "sourceRowNumber": 16,
+      "sourceRawValue": -310000000,
+      "normalizedValueIdr": 310000000,
+      "transformChain": [
+        "Raw Row Parse (Section 43.1 Stage 6)",
+        "Account Normalized: 2199-00 Akun Penampungan Selisih Kurs Sementara",
+        "Mapping Target Applied: WP-F.4 (Pendapatan / (Beban) Lain-lain Bersih)",
         "Aggregated with 1 account(s)"
       ],
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
@@ -1699,8 +1746,8 @@
       "status": "pass",
       "inputs": {
         "totalAssetsIdr": 34550000000,
-        "totalLiabilitiesIdr": 12360000000,
-        "totalEquityIdr": 22190000000
+        "totalLiabilitiesIdr": 12050000000,
+        "totalEquityIdr": 22500000000
       },
       "expected": "Total Aset sama dengan Liabilitas ditambah Ekuitas",
       "actual": "Aset: Rp 34.550.000.000, Liab+Ekuitas: Rp 34.550.000.000",
@@ -1740,6 +1787,20 @@
   ],
   "exportArtifacts": [
     {
+      "id": "EXP-MTL0K0V8",
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "workpaperVersionId": "WPV-MTL0JXWX",
+      "format": "xlsx",
+      "filename": "NSM_FY2025_WPV-MTL0JXWX_2026-09-03T04-17-01-796Z.xlsx",
+      "checksumSha256": "1596b708a020a949df06035d88e8f016776db6114fee880991a2116fea49d02a",
+      "status": "complete",
+      "createdByUserId": "USR-PARTNER-01",
+      "readbackVerified": true,
+      "fileSizeBytes": 25792,
+      "createdAt": "2026-09-03T04:17:01.796Z"
+    },
+    {
       "id": "EXP-2025-01-V1",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2025-01",
@@ -1755,6 +1816,39 @@
     }
   ],
   "auditEvents": [
+    {
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "actorId": "USR-PARTNER-01",
+      "actorName": "Bambang Hendrawan, CPA",
+      "actorRole": "partner",
+      "action": "export_generated",
+      "resourceType": "ExportArtifact",
+      "resourceId": "EXP-MTL0K0V8",
+      "requestId": "req-exp-1788409021796",
+      "metadata": {
+        "filename": "NSM_FY2025_WPV-MTL0JXWX_2026-09-03T04-17-01-796Z.xlsx",
+        "checksum": "1596b708a020a949df06035d88e8f016776db6114fee880991a2116fea49d02a"
+      },
+      "id": "EVT-MTL0K0V8-206",
+      "timestamp": "2026-09-03T04:17:01.796Z"
+    },
+    {
+      "tenantId": "TENANT-001",
+      "engagementId": "ENG-2025-01",
+      "actorId": "USR-PARTNER-01",
+      "actorName": "Bambang Hendrawan, CPA",
+      "actorRole": "partner",
+      "action": "workpaper_recalculated",
+      "resourceType": "WorkpaperVersion",
+      "resourceId": "WPV-MTL0JXWX",
+      "requestId": "req-wpcalc-1788409017969",
+      "metadata": {
+        "newVersionNumber": 2
+      },
+      "id": "EVT-MTL0JXWX-737",
+      "timestamp": "2026-09-03T04:16:57.969Z"
+    },
     {
       "id": "EVT-001",
       "tenantId": "TENANT-001",
@@ -1907,6 +2001,6 @@
         "role": "preparer"
       }
     ],
-    "updatedAt": "2026-09-02T10:30:00.000Z"
+    "updatedAt": "2026-09-03T04:11:19.481Z"
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'motion/react';
@@ -14,6 +14,8 @@ import {
   Clock,
   Layers,
   Sparkles,
+  Calculator,
+  Calendar,
 } from 'lucide-react';
 import { EngagementStatusV4 } from '@/types/domain-v4';
 import { formatIdrNumber } from '@/lib/decimal';
@@ -41,12 +43,16 @@ export function EngagementHeader({
 }: HeaderProps) {
   const pathname = usePathname();
 
+  const [selectedCycle, setSelectedCycle] = useState<'Tahunan' | 'Semester 1' | 'Triwulan 4' | 'Bulanan'>('Tahunan');
+
   const tabs = [
     { label: '1. Ringkasan', sub: 'Overview', href: `/engagements/${engagementId}/overview`, icon: Layers },
     { label: '2. Berkas Sumber', sub: 'Files', href: `/engagements/${engagementId}/files`, icon: UploadCloud },
     { label: '3. Pemetaan SAK', sub: 'Mapping', href: `/engagements/${engagementId}/mapping`, icon: Table },
     { label: '4. Kertas Kerja', sub: 'Lead Schedule', href: `/engagements/${engagementId}/workpaper`, icon: FileSpreadsheet },
-    { label: '5. Ekspor Resmi', sub: 'XLSX', href: `/engagements/${engagementId}/exports`, icon: Download },
+    { label: '5. Analisis Konsultan', sub: "What's Next & Ratios", href: `/engagements/${engagementId}/advisory`, icon: Sparkles },
+    { label: '6. Kepatuhan Pajak', sub: 'PPh 21 & PPN', href: `/engagements/${engagementId}/tax`, icon: Calculator },
+    { label: '7. Ekspor Resmi', sub: 'XLSX & Memo', href: `/engagements/${engagementId}/exports`, icon: Download },
   ];
 
   const getStatusBadge = (s: EngagementStatusV4) => {
@@ -86,10 +92,27 @@ export function EngagementHeader({
           </div>
 
           {/* Quick Period & Materiality Stats */}
-          <div className="flex items-center gap-4 text-xs shrink-0">
+          <div className="flex items-center gap-3 text-xs shrink-0 flex-wrap">
+            {/* Multi-Period Cycle Selector (Bunda's Request) */}
+            <div className="bg-[#F6F7F5] border border-[#DDE4E2] p-1 rounded-xl flex items-center gap-1 text-[11px]">
+              {(['Tahunan', 'Semester 1', 'Triwulan 4', 'Bulanan'] as const).map((cycle) => (
+                <button
+                  key={cycle}
+                  onClick={() => setSelectedCycle(cycle)}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                    selectedCycle === cycle
+                      ? 'bg-[#0F8F7A] text-white shadow-xs'
+                      : 'text-[#52636A] hover:text-[#102A32]'
+                  }`}
+                >
+                  {cycle}
+                </button>
+              ))}
+            </div>
+
             <div className="bg-[#F6F7F5] border border-[#DDE4E2] px-3 py-1.5 rounded-lg text-right">
-              <span className="text-[10px] text-[#52636A] block">Tahun Fiskal</span>
-              <span className="font-mono font-bold text-xs text-[#102A32]">{periodYear} (IDR)</span>
+              <span className="text-[10px] text-[#52636A] block">Siklus Aktif</span>
+              <span className="font-mono font-bold text-xs text-[#102A32]">{selectedCycle} {periodYear}</span>
             </div>
             <div className="bg-[#F6F7F5] border border-[#DDE4E2] px-3 py-1.5 rounded-lg text-right">
               <span className="text-[10px] text-[#52636A] block">Materialitas Audit</span>
