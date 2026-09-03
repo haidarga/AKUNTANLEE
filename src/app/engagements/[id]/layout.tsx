@@ -1,6 +1,7 @@
 import React from 'react';
 import { repo } from '@/lib/db/repo-v4';
 import { EngagementHeader } from '@/components/v4/EngagementHeader';
+import { AuditCopilotDrawer } from '@/components/v4/AuditCopilotDrawer';
 
 export default async function EngagementV4Layout({
   children,
@@ -16,7 +17,7 @@ export default async function EngagementV4Layout({
   const wp = state.workpaperVersions[0];
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col relative">
       <EngagementHeader
         engagementId={engagement.id}
         clientName={client.legalName}
@@ -30,6 +31,9 @@ export default async function EngagementV4Layout({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
         {children}
       </div>
+
+      {/* Embedded Live Audit Copilot (Connected to Qwen-3.8 via vLLM) */}
+      <AuditCopilotDrawer engagementId={engagement.id} />
     </div>
   );
 }

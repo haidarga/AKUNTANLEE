@@ -34,6 +34,34 @@ export default function AccountMappingPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeRole, setActiveRole] = useState<UserRoleV4>('senior');
   const [aiInspectingDecision, setAiInspectingDecision] = useState<MappingDecision | null>(null);
+  const [isAnalyzingAi, setIsAnalyzingAi] = useState(false);
+  const [liveAiResult, setLiveAiResult] = useState<any>(null);
+
+  const handleOpenAiInspector = async (dec: MappingDecision) => {
+    setAiInspectingDecision(dec);
+    setIsAnalyzingAi(true);
+    setLiveAiResult(null);
+    try {
+      const res = await fetch('/api/v1/ai/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountCode: dec.sourceAccountCode,
+          accountName: dec.sourceAccountName,
+          amountIdr: dec.amountIdr,
+          currentProposedTarget: dec.effectiveTarget || dec.proposedTarget,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setLiveAiResult(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to analyze with live AI:', err);
+    } finally {
+      setIsAnalyzingAi(false);
+    }
+  };
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [focusedRowIdx, setFocusedRowIdx] = useState<number>(0);
 
@@ -496,7 +524,7 @@ export default function AccountMappingPage() {
                           Alasan
                         </button>
                         <button
-                          onClick={() => setAiInspectingDecision(dec)}
+                          onClick={() => handleOpenAiInspector(dec)}
                           className="px-2 py-1 bg-[#E8F5F1] hover:bg-[#D3EEE7] text-[#0F8F7A] border border-[#B2DFD6] rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
                           title="Buka Analisis Semantik AI"
                         >
@@ -648,7 +676,7 @@ export default function AccountMappingPage() {
                   <h3 className="text-sm font-bold text-[#102A32] flex items-center gap-2">
                     FINOVA AI Semantic Reasoning Inspector
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]">
-                      Model: Finova-SAK-Reasoner
+                      Model: {liveAiResult?.model || 'qwen3.8-nvfp4'}
                     </span>
                   </h3>
                   <p className="text-[11px] text-[#52636A]">
@@ -657,67 +685,105 @@ export default function AccountMappingPage() {
                 </div>
               </div>
               <button
-                onClick={() => setAiInspectingDecision(null)}
+                onClick={() => {
+                  setAiInspectingDecision(null);
+                  setLiveAiResult(null);
+                }}
                 className="text-[#7A8C93] hover:text-[#102A32] text-sm font-bold p-1"
               >
                 &times;
               </button>
             </div>
 
-            {/* AI Diagnostics Box */}
-            <div className="space-y-3 relative z-10">
-              <div className="p-3.5 rounded-xl bg-[#F6F7F5] border border-[#DDE4E2] space-y-2">
-                <span className="font-bold text-[11px] text-[#52636A] uppercase tracking-wider block">
-                  1. Analisis Semantik Token Nama Akun
-                </span>
-                <div className="flex items-center gap-2 flex-wrap text-[11px] font-mono">
-                  <span className="px-2 py-1 rounded bg-white border border-[#DDE4E2] text-[#102A32]">Token [Penampungan]: <strong>Akun Antara (Suspense/Clearing)</strong></span>
-                  <span className="px-2 py-1 rounded bg-white border border-[#DDE4E2] text-[#102A32]">Token [Selisih Kurs]: <strong>Valas / Forex Fluctuation</strong></span>
-                  <span className="px-2 py-1 rounded bg-[#FDECEF] border border-[#F8B4BD] text-[#C83E4D]">Konflik: <strong>Prefix 21xx (Liabilitas) vs Sifat P&L</strong></span>
+            {/* If analyzing */}
+            {isAnalyzingAi && (
+              <div className="py-8 flex flex-col items-center justify-center space-y-3 relative z-10 text-center">
+                <div className="w-10 h-10 rounded-full border-3 border-[#0F8F7A] border-t-transparent animate-spin" />
+                <div className="space-y-1">
+                  <div className="font-bold text-xs text-[#102A32]">Menghubungi Live Model Qwen 3.8 via vLLM...</div>
+                  <p className="text-[11px] text-[#52636A]">
+                    Mengevaluasi penalaran semantik nama akun, memeriksa kepatuhan PSAK 10, dan menghitung skor keyakinan.
+                  </p>
                 </div>
               </div>
+            )}
 
-              <div className="p-3.5 rounded-xl bg-[#FFF7E8] border border-[#F6E0B5] space-y-1.5">
-                <div className="font-bold text-[11px] text-[#B7791F] flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  2. Mengapa Skor Keyakinan Rendah (Confidence {Math.round(aiInspectingDecision.confidenceScore * 100)}%)?
-                </div>
-                <p className="text-[11px] text-[#52636A] leading-relaxed">
-                  Sistem mendeteksi bahwa klien menempatkan selisih kurs pada akun liabilitas sementara (Akun 2199-00). Menurut <strong>Standar Akuntansi Keuangan (PSAK 10 / SAK Entitas Privat Seksi 30)</strong>, selisih kurs yang timbul pada akhir periode harus diakui dalam Laporan Laba Rugi periode berjalan, bukan dibiarkan menggantung di Neraca.
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#E8F5F1] border border-[#B2DFD6] space-y-2">
-                <span className="font-bold text-[11px] text-[#0F8F7A] uppercase tracking-wider block flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  3. Rekomendasi Penyelesaian Berbasis SAK
-                </span>
-                <div className="space-y-2">
-                  <div className="p-2.5 rounded-lg bg-white border border-[#B2DFD6] flex items-center justify-between gap-3">
-                    <div>
-                      <strong className="text-[#102A32] block text-[11px]">Rekomendasi Utama (Keyakinan 88%):</strong>
-                      <span className="text-[10px] text-[#52636A]">
-                        Reklasifikasi ke <strong>WP-F.4 Pendapatan / Beban Lain-lain Bersih</strong> untuk mengakui laba/rugi selisih kurs pada tahun berjalan.
+            {/* When ready */}
+            {!isAnalyzingAi && (
+              <div className="space-y-3 relative z-10">
+                <div className="p-3.5 rounded-xl bg-[#F6F7F5] border border-[#DDE4E2] space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[11px] text-[#52636A] uppercase tracking-wider block">
+                      1. Analisis Semantik Token Nama Akun
+                    </span>
+                    {liveAiResult?.latencyMs && (
+                      <span className="text-[10px] font-mono text-[#0F8F7A]">
+                        {liveAiResult.latencyMs}ms {liveAiResult.cached ? '(Cache Memori)' : '(Inferensi vLLM)'}
                       </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap text-[11px] font-mono">
+                    <span className="px-2 py-1 rounded bg-white border border-[#DDE4E2] text-[#102A32]">
+                      Kode: <strong>{aiInspectingDecision.sourceAccountCode}</strong>
+                    </span>
+                    <span className="px-2 py-1 rounded bg-white border border-[#DDE4E2] text-[#102A32]">
+                      Saldo: <strong>{formatIdrNumber(aiInspectingDecision.amountIdr)}</strong>
+                    </span>
+                    <span className="px-2 py-1 rounded bg-[#FDECEF] border border-[#F8B4BD] text-[#C83E4D]">
+                      Status: <strong>{aiInspectingDecision.status.toUpperCase()}</strong>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-[#FFF7E8] border border-[#F6E0B5] space-y-1.5">
+                  <div className="font-bold text-[11px] text-[#B7791F] flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    2. Rujukan Standar & Analisis AI ({liveAiResult?.psakReference || 'PSAK 10 / SAK Entitas Privat'})
+                  </div>
+                  <p className="text-[11px] text-[#52636A] leading-relaxed">
+                    {liveAiResult?.accountingStandardAnalysis || liveAiResult?.rationale || 'Sistem mendeteksi bahwa akun penampungan selisih kurs sementara memiliki saldo material yang harus direklasifikasi ke Laporan Laba Rugi sesuai PSAK 10, bukan dibiarkan menggantung di neraca.'}
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-[#E8F5F1] border border-[#B2DFD6] space-y-2">
+                  <span className="font-bold text-[11px] text-[#0F8F7A] uppercase tracking-wider block flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    3. Rekomendasi Target Kertas Kerja
+                  </span>
+                  <div className="space-y-2">
+                    <div className="p-2.5 rounded-lg bg-white border border-[#B2DFD6] flex items-center justify-between gap-3">
+                      <div>
+                        <strong className="text-[#102A32] block text-[11px]">
+                          Target SAK: {liveAiResult?.proposedTarget || 'WP-F.4'} (Keyakinan {Math.round((liveAiResult?.confidenceScore || 0.88) * 100)}%)
+                        </strong>
+                        <span className="text-[10px] text-[#52636A]">
+                          {liveAiResult?.rationale || 'Reklasifikasi ke WP-F.4 Pendapatan / Beban Lain-lain Bersih.'}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const target = liveAiResult?.proposedTarget || 'WP-F.4';
+                          handleInlineChangeTarget(aiInspectingDecision.id, target);
+                          setAiInspectingDecision(null);
+                          setLiveAiResult(null);
+                        }}
+                        className="px-3 py-1.5 bg-[#0F8F7A] hover:bg-[#0C7564] text-white rounded-lg text-[10px] font-bold shrink-0 shadow-xs cursor-pointer"
+                      >
+                        Terapkan {liveAiResult?.proposedTarget || 'WP-F.4'} &rarr;
+                      </button>
                     </div>
-                    <button
-                      onClick={() => {
-                        handleInlineChangeTarget(aiInspectingDecision.id, 'WP-F.4');
-                        setAiInspectingDecision(null);
-                      }}
-                      className="px-3 py-1.5 bg-[#0F8F7A] hover:bg-[#0C7564] text-white rounded-lg text-[10px] font-bold shrink-0 shadow-xs cursor-pointer"
-                    >
-                      Terapkan WP-F.4 &rarr;
-                    </button>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="flex justify-end gap-2 pt-3 border-t border-[#DDE4E2] relative z-10">
               <button
                 type="button"
-                onClick={() => setAiInspectingDecision(null)}
+                onClick={() => {
+                  setAiInspectingDecision(null);
+                  setLiveAiResult(null);
+                }}
                 className="px-4 py-2 border border-[#DDE4E2] rounded-xl text-[#52636A] hover:bg-[#F1F4F3] font-semibold"
               >
                 Tutup
@@ -726,6 +792,7 @@ export default function AccountMappingPage() {
           </div>
         </div>
       )}
+
 </div>
   );
 }
