@@ -13,7 +13,33 @@ export default async function EngagementV4Layout({
 }) {
   const resolvedParams = await params;
   const state = repo.getState();
-  const engagement = state.engagements.find((e) => e.id === resolvedParams.id);
+  let engagement = state.engagements.find((e) => e.id === resolvedParams.id);
+
+  if (!engagement) {
+    if (resolvedParams.id.startsWith('ENG-')) {
+      engagement = {
+        id: resolvedParams.id,
+        tenantId: 'TENANT-001',
+        clientId: 'CLI-002',
+        name: resolvedParams.id === 'ENG-MANDIRI-2026'
+          ? 'Kertas Kerja Audit Mandiri FY 2026 (Unggah Berkas Klien Sendiri)'
+          : 'Perikatan Audit Mandiri ' + resolvedParams.id,
+        periodStart: '2026-01-01',
+        periodEnd: '2026-12-31',
+        currency: 'IDR',
+        materialityIdr: 250000000,
+        status: 'preparing',
+        leadPartnerId: 'USR-PARTNER-01',
+        managerId: 'USR-MANAGER-01',
+        seniorId: 'USR-SENIOR-01',
+        preparerId: 'USR-PREPARER-01',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    } else {
+      notFound();
+    }
+  }
 
   if (!engagement) {
     notFound();

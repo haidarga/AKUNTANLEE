@@ -323,6 +323,19 @@ export default function FilesPage() {
         </div>
 
         <div className="divide-y divide-[#DDE4E2]">
+          {fileVersions.length === 0 && (
+            <div className="p-8 text-center space-y-3 bg-[#FAFCFB]">
+              <div className="w-12 h-12 rounded-2xl bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6] flex items-center justify-center mx-auto">
+                <FileSpreadsheet className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-[#102A32]">Belum ada berkas Trial Balance yang diunggah</p>
+                <p className="text-xs text-[#52636A] max-w-md mx-auto leading-relaxed">
+                  Tarik & letakkan berkas Excel (.xlsx) atau CSV klien Anda ke zona unggah di atas, atau klik tombol jelajahi berkas untuk memulai ekstraksi otomatis.
+                </p>
+              </div>
+            </div>
+          )}
           {fileVersions.map((fv) => (
             <div key={fv.id} className="p-4 hover:bg-[#F6F7F5]/50 transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="space-y-1.5 flex-1">
