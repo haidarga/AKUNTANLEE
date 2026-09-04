@@ -49,6 +49,7 @@ export default function ExportsPage() {
   const defaultWp = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
   const [wpVersion, setWpVersion] = useState<WorkpaperVersion>(defaultWp);
   const [checks, setChecks] = useState<ValidationCheckResult[]>(state.validationChecks);
+  const [lines, setLines] = useState<any[]>(state.workpaperLines);
   const [mappingDecisions, setMappingDecisions] = useState<MappingDecision[]>(state.mappingDecisions);
   const [fileVersions, setFileVersions] = useState<FileVersion[]>(state.fileVersions);
 
@@ -73,12 +74,17 @@ export default function ExportsPage() {
       try {
         const storedWp = localStorage.getItem('finova_wp_' + engagementId);
         if (storedWp) {
-          const parsedWp = JSON.parse(storedWp);
-          if (parsedWp?.totals) {
-            setWpVersion(parsedWp);
+          const parsed = JSON.parse(storedWp);
+          const activeVer = parsed?.workpaperVersion || (parsed?.totals ? parsed : null);
+          if (activeVer) {
+            setWpVersion(activeVer);
           }
-          if (parsedWp?.validationChecks && Array.isArray(parsedWp.validationChecks)) {
-            setChecks(parsedWp.validationChecks);
+          const activeChecks = parsed?.checks || parsed?.validationChecks;
+          if (activeChecks && Array.isArray(activeChecks)) {
+            setChecks(activeChecks);
+          }
+          if (parsed?.lines && Array.isArray(parsed.lines)) {
+            setLines(parsed.lines);
           }
         }
 
@@ -144,7 +150,7 @@ export default function ExportsPage() {
           operatorName: user.name,
           clientCode: engagement.name?.slice(0, 4)?.toUpperCase() || 'MNDR',
           customWp: isCustomEngagement ? wpVersion : undefined,
-          customLines: isCustomEngagement && (wpVersion as any)?.lines ? (wpVersion as any).lines : undefined,
+          customLines: isCustomEngagement && lines.length > 0 ? lines : undefined,
           sourceChecksum: isCustomEngagement && fileVersions[0] ? fileVersions[0].checksumSha256 : undefined,
         }),
       });
