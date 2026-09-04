@@ -46,10 +46,10 @@ export default async function EngagementV4Layout({
   }
 
   const client = state.clients.find((c) => c.id === engagement.clientId) || {
-    id: 'CLI-CUSTOM',
-    legalName: engagement.name,
-    code: 'CLIENT',
-    industry: 'Jasa & Manufaktur',
+    id: engagement.clientId || 'CLI-002',
+    legalName: 'PT Klien Mandiri (Klien Anda)',
+    code: 'MNDR',
+    industry: 'Manufaktur & Fabrikasi',
     taxIdNpwp: '01.234.567.8-012.000',
     address: 'Jakarta, Indonesia',
     createdAt: new Date().toISOString(),

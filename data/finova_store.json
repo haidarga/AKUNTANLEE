@@ -71,6 +71,16 @@
       "industry": "Manufaktur Komponen Presisi & Otomotif",
       "status": "active",
       "createdAt": "2024-06-01T00:00:00Z"
+    },
+    {
+      "id": "CLI-002",
+      "tenantId": "TENANT-001",
+      "legalName": "PT Klien Mandiri (Klien Anda)",
+      "code": "MNDR",
+      "industry": "Manufaktur & Fabrikasi",
+      "status": "active",
+      "taxIdNpwp": "01.234.567.8-012.000",
+      "createdAt": "2026-09-04T00:00:00Z"
     }
   ],
   "engagements": [
