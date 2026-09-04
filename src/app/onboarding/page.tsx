@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { FirmProfile, TeamMemberProfile, UserRoleV4 } from '@/types/domain-v4';
+import { completeOnboarding } from '@/lib/onboarding/complete';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -154,27 +155,15 @@ export default function OnboardingPage() {
         teamMembers,
       };
 
-      const res = await fetch('/api/v1/firm', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        const savedProfile = data.data || payload;
-        try {
+      await completeOnboarding(payload, {
+        request: fetch,
+        persistProfile: (savedProfile) => {
           localStorage.setItem('finova_firm_profile', JSON.stringify(savedProfile));
           document.cookie = "finova_firm_profile=" + encodeURIComponent(JSON.stringify(savedProfile)) + "; path=/; max-age=31536000; SameSite=Lax";
           window.dispatchEvent(new CustomEvent('finova_firm_updated', { detail: savedProfile }));
-          // repo updated via api
-        } catch (e) {}
-        setTimeout(() => {
-          router.push('/engagements');
-        }, 400);
-      } else {
-        alert(data.error || 'Gagal menyimpan profil KAP');
-      }
+        },
+        navigate: (destination) => router.replace(destination),
+      });
     } catch (e: any) {
       alert('Terjadi kesalahan jaringan: ' + e.message);
     } finally {
