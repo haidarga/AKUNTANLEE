@@ -284,8 +284,8 @@ export async function chatWithAuditCopilot(
     response = `Secara keseluruhan 85% struktur perikatan audit sudah sangat solid, tapi secara profesional saya sampaikan masih ada 2 hal penentu yang belum beres dan wajib kita selesaikan sebelum laporan final diterbitkan:
 
 Hal-Hal yang Sudah Sangat Oke dan Valid:
-1. Uji Keseimbangan Neraca (Tie-Out): Persamaan matematis Aset Rp 34,55 Miliar persis sama dengan Liabilitas Rp 12,36 Miliar ditambah Ekuitas Rp 22,19 Miliar. Saldo debit dan kredit seimbang tanpa selisih sepeser pun.
-2. Laba Bersih & EBITDA: Laba Bersih berada di angka Rp 4,25 Miliar dan EBITDA Rp 6,13 Miliar dengan rasio likuiditas Current Ratio prima di 2,42x (Predikat AAA).
+1. Uji Keseimbangan Neraca (Tie-Out): Persamaan matematis Aset Rp 34,55 Miliar persis sama dengan Liabilitas Rp 12,05 Miliar ditambah Ekuitas Rp 22,50 Miliar (setelah AJE reklasifikasi kurs PSAK 10 Rp 310 Juta). Saldo debit dan kredit seimbang tanpa selisih sepeser pun.
+2. Laba Bersih & EBITDA: Laba Bersih berada di angka Rp 4,56 Miliar dan EBITDA Rp 6,13 Miliar dengan rasio likuiditas Current Ratio prima di 2,42x (Predikat AAA).
 3. Ekualisasi Omset PPN: Selisih antara Laba Rugi Rp 45 Miliar dengan SPT Masa PPN Rp 44,2 Miliar sudah 100% klop dijembatani oleh pos uang muka dan retur, jadi aman dari SP2DK pajak.
 4. PPh 21 TER: Skema tarif efektif rata-rata Kategori A, B, C untuk 12 karyawan sudah dihitung sesuai PP 58/2023.
 
@@ -299,7 +299,7 @@ Begitu kita klik tombol "Putuskan Reklasifikasi" untuk Akun 2199-00 di menu Peme
   else if (q.includes('laba') || q.includes('ebitda') || q.includes('profit') || q.includes('untung') || q.includes('omset') || q.includes('pendapatan')) {
     response = `Berdasarkan Kertas Kerja Induk FY 2026 PT Nusantara Sukses Makmur:
 
-Laba Bersih Tahun Berjalan tercatat sebesar Rp 4,25 Miliar, yang menghasilkan margin laba bersih 9,44% dari total Pendapatan Usaha sebesar Rp 45 Miliar.
+Laba Bersih Tahun Berjalan tercatat sebesar Rp 4,56 Miliar, yang menghasilkan margin laba bersih 9,44% dari total Pendapatan Usaha sebesar Rp 45 Miliar.
 
 Nilai EBITDA mencapai Rp 6,13 Miliar, dihitung dari Laba Operasi Rp 5,7 Miliar ditambah beban penyusutan mesin pabrik Rp 1,52 Miliar, lalu disesuaikan dengan beban bunga pinjaman bank Rp 360 Juta.
 
@@ -310,8 +310,8 @@ Beban Pokok Penjualan (HPP) tercatat Rp 31,5 Miliar sehingga Laba Kotor perusaha
     response = `Laporan Posisi Keuangan (Neraca) perikatan sudah lolos uji tie-out 100% tanpa selisih:
 
 Total Aset: Rp 34,55 Miliar (terdiri dari Aset Lancar Rp 18,25 Miliar dan Aset Tetap Neto Rp 16,30 Miliar).
-Total Liabilitas: Rp 12,36 Miliar (Liabilitas Jangka Pendek Rp 7,54 Miliar dan Utang Bank Jangka Panjang Rp 4,82 Miliar).
-Total Ekuitas: Rp 22,19 Miliar — bersumber dari WP-E.1 (Modal Disetor Rp 8,00 Miliar), WP-E.2 (Saldo Laba Ditahan Rp 9,94 Miliar), dan Laba Bersih Tahun Berjalan (Rp 4,25 Miliar). Seluruh komponen terverifikasi klop dengan Kertas Kerja Lead Schedule.
+Total Liabilitas: Rp 12,05 Miliar (Liabilitas Jangka Pendek Rp 7,54 Miliar dan Utang Bank Jangka Panjang Rp 4,82 Miliar).
+Total Ekuitas: Rp 22,50 Miliar — bersumber dari WP-E.1 (Modal Disetor Rp 8,00 Miliar), WP-E.2 (Saldo Laba Ditahan Rp 9,94 Miliar), dan Laba Bersih Tahun Berjalan (Rp 4,56 Miliar). Seluruh komponen terverifikasi klop dengan Kertas Kerja Lead Schedule.
 
 Persamaan Akuntansi Aset = Liabilitas + Ekuitas terpenuhi secara mutlak dengan selisih Rp 0 melalui kalkulasi zero-float math.`;
   }

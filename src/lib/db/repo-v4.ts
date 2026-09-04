@@ -332,7 +332,29 @@ function createInitialState(): FinovaV4State {
     createdAt: '2026-01-18T09:45:00Z',
   };
 
-  // Initial Workpaper Calculation
+  const initialAdjustments: AuditAdjustmentEntry[] = [
+    {
+      id: 'AJE-001',
+      tenantId: 'TENANT-001',
+      engagementId: 'ENG-2026-01',
+      entryNumber: 1,
+      type: 'reclassification',
+      referenceWp: 'WP-C.1 / WP-F.4',
+      description: 'Reklasifikasi saldo penampungan selisih kurs menggantung di liabilitas ke Pendapatan Lain-lain (Keuntungan Selisih Kurs) sesuai PSAK 10',
+      standardReference: 'PSAK 10 & SAK Indonesia',
+      debitLineId: 'WP-C.1',
+      debitAmountIdr: 310_000_000,
+      creditLineId: 'WP-F.4',
+      creditAmountIdr: 310_000_000,
+      preparedByUserId: 'USR-SENIOR-01',
+      preparedByName: 'Ahmad Pratama, S.Ak',
+      approvedByUserId: 'USR-PARTNER-01',
+      status: 'approved',
+      createdAt: '2026-01-20T14:30:00Z',
+    }
+  ];
+
+  // Initial Workpaper Calculation (Audited Final after Approved AJE-001)
   const wpCalc = calculateWorkpaperVersion({
     tenantId: 'TENANT-001',
     engagementId: 'ENG-2026-01',
@@ -342,6 +364,7 @@ function createInitialState(): FinovaV4State {
     mappingDecisions: decisions,
     template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
     versionNumber: 1,
+    adjustments: initialAdjustments,
   });
 
   const reusableMappings: ReusableMapping[] = [
@@ -451,7 +474,27 @@ function createInitialState(): FinovaV4State {
   return {
     tenants: [tenant1, tenant2],
     users,
-    clients: [client1],
+    clients: [
+      client1,
+      {
+        id: 'CLI-002',
+        tenantId: 'TENANT-001',
+        legalName: 'PT Surya Retail Indonesia',
+        code: 'SRI',
+        industry: 'Perdagangan Eceran & Distribusi',
+        status: 'active',
+        createdAt: '2026-01-15T08:00:00Z',
+      },
+      {
+        id: 'CLI-003',
+        tenantId: 'TENANT-001',
+        legalName: 'CV Maju Logistik Nusantara',
+        code: 'MLN',
+        industry: 'Transportasi & Ekspedisi',
+        status: 'active',
+        createdAt: '2026-01-16T09:00:00Z',
+      },
+    ],
     engagements: [engagement1],
     fileVersions: [file1],
     importJobs: [],
@@ -484,38 +527,18 @@ function createInitialState(): FinovaV4State {
         workpaperVersionId: 'WPV-001',
         format: 'xlsx',
         filename: 'Kertas_Kerja_Induk_NSM_FY2026_Final.xlsx',
-        checksumSha256: '9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92',
+        checksumSha256: 'f47e61558439e88e005c1298b97a7795e98dfdce64d777c8383fdeafa51ca775',
         status: 'complete',
         createdByUserId: 'USR-PARTNER-01',
         readbackVerified: true,
-        fileSizeBytes: 24810,
+        fileSizeBytes: 21652,
         createdAt: new Date().toISOString(),
       },
     ],
     auditEvents,
     reusableMappings,
     firmProfile,
-    adjustments: [
-      {
-        id: 'AJE-001',
-        tenantId: 'TENANT-001',
-        engagementId: 'ENG-2026-01',
-        entryNumber: 1,
-        type: 'reclassification',
-        referenceWp: 'WP-C.1 / WP-F.4',
-        description: 'Reklasifikasi saldo penampungan selisih kurs menggantung di liabilitas ke Beban Lain-lain sesuai PSAK 10',
-        standardReference: 'PSAK 10 & SAK Indonesia',
-        debitLineId: 'WP-F.4',
-        debitAmountIdr: 310_000_000,
-        creditLineId: 'WP-C.1',
-        creditAmountIdr: 310_000_000,
-        preparedByUserId: 'USR-SENIOR-01',
-        preparedByName: 'Ahmad Pratama, S.Ak',
-        approvedByUserId: 'USR-PARTNER-01',
-        status: 'approved',
-        createdAt: '2026-01-20T14:30:00Z',
-      }
-    ],
+    adjustments: initialAdjustments,
     reviewerNotes: [
       {
         id: 'NOTE-001',
@@ -844,6 +867,26 @@ class FinovaV4Repository {
     }
     this.persist();
     return eng;
+  }
+
+  createClient(client: {
+    legalName: string;
+    code: string;
+    industry: string;
+    tenantId?: string;
+  }): ClientV4 {
+    const newClient: ClientV4 = {
+      id: 'CLI-' + Date.now().toString(36).toUpperCase(),
+      tenantId: client.tenantId || 'TENANT-001',
+      legalName: client.legalName,
+      code: client.code.toUpperCase(),
+      industry: client.industry,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+    };
+    this.state.clients.push(newClient);
+    this.persist();
+    return newClient;
   }
 
   createEngagement(data: Omit<EngagementV4, 'id' | 'createdAt' | 'updatedAt'>, actor: UserV4): EngagementV4 {
@@ -1191,6 +1234,14 @@ class FinovaV4Repository {
       metadata: { filename: result.artifact.filename, checksum: result.artifact.checksumSha256 },
     });
 
+    try {
+      const { fs: fsMod, path: pathMod } = getFsModules();
+      const exportDir = pathMod ? pathMod.join(process.cwd(), 'data') : '';
+      if (fsMod && !fsMod.existsSync(exportDir)) fsMod.mkdirSync(exportDir, { recursive: true });
+      if (fsMod && pathMod) fsMod.writeFileSync(pathMod.join(exportDir, `${result.artifact.id}.xlsx`), result.buffer);
+    } catch (e) {
+      // Ignore in read-only environments
+    }
     this.persist();
     return { buffer: result.buffer, artifact: result.artifact };
   }

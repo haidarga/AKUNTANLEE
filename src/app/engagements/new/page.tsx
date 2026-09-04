@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Briefcase, ArrowLeft, ArrowRight, ShieldCheck, DollarSign, Sparkles } from 'lucide-react';
+import { Briefcase, ArrowLeft, ArrowRight, ShieldCheck, DollarSign, Sparkles, CheckCircle2 } from 'lucide-react';
 import { repo } from '@/lib/db/repo-v4';
 
 export default function NewEngagementPage() {
@@ -11,6 +11,31 @@ export default function NewEngagementPage() {
   const state = repo.getState();
 
   const [clientId, setClientId] = useState(state.clients[0]?.id || 'CLI-001');
+  const [clients, setClients] = useState(state.clients);
+  const [showNewClientModal, setShowNewClientModal] = useState(false);
+  const [newClientName, setNewClientName] = useState('');
+  const [newClientCode, setNewClientCode] = useState('');
+  const [newClientIndustry, setNewClientIndustry] = useState('Manufaktur & Fabrikasi');
+  const [newClientSuccessMsg, setNewClientSuccessMsg] = useState<string | null>(null);
+
+  const handleCreateNewClient = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newClientName || !newClientCode) return;
+
+    const created = repo.createClient({
+      legalName: newClientName,
+      code: newClientCode.toUpperCase(),
+      industry: newClientIndustry,
+    });
+
+    setClients([...repo.getState().clients]);
+    setClientId(created.id);
+    setShowNewClientModal(false);
+    setNewClientName('');
+    setNewClientCode('');
+    setNewClientSuccessMsg(`Entitas "${created.legalName}" berhasil didaftarkan dan otomatis terpilih!`);
+    setTimeout(() => setNewClientSuccessMsg(null), 4000);
+  };
   const [name, setName] = useState('Financial Review & Lead Schedule FY 2026');
   const [periodStart, setPeriodStart] = useState('2026-01-01');
   const [periodEnd, setPeriodEnd] = useState('2026-12-31');
@@ -71,19 +96,109 @@ export default function NewEngagementPage() {
       <div className="finova-bezel-outer">
         <form onSubmit={handleSubmit} className="finova-bezel-inner p-6 sm:p-8 space-y-6 text-xs bg-white">
           <div>
-            <label className="block font-semibold text-[#102A32] mb-1.5">Pilih Klien Terdaftar:</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block font-semibold text-[#102A32]">Pilih Klien Terdaftar:</label>
+              <button
+                type="button"
+                onClick={() => setShowNewClientModal(true)}
+                className="text-xs font-bold text-[#0F8F7A] hover:text-[#0C7564] flex items-center gap-1 hover:underline cursor-pointer"
+              >
+                <span>+ Daftarkan Klien Baru</span>
+              </button>
+            </div>
+
+            {newClientSuccessMsg && (
+              <div className="mb-2 p-2.5 bg-[#E8F5F1] border border-[#B2DFD6] rounded-xl text-xs text-[#0F8F7A] font-semibold flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{newClientSuccessMsg}</span>
+              </div>
+            )}
+
             <select
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
               className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl bg-[#F6F7F5] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
             >
-              {state.clients.map((c) => (
+              {clients.map((c) => (
                 <option key={c.id} value={c.id}>
                   [{c.code}] {c.legalName} &bull; {c.industry}
                 </option>
               ))}
             </select>
           </div>
+
+          {/* Modal Inline Daftarkan Klien Baru */}
+          {showNewClientModal && (
+            <div className="p-4 bg-[#F8FAFC] border-2 border-[#0F8F7A]/40 rounded-xl space-y-3 animate-finova-in">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-[#102A32]">Daftarkan Entitas Klien Baru</span>
+                <button
+                  type="button"
+                  onClick={() => setShowNewClientModal(false)}
+                  className="text-xs text-[#52636A] hover:text-[#102A32]"
+                >
+                  Tutup
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] text-[#52636A] mb-1">Nama Legal Klien (PT / CV / Firma):</label>
+                  <input
+                    type="text"
+                    value={newClientName}
+                    onChange={(e) => setNewClientName(e.target.value)}
+                    placeholder="Contoh: PT Surya Mandiri Sejahtera"
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-lg bg-white text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-[#52636A] mb-1">Kode Singkat (3-4 Huruf):</label>
+                  <input
+                    type="text"
+                    value={newClientCode}
+                    onChange={(e) => setNewClientCode(e.target.value)}
+                    placeholder="Contoh: SMS"
+                    maxLength={5}
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-lg bg-white text-xs font-mono uppercase"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] text-[#52636A] mb-1">Sektor Industri:</label>
+                <select
+                  value={newClientIndustry}
+                  onChange={(e) => setNewClientIndustry(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#DDE4E2] rounded-lg bg-white text-xs"
+                >
+                  <option value="Manufaktur & Fabrikasi">Manufaktur & Fabrikasi</option>
+                  <option value="Perdagangan & Distribusi">Perdagangan & Distribusi</option>
+                  <option value="Jasa & Konsultasi">Jasa & Konsultasi</option>
+                  <option value="Transportasi & Logistik">Transportasi & Logistik</option>
+                  <option value="Konstruksi & Properti">Konstruksi & Properti</option>
+                  <option value="Teknologi & Digital">Teknologi & Digital</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowNewClientModal(false)}
+                  className="px-3 py-1.5 border border-[#DDE4E2] rounded-lg text-xs text-[#52636A]"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreateNewClient}
+                  className="px-3 py-1.5 bg-[#0F8F7A] text-white rounded-lg text-xs font-bold hover:bg-[#0C7564]"
+                >
+                  Simpan & Pilih Klien
+                </button>
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="block font-semibold text-[#102A32] mb-1.5">Judul Perikatan:</label>

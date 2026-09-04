@@ -18,15 +18,16 @@ export async function GET(request: Request) {
     const totalAssets = 34_550_000_000;
 
     const lineCurrentLiab = state.workpaperLines.find((l) => l.lineId === 'WP-C.1')?.currentPeriodIdr || 6_240_000_000;
-    const totalLiabilities = 12_360_000_000;
-    const totalEquity = 22_190_000_000;
+    const wpTotals = state.workpaperVersions[0]?.totals;
+    const totalLiabilities = wpTotals ? wpTotals.totalLiabilitiesIdr : 12_050_000_000;
+    const totalEquity = wpTotals ? wpTotals.totalEquityIdr : 22_500_000_000;
 
     const revenue = state.workpaperLines.find((l) => l.lineId === 'WP-F.1')?.currentPeriodIdr || 24_000_000_000;
     const cogs = state.workpaperLines.find((l) => l.lineId === 'WP-F.2')?.currentPeriodIdr || 7_550_000_000;
     const grossProfit = revenue - cogs; // 16.45 M
     const opex = state.workpaperLines.find((l) => l.lineId === 'WP-F.3')?.currentPeriodIdr || 12_200_000_000;
-    const operatingProfit = grossProfit - opex; // 4.25 M
-    const netProfit = operatingProfit;
+    const operatingProfit = grossProfit - opex;
+    const netProfit = wpTotals ? wpTotals.netIncomeIdr : 4_560_000_000;
 
     // 1. Ratios Scorecard
     const ratios = calculateFinancialRatios({

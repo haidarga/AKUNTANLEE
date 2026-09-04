@@ -22,11 +22,70 @@ import {
   Info
 } from 'lucide-react';
 import { formatIdrNumber } from '@/lib/decimal';
+import {
+  DEFAULT_COMPANY_EMPLOYEES,
+  calculateMonthlyPph21,
+  calculateAnnualPph21Pasal17,
+  getPtkpAnnualAmount,
+} from '@/lib/tax/pph21';
+import {
+  generateDefaultPpnFilings,
+  calculatePpnEqualization,
+} from '@/lib/tax/ppn-equalization';
+import { calculateCorporateFiscalReconciliation } from '@/lib/tax/fiscal-reconciliation';
+
+const DEFAULT_TAX_DATA = (() => {
+  const turnover = 24_000_000_000;
+  const netProfit = 4_560_000_000;
+  const monthlyList = DEFAULT_COMPANY_EMPLOYEES.map((emp) => calculateMonthlyPph21(emp));
+  const totalMonthly = monthlyList.reduce((s, c) => s + c.monthlyPph21Idr, 0);
+  const annualList = DEFAULT_COMPANY_EMPLOYEES.map((emp) => {
+    const annualGross = (emp.monthlyGrossSalaryIdr + emp.monthlyAllowanceIdr) * 12;
+    const biayaJabatan = Math.min(6_000_000, annualGross * 0.05);
+    const net = annualGross - biayaJabatan;
+    const ptkp = getPtkpAnnualAmount(emp.ptkpStatus);
+    const pkp = Math.max(0, net - ptkp);
+    const annualTax = calculateAnnualPph21Pasal17(pkp);
+    const janToNovTer = monthlyList.find((m) => m.employeeId === emp.id)!.monthlyPph21Idr * 11;
+    const decTax = Math.max(0, annualTax - janToNovTer);
+    return {
+      employeeId: emp.id,
+      employeeName: emp.name,
+      annualGrossIncomeIdr: annualGross,
+      biayaJabatanIdr: biayaJabatan,
+      netIncomeIdr: net,
+      ptkpAmountIdr: ptkp,
+      taxableIncomeIdr: pkp,
+      annualPph21TarifPasal17Idr: annualTax,
+      totalPph21TerJanToNovIdr: janToNovTer,
+      decemberPph21Idr: decTax,
+    };
+  });
+  const ppnFilings = generateDefaultPpnFilings(turnover);
+  const ppnEqualization = calculatePpnEqualization(turnover, ppnFilings);
+  const corporateFiscal = calculateCorporateFiscalReconciliation(netProfit, turnover);
+
+  return {
+    turnoverIdr: turnover,
+    netProfitIdr: netProfit,
+    pph21: {
+      monthlyList,
+      totalMonthlyWithholdingIdr: totalMonthly,
+      annualReconciliationList: annualList,
+      totalAnnualWithholdingIdr: annualList.reduce((s, a) => s + a.annualPph21TarifPasal17Idr, 0),
+    },
+    ppn: {
+      filings: ppnFilings,
+      equalization: ppnEqualization,
+    },
+    corporateTax: corporateFiscal,
+  };
+})();
 
 export default function TaxCompliancePage() {
   const [activeSubTab, setActiveSubTab] = useState<'pph21' | 'ppn' | 'badan'>('pph21');
-  const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<any>(DEFAULT_TAX_DATA);
+  const [isLoading, setIsLoading] = useState(false);
   const [showImporter, setShowImporter] = useState(false);
   const [importNotice, setImportNotice] = useState<string | null>(null);
   const [sampleClientFile, setSampleClientFile] = useState<'PT_Surya_Retail' | 'CV_Maju_Logistik'>('PT_Surya_Retail');
@@ -48,14 +107,8 @@ export default function TaxCompliancePage() {
     loadTaxData();
   }, []);
 
-  if (isLoading || !data) {
-    return (
-      <div className="p-8 text-center text-[#52636A] animate-pulse">
-        <Calculator className="w-8 h-8 text-[#0F8F7A] mx-auto mb-2 animate-spin" />
-        <p className="text-xs font-semibold">Memuat Engine Pajak Terintegrasi (PPh 21, PPN & SPT 1771)...</p>
-      </div>
-    );
-  }
+  // Zero loading flash: tax data is pre-populated synchronously
+  if (!data) return null;
 
   const { pph21, ppn, corporateTax } = data;
 

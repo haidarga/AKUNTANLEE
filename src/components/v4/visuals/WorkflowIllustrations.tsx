@@ -71,7 +71,15 @@ export function FileScannerIllustration() {
 }
 
 // 2. Mapping Sankey / Flow Illustration
-export function MappingFlowIllustration() {
+export function MappingFlowIllustration({
+  totalCount = 22,
+  needsReviewCount = 0,
+  mappedCount = 22,
+}: {
+  totalCount?: number;
+  needsReviewCount?: number;
+  mappedCount?: number;
+} = {}) {
   return (
     <div className="w-full rounded-xl bg-gradient-to-r from-[#F6F7F5] via-white to-[#F6F7F5] border border-[#DDE4E2] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
       <div className="flex items-center gap-3">
@@ -89,15 +97,21 @@ export function MappingFlowIllustration() {
       {/* Visual Flow Mini-Graph */}
       <div className="flex items-center gap-2 text-[10px] font-mono shrink-0">
         <div className="px-2 py-1 bg-white border border-[#DDE4E2] rounded text-[#102A32] shadow-xs">
-          Kode TB (22)
+          Kode TB ({totalCount})
         </div>
         <ArrowRight className="w-3.5 h-3.5 text-[#0F8F7A]" />
-        <div className="px-2 py-1 bg-[#FFF7E8] border border-[#F6E0B5] rounded text-[#B7791F] font-bold shadow-xs">
-          1 Review
+        <div
+          className={`px-2 py-1 border rounded font-bold shadow-xs ${
+            needsReviewCount > 0
+              ? 'bg-[#FFF7E8] border-[#F6E0B5] text-[#B7791F]'
+              : 'bg-[#E8F5F1] border-[#B2DFD6] text-[#0F8F7A]'
+          }`}
+        >
+          {needsReviewCount > 0 ? `${needsReviewCount} Review` : '0 Review (Lolos)'}
         </div>
         <ArrowRight className="w-3.5 h-3.5 text-[#0F8F7A]" />
         <div className="px-2 py-1 bg-[#E8F5F1] border border-[#B2DFD6] rounded text-[#0F8F7A] font-bold shadow-xs">
-          21 Terpetakan
+          {mappedCount} Terpetakan
         </div>
         <ArrowRight className="w-3.5 h-3.5 text-[#0F8F7A]" />
         <div className="px-2 py-1 bg-[#102A32] text-white rounded font-bold shadow-xs">
@@ -109,7 +123,19 @@ export function MappingFlowIllustration() {
 }
 
 // 3. Balance Sheet Equation Balance Gauge Illustration
-export function BalanceScaleIllustration({ isBalanced = true, diff = 0 }: { isBalanced?: boolean; diff?: number }) {
+export function BalanceScaleIllustration({
+  isBalanced = true,
+  diff = 0,
+  assets = 34_550_000_000,
+  liabilities = 12_050_000_000,
+  equity = 22_500_000_000,
+}: {
+  isBalanced?: boolean;
+  diff?: number;
+  assets?: number;
+  liabilities?: number;
+  equity?: number;
+} = {}) {
   return (
     <div className="flex items-center justify-between p-3.5 rounded-xl bg-white border border-[#DDE4E2] shadow-sm">
       <div className="flex items-center gap-3">
@@ -127,7 +153,7 @@ export function BalanceScaleIllustration({ isBalanced = true, diff = 0 }: { isBa
             Persamaan Fundamental Akuntansi (Accounting Balance Equation)
           </div>
           <div className="text-[11px] text-[#52636A] font-mono">
-            Aset (Rp 34.550.000.000) = Liabilitas (Rp 12.360.000.000) + Ekuitas (Rp 22.190.000.000)
+            Aset (Rp {assets.toLocaleString('id-ID')}) = Liabilitas (Rp {liabilities.toLocaleString('id-ID')}) + Ekuitas (Rp {equity.toLocaleString('id-ID')})
           </div>
         </div>
       </div>

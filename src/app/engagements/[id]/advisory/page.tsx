@@ -19,10 +19,31 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { formatIdrNumber } from '@/lib/decimal';
+import { calculateFinancialRatios } from '@/lib/advisory/ratios';
+import { analyzeCostAnomaliesAndAdvise } from '@/lib/advisory/cost-anomaly-analyzer';
+import { calculateManufacturingBreakdown } from '@/lib/advisory/manufacturing-breakdown';
+
+const DEFAULT_ADVISORY_DATA = {
+  ratios: calculateFinancialRatios({
+    currentAssetsIdr: 18_700_000_000,
+    inventoryIdr: 4_350_000_000,
+    cashAndEquivalentsIdr: 4_500_000_000,
+    currentLiabilitiesIdr: 6_240_000_000,
+    totalLiabilitiesIdr: 12_050_000_000,
+    totalEquityIdr: 22_500_000_000,
+    totalAssetsIdr: 34_550_000_000,
+    revenueIdr: 24_000_000_000,
+    grossProfitIdr: 16_450_000_000,
+    operatingProfitIdr: 4_250_000_000,
+    netProfitIdr: 4_560_000_000,
+  }),
+  costAdvisory: analyzeCostAnomaliesAndAdvise({ annualRevenueIdr: 24_000_000_000 }),
+  manufacturing: calculateManufacturingBreakdown({ targetCogsIdr: 7_550_000_000 }),
+};
 
 export default function AdvisoryAnalyticsPage() {
-  const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<any>(DEFAULT_ADVISORY_DATA);
+  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'cost' | 'ratios' | 'manufacturing' | 'whatif' | 'memo'>('cost');
   const [umrHike, setUmrHike] = useState(8);
   const [rawMatShock, setRawMatShock] = useState(10);
@@ -69,14 +90,8 @@ export default function AdvisoryAnalyticsPage() {
     fetchSimulation();
   }, [umrHike, rawMatShock, logisticsEff]);
 
-  if (isLoading || !data) {
-    return (
-      <div className="p-8 text-center text-[#52636A] animate-pulse">
-        <Sparkles className="w-8 h-8 text-[#0F8F7A] mx-auto mb-2 animate-spin" />
-        <p className="text-xs font-semibold">Memuat Engine Konsultan Analitik & Diagnosa Biaya...</p>
-      </div>
-    );
-  }
+  // Zero loading flash: data is pre-populated synchronously
+  if (!data) return null;
 
   const { ratios, costAdvisory, manufacturing } = data;
 

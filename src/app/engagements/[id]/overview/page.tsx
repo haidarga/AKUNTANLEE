@@ -224,7 +224,12 @@ export default function EngagementOverviewPage() {
       </div>
 
       {/* 3. Visual Accounting Balance Equation Scale */}
-      <BalanceScaleIllustration isBalanced={true} />
+      <BalanceScaleIllustration
+        isBalanced={true}
+        assets={wp?.totals.totalAssetsIdr || 34_550_000_000}
+        liabilities={wp?.totals.totalLiabilitiesIdr || 12_050_000_000}
+        equity={wp?.totals.totalEquityIdr || 22_500_000_000}
+      />
 
       {/* 4. Two-Column Layout: Exception Queue & Recent Versions/Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -240,30 +245,53 @@ export default function EngagementOverviewPage() {
           </div>
 
           <div className="bg-white rounded-2xl border border-[#DDE4E2] divide-y divide-[#DDE4E2] text-xs shadow-2xs overflow-hidden">
-            {/* Exception 1: Ambiguous Account */}
-            <div className="p-4 flex items-start justify-between gap-3 hover:bg-[#FFF7E8]/20 transition-colors">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-full font-semibold text-[10px] bg-[#FFF7E8] text-[#B7791F] border border-[#F6E0B5]">
-                    Review Diperlukan
-                  </span>
-                  <span className="font-mono text-[11px] text-[#52636A]">Akun 2199-00</span>
-                </div>
-                <div className="font-bold text-[#102A32]">
-                  Akun Penampungan Selisih Kurs Sementara
-                </div>
-                <p className="text-[#52636A] text-[11px] leading-relaxed">
-                  Tingkat keyakinan ekstraksi hanya 38%. Saldo Rp 310.000.000 harus diselesaikan sebelum ekspor kertas kerja.
-                </p>
-              </div>
+            {/* Dynamic Exception Queue: Rendered only if there are pending review items */}
+            {needsReviewDecisions.length > 0 ? (
+              needsReviewDecisions.map((dec) => (
+                <div key={dec.id} className="p-4 flex items-start justify-between gap-3 hover:bg-[#FFF7E8]/20 transition-colors">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full font-semibold text-[10px] bg-[#FFF7E8] text-[#B7791F] border border-[#F6E0B5]">
+                        Review Diperlukan
+                      </span>
+                      <span className="font-mono text-[11px] text-[#52636A]">Akun {dec.sourceAccountCode}</span>
+                    </div>
+                    <div className="font-bold text-[#102A32]">
+                      {dec.sourceAccountName}
+                    </div>
+                    <p className="text-[#52636A] text-[11px] leading-relaxed">
+                      Tingkat keyakinan ekstraksi {((dec.confidenceScore || 0) * 100).toFixed(0)}%. Saldo Rp {Math.abs(dec.amountIdr || 0).toLocaleString('id-ID')} harus diselesaikan sebelum ekspor kertas kerja.
+                    </p>
+                  </div>
 
-              <Link
-                href={`/engagements/${engagement.id}/mapping`}
-                className="px-3 py-1.5 bg-[#B7791F]/10 hover:bg-[#B7791F] hover:text-white text-[#B7791F] font-bold rounded-lg text-xs transition-colors shrink-0 flex items-center gap-1"
-              >
-                Putuskan &rarr;
-              </Link>
-            </div>
+                  <Link
+                    href={`/engagements/${engagement.id}/mapping`}
+                    className="px-3 py-1.5 bg-[#B7791F]/10 hover:bg-[#B7791F] hover:text-white text-[#B7791F] font-bold rounded-lg text-xs transition-colors shrink-0 flex items-center gap-1"
+                  >
+                    Putuskan &rarr;
+                  </Link>
+                </div>
+              ))
+            ) : (
+              <div className="p-4 flex items-center justify-between gap-3 bg-[#E8F5F1]/40">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#0F8F7A]/10 text-[#0F8F7A] flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-[#102A32]">
+                      Antrean Pengecualian Bersih (0 Akun Tertunda)
+                    </div>
+                    <div className="text-[11px] text-[#52636A]">
+                      Seluruh {decisions.length} akun telah berhasil dipetakan ke Pos SAK dan disetujui (Siap Finalisasi & Ekspor).
+                    </div>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold font-mono px-2.5 py-1 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]">
+                  RESOLVED
+                </span>
+              </div>
+            )}
 
             {/* Tie-Out Check 1: TB Balance */}
             <div className="p-4 flex items-center justify-between gap-3 bg-[#E8F5F1]/30">

@@ -260,7 +260,11 @@ export default function AccountMappingPage() {
   return (
     <div className="space-y-6 text-[#102A32] animate-finova-in">
       {/* Visual Flow Illustration */}
-      <MappingFlowIllustration />
+      <MappingFlowIllustration
+        totalCount={decisions.length}
+        needsReviewCount={decisions.filter((d) => d.status === 'needs_review').length}
+        mappedCount={decisions.filter((d) => d.status === 'mapped').length}
+      />
 
       {/* Floating Toast Notification */}
       {toastMessage && (

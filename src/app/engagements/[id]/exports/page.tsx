@@ -47,10 +47,15 @@ export default function ExportsPage() {
   // Pre-Flight Eligibility Checklist (Section 45.3)
   const isStale = wpVersion?.isStale;
   const hasBlockingErrors = checks.some((c) => c.status === 'fail' && c.severity === 'blocking');
-  const hasUnmapped = state.mappingDecisions.some((d) => d.status === 'needs_review');
+  const needsReviewCount = state.mappingDecisions.filter((d) => d.status === 'needs_review').length;
+  const hasUnmapped = needsReviewCount > 0;
   const isEligible = !isStale && !hasBlockingErrors && !hasUnmapped;
 
   const handleGenerateExport = async () => {
+    if (hasUnmapped) {
+      setErrorMessage(`Ekspor Ditolak: Masih terdapat ${needsReviewCount} akun berstatus Needs Review yang belum diputuskan.`);
+      return;
+    }
     setErrorMessage(null);
     setIsGenerating(true);
     setGenerationStep('1/3: Memvalidasi Integritas Versi Kertas Kerja & Hash Sumber...');
