@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import {
   FileSpreadsheet,
   CheckCircle2,
@@ -21,7 +21,27 @@ import { formatIdrNumber } from '@/lib/decimal';
 export default function ImportSetupPage() {
   const router = useRouter();
   const state = repo.getState();
-  const engagement = state.engagements[0];
+  const routeParams = useParams();
+  const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
+  const engagement = state.engagements.find((e) => e.id === engagementId) || {
+    id: engagementId,
+    tenantId: 'TENANT-001',
+    clientId: 'CLI-002',
+    name: engagementId === 'ENG-MANDIRI-2026'
+      ? 'Kertas Kerja Audit Mandiri FY 2026 (Unggah Berkas Klien Sendiri)'
+      : 'Perikatan Audit Mandiri (' + engagementId + ')',
+    periodStart: '2026-01-01',
+    periodEnd: '2026-12-31',
+    currency: 'IDR' as const,
+    materialityIdr: 250000000,
+    status: 'preparing' as const,
+    leadPartnerId: 'USR-PARTNER-01',
+    managerId: 'USR-MANAGER-01',
+    seniorId: 'USR-SENIOR-01',
+    preparerId: 'USR-PREPARER-01',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
   const fileVersion = state.fileVersions[0];
 
   const [datasetType, setDatasetType] = useState<DatasetType>('trial_balance');

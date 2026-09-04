@@ -3,334 +3,345 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Briefcase, ArrowLeft, ArrowRight, ShieldCheck, DollarSign, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Briefcase, ArrowLeft, ArrowRight, ShieldCheck, DollarSign, Building2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { repo } from '@/lib/db/repo-v4';
 
 export default function NewEngagementPage() {
   const router = useRouter();
   const state = repo.getState();
 
-  const [clientId, setClientId] = useState(state.clients[0]?.id || 'CLI-001');
-  const [clients, setClients] = useState(state.clients);
-  const [showNewClientModal, setShowNewClientModal] = useState(false);
-  const [newClientName, setNewClientName] = useState('');
-  const [newClientCode, setNewClientCode] = useState('');
-  const [newClientIndustry, setNewClientIndustry] = useState('Manufaktur & Fabrikasi');
-  const [newClientSuccessMsg, setNewClientSuccessMsg] = useState<string | null>(null);
+  const [mode, setMode] = useState<'new_client' | 'existing_client'>('new_client');
+  
+  // New Client Fields
+  const [clientName, setClientName] = useState('');
+  const [clientCode, setClientCode] = useState('');
+  const [taxIdNpwp, setTaxIdNpwp] = useState('01.234.567.8-012.000');
+  const [industry, setIndustry] = useState('Manufaktur & Fabrikasi');
+  
+  // Existing Client Field
+  const [existingClientId, setExistingClientId] = useState(state.clients[0]?.id || 'CLI-001');
 
-  const handleCreateNewClient = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newClientName || !newClientCode) return;
-
-    const created = repo.createClient({
-      legalName: newClientName,
-      code: newClientCode.toUpperCase(),
-      industry: newClientIndustry,
-    });
-
-    setClients([...repo.getState().clients]);
-    setClientId(created.id);
-    setShowNewClientModal(false);
-    setNewClientName('');
-    setNewClientCode('');
-    setNewClientSuccessMsg(`Entitas "${created.legalName}" berhasil didaftarkan dan otomatis terpilih!`);
-    setTimeout(() => setNewClientSuccessMsg(null), 4000);
-  };
-  const [name, setName] = useState('Financial Review & Lead Schedule FY 2026');
+  // Engagement Parameters
+  const [engagementName, setEngagementName] = useState('Kertas Kerja Audit & Lead Schedule FY 2026');
+  const [periodYear, setPeriodYear] = useState('2026');
   const [periodStart, setPeriodStart] = useState('2026-01-01');
   const [periodEnd, setPeriodEnd] = useState('2026-12-31');
+  const [accountingStandard, setAccountingStandard] = useState('SAK_INDONESIA');
   const [materialityIdr, setMaterialityIdr] = useState('250000000');
-  const [leadPartnerId, setLeadPartnerId] = useState('USR-PARTNER-01');
-  const [managerId, setManagerId] = useState('USR-MANAGER-01');
-  const [seniorId, setSeniorId] = useState('USR-SENIOR-01');
-  const [preparerId, setPreparerId] = useState('USR-PREPARER-01');
-  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Auto-generate client code from client name
+  const handleClientNameChange = (val: string) => {
+    setClientName(val);
+    const words = val.replace(/^(PT|CV|UD|FIRMA)\s+/i, '').trim().split(/\s+/);
+    if (words.length > 0 && words[0]) {
+      const suggested = words.map((w) => w[0]).join('').substring(0, 4).toUpperCase();
+      if (suggested) {
+        setClientCode(suggested);
+      }
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
+    setErrorMsg(null);
 
-    const user = state.users.find((u) => u.role === 'partner') || state.users[0];
+    if (mode === 'new_client' && !clientName.trim()) {
+      setErrorMsg('Harap masukkan Nama Perusahaan / PT Klien.');
+      return;
+    }
 
-    const newEng = repo.createEngagement(
-      {
-        tenantId: user.tenantId,
-        clientId,
-        name,
+    setIsSubmitting(true);
+
+    try {
+      const payload: any = {
+        name: engagementName || ('Kertas Kerja Audit FY ' + periodYear),
         periodStart,
         periodEnd,
-        currency: 'IDR',
-        materialityIdr: parseInt(materialityIdr, 10) || 250_000_000,
-        status: 'preparing',
-        leadPartnerId,
-        managerId,
-        seniorId,
-        preparerId,
-      },
-      user
-    );
+        materialityIdr: parseFloat(materialityIdr) || 250000000,
+        accountingStandard,
+        tenantId: 'TENANT-001',
+        userRole: 'partner',
+      };
 
-    setTimeout(() => {
-      router.push(`/engagements/${newEng.id}/overview`);
-    }, 300);
+      if (mode === 'new_client') {
+        payload.clientName = clientName.trim();
+        payload.clientCode = (clientCode || 'KLN').toUpperCase();
+        payload.industry = industry;
+        payload.taxIdNpwp = taxIdNpwp;
+      } else {
+        payload.clientId = existingClientId;
+      }
+
+      const res = await fetch('/api/v1/engagements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.message || json.error || 'Gagal membuat perikatan baru');
+      }
+
+      const createdEng = json.data;
+
+      // Also cache to localStorage for instant local reactivity
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('finova_active_engagement', createdEng.id);
+      }
+
+      // Route directly to the files upload zone
+      router.push('/engagements/' + createdEng.id + '/files');
+    } catch (err: any) {
+      console.error('Error creating engagement:', err);
+      setErrorMsg(err.message || 'Terjadi kesalahan saat menyimpan data.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6 text-[#102A32] animate-finova-in">
-      <div>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-xs text-[#52636A] hover:text-[#102A32] font-semibold mb-2 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Kembali ke Daftar Perikatan
-        </Link>
-        <h1 className="text-2xl font-bold tracking-tight text-[#102A32]">
-          Buka Perikatan Kerja Baru (New Engagement)
-        </h1>
-        <p className="text-xs text-[#52636A] mt-1">
-          Definisikan entitas klien, periode pelaporan buku, ambang batas materialitas, dan tim penanggung jawab.
-        </p>
-      </div>
+    <div className="max-w-3xl mx-auto py-8 px-4 sm:px-6 animate-finova-in">
+      <Link
+        href="/engagements"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#52636A] hover:text-[#102A32] mb-6 transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>Kembali ke Direktori Perikatan</span>
+      </Link>
 
-      <div className="finova-bezel-outer">
-        <form onSubmit={handleSubmit} className="finova-bezel-inner p-6 sm:p-8 space-y-6 text-xs bg-white">
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block font-semibold text-[#102A32]">Pilih Klien Terdaftar:</label>
+      <div className="bg-white rounded-3xl border border-[#DDE4E2] p-6 sm:p-8 shadow-xs space-y-6">
+        <div>
+          <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]">
+            Input Bebas &bull; Siap Pakai Data Sendiri
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-[#102A32] mt-2">
+            Buat Perikatan Audit & Daftarkan Klien
+          </h1>
+          <p className="text-xs text-[#52636A] mt-1">
+            Masukkan nama PT dan parameter audit Anda sendiri. Anda dapat langsung mengunggah file Trial Balance Excel setelah perikatan dibuat.
+          </p>
+        </div>
+
+        {errorMsg && (
+          <div className="p-3.5 bg-[#FDF2F2] border border-[#F8B4B4] rounded-2xl flex items-center gap-2.5 text-xs text-[#9B1C1C]">
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#E02424]" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6 text-xs">
+          {/* Client Selection / Creation Mode Toggle */}
+          <div className="space-y-3">
+            <label className="block font-bold text-sm text-[#102A32]">
+              1. Identitas Entitas Klien (Perusahaan yang Diaudit)
+            </label>
+            <div className="grid grid-cols-2 gap-3 p-1.5 bg-[#F6F7F5] rounded-2xl border border-[#DDE4E2]">
               <button
                 type="button"
-                onClick={() => setShowNewClientModal(true)}
-                className="text-xs font-bold text-[#0F8F7A] hover:text-[#0C7564] flex items-center gap-1 hover:underline cursor-pointer"
+                onClick={() => setMode('new_client')}
+                className={
+                  'py-2.5 px-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ' +
+                  (mode === 'new_client'
+                    ? 'bg-[#0F8F7A] text-white shadow-xs'
+                    : 'text-[#52636A] hover:text-[#102A32]')
+                }
               >
-                <span>+ Daftarkan Klien Baru</span>
+                <Building2 className="w-4 h-4" />
+                <span>Klien Baru (Ketik Nama PT Sendiri)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('existing_client')}
+                className={
+                  'py-2.5 px-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ' +
+                  (mode === 'existing_client'
+                    ? 'bg-[#0F8F7A] text-white shadow-xs'
+                    : 'text-[#52636A] hover:text-[#102A32]')
+                }
+              >
+                <Briefcase className="w-4 h-4" />
+                <span>Pilih Klien Terdaftar ({state.clients.length})</span>
               </button>
             </div>
-
-            {newClientSuccessMsg && (
-              <div className="mb-2 p-2.5 bg-[#E8F5F1] border border-[#B2DFD6] rounded-xl text-xs text-[#0F8F7A] font-semibold flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>{newClientSuccessMsg}</span>
-              </div>
-            )}
-
-            <select
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl bg-[#F6F7F5] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
-            >
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  [{c.code}] {c.legalName} &bull; {c.industry}
-                </option>
-              ))}
-            </select>
           </div>
 
-          {/* Modal Inline Daftarkan Klien Baru */}
-          {showNewClientModal && (
-            <div className="p-4 bg-[#F8FAFC] border-2 border-[#0F8F7A]/40 rounded-xl space-y-3 animate-finova-in">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-[#102A32]">Daftarkan Entitas Klien Baru</span>
-                <button
-                  type="button"
-                  onClick={() => setShowNewClientModal(false)}
-                  className="text-xs text-[#52636A] hover:text-[#102A32]"
-                >
-                  Tutup
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] text-[#52636A] mb-1">Nama Legal Klien (PT / CV / Firma):</label>
-                  <input
-                    type="text"
-                    value={newClientName}
-                    onChange={(e) => setNewClientName(e.target.value)}
-                    placeholder="Contoh: PT Surya Mandiri Sejahtera"
-                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-lg bg-white text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-[#52636A] mb-1">Kode Singkat (3-4 Huruf):</label>
-                  <input
-                    type="text"
-                    value={newClientCode}
-                    onChange={(e) => setNewClientCode(e.target.value)}
-                    placeholder="Contoh: SMS"
-                    maxLength={5}
-                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-lg bg-white text-xs font-mono uppercase"
-                  />
-                </div>
-              </div>
-
+          {mode === 'new_client' ? (
+            <div className="p-5 bg-[#FAFCFB] rounded-2xl border border-[#B2DFD6] space-y-4">
               <div>
-                <label className="block text-[11px] text-[#52636A] mb-1">Sektor Industri:</label>
-                <select
-                  value={newClientIndustry}
-                  onChange={(e) => setNewClientIndustry(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#DDE4E2] rounded-lg bg-white text-xs"
-                >
-                  <option value="Manufaktur & Fabrikasi">Manufaktur & Fabrikasi</option>
-                  <option value="Perdagangan & Distribusi">Perdagangan & Distribusi</option>
-                  <option value="Jasa & Konsultasi">Jasa & Konsultasi</option>
-                  <option value="Transportasi & Logistik">Transportasi & Logistik</option>
-                  <option value="Konstruksi & Properti">Konstruksi & Properti</option>
-                  <option value="Teknologi & Digital">Teknologi & Digital</option>
-                </select>
+                <label className="block font-bold text-[#102A32] mb-1.5">
+                  Nama Lengkap Perusahaan / PT Klien: <span className="text-[#E02424]">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  autoFocus
+                  value={clientName}
+                  onChange={(e) => handleClientNameChange(e.target.value)}
+                  placeholder="Contoh: PT Sumber Makmur Abadi, PT Sejahtera Sentosa, dsb."
+                  className="w-full px-3.5 py-2.5 border border-[#B2DFD6] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0F8F7A] bg-white text-sm font-semibold text-[#102A32]"
+                />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowNewClientModal(false)}
-                  className="px-3 py-1.5 border border-[#DDE4E2] rounded-lg text-xs text-[#52636A]"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCreateNewClient}
-                  className="px-3 py-1.5 bg-[#0F8F7A] text-white rounded-lg text-xs font-bold hover:bg-[#0C7564]"
-                >
-                  Simpan & Pilih Klien
-                </button>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#52636A] mb-1">
+                    Kode / Ticker Klien:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={clientCode}
+                    onChange={(e) => setClientCode(e.target.value.toUpperCase())}
+                    placeholder="Contoh: SMA"
+                    maxLength={8}
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-white text-xs font-mono uppercase"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#52636A] mb-1">
+                    NPWP Badan:
+                  </label>
+                  <input
+                    type="text"
+                    value={taxIdNpwp}
+                    onChange={(e) => setTaxIdNpwp(e.target.value)}
+                    placeholder="01.234.567.8-012.000"
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-white text-xs font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#52636A] mb-1">
+                    Sektor Industri:
+                  </label>
+                  <select
+                    value={industry}
+                    onChange={(e) => setIndustry(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-white text-xs font-semibold"
+                  >
+                    <option value="Manufaktur & Fabrikasi">Manufaktur & Fabrikasi</option>
+                    <option value="Perdagangan & Retail">Perdagangan & Retail</option>
+                    <option value="Jasa & Konsultasi">Jasa & Konsultasi</option>
+                    <option value="Transportasi & Logistik">Transportasi & Logistik</option>
+                    <option value="Konstruksi & Properti">Konstruksi & Properti</option>
+                    <option value="F&B & Restoran">F&B & Restoran</option>
+                    <option value="Teknologi & Digital">Teknologi & Digital</option>
+                  </select>
+                </div>
               </div>
+            </div>
+          ) : (
+            <div className="p-5 bg-[#F6F7F5] rounded-2xl border border-[#DDE4E2] space-y-3">
+              <label className="block font-bold text-[#102A32] mb-1">
+                Pilih Entitas Klien dari Database:
+              </label>
+              <select
+                value={existingClientId}
+                onChange={(e) => setExistingClientId(e.target.value)}
+                className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl bg-white font-semibold text-[#102A32]"
+              >
+                {state.clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    [{c.code}] {c.legalName} &bull; {c.industry}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
-          <div>
-            <label className="block font-semibold text-[#102A32] mb-1.5">Judul Perikatan:</label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
-              placeholder="Contoh: Financial Review & Lead Schedule FY 2026"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-semibold text-[#102A32] mb-1.5">Awal Periode Buku:</label>
-              <input
-                type="date"
-                required
-                value={periodStart}
-                onChange={(e) => setPeriodStart(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A] font-mono"
-              />
-            </div>
+          {/* Engagement Parameters */}
+          <div className="space-y-4 pt-4 border-t border-[#DDE4E2]">
+            <label className="block font-bold text-sm text-[#102A32]">
+              2. Detail Kertas Kerja & Parameter Perikatan
+            </label>
 
             <div>
-              <label className="block font-semibold text-[#102A32] mb-1.5">Akhir Periode Buku:</label>
-              <input
-                type="date"
-                required
-                value={periodEnd}
-                onChange={(e) => setPeriodEnd(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A] font-mono"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-semibold text-[#102A32] mb-1.5">Mata Uang Pelaporan:</label>
+              <label className="block font-semibold text-[#102A32] mb-1.5">Judul Perikatan:</label>
               <input
                 type="text"
-                disabled
-                value="IDR (Rupiah Indonesia) - Single Currency Scope"
-                className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl bg-[#F6F7F5] text-[#52636A] font-mono text-[11px]"
-              />
-            </div>
-
-            <div>
-              <label className="block font-semibold text-[#102A32] mb-1.5">Ambang Materialitas (IDR):</label>
-              <input
-                type="number"
                 required
-                value={materialityIdr}
-                onChange={(e) => setMaterialityIdr(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A] font-mono"
+                value={engagementName}
+                onChange={(e) => setEngagementName(e.target.value)}
+                className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A] bg-white font-medium"
+                placeholder="Contoh: Financial Review & Lead Schedule FY 2026"
               />
             </div>
-          </div>
 
-          {/* Team Assignments */}
-          <div className="border-t border-[#DDE4E2] pt-5 space-y-4">
-            <div className="font-bold text-sm text-[#102A32]">Penugasan Tim Kantor (Engagement Team):</div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <span className="text-[11px] text-[#52636A] block mb-1">Partner Penanggung Jawab:</span>
+                <label className="block font-semibold text-[#102A32] mb-1.5">Tahun Buku:</label>
+                <input
+                  type="number"
+                  required
+                  value={periodYear}
+                  onChange={(e) => setPeriodYear(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A] font-mono bg-white"
+                />
+              </div>
+              <div>
+                <label className="block font-semibold text-[#102A32] mb-1.5">Awal Periode:</label>
+                <input
+                  type="date"
+                  required
+                  value={periodStart}
+                  onChange={(e) => setPeriodStart(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A] font-mono bg-white"
+                />
+              </div>
+              <div>
+                <label className="block font-semibold text-[#102A32] mb-1.5">Akhir Periode:</label>
+                <input
+                  type="date"
+                  required
+                  value={periodEnd}
+                  onChange={(e) => setPeriodEnd(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A] font-mono bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block font-semibold text-[#102A32] mb-1.5">Standar Akuntansi:</label>
                 <select
-                  value={leadPartnerId}
-                  onChange={(e) => setLeadPartnerId(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-[#F6F7F5]"
+                  value={accountingStandard}
+                  onChange={(e) => setAccountingStandard(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl bg-white font-semibold"
                 >
-                  {state.users.filter((u) => u.role === 'partner').map((u) => (
-                    <option key={u.id} value={u.id}>{u.name}</option>
-                  ))}
+                  <option value="SAK_INDONESIA">SAK Indonesia (PSAK Lengkap)</option>
+                  <option value="SAK_EP">SAK EP (Entitas Privat)</option>
+                  <option value="SAK_EMKM">SAK EMKM (Mikro, Kecil & Menengah)</option>
                 </select>
               </div>
 
               <div>
-                <span className="text-[11px] text-[#52636A] block mb-1">Engagement Manager:</span>
-                <select
-                  value={managerId}
-                  onChange={(e) => setManagerId(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-[#F6F7F5]"
-                >
-                  {state.users.filter((u) => u.role === 'manager').map((u) => (
-                    <option key={u.id} value={u.id}>{u.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <span className="text-[11px] text-[#52636A] block mb-1">Senior Lapangan (In-Charge):</span>
-                <select
-                  value={seniorId}
-                  onChange={(e) => setSeniorId(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-[#F6F7F5]"
-                >
-                  {state.users.filter((u) => u.role === 'senior').map((u) => (
-                    <option key={u.id} value={u.id}>{u.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <span className="text-[11px] text-[#52636A] block mb-1">Preparer (Associate):</span>
-                <select
-                  value={preparerId}
-                  onChange={(e) => setPreparerId(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-[#F6F7F5]"
-                >
-                  {state.users.filter((u) => u.role === 'preparer').map((u) => (
-                    <option key={u.id} value={u.id}>{u.name}</option>
-                  ))}
-                </select>
+                <label className="block font-semibold text-[#102A32] mb-1.5">Ambang Materialitas (IDR):</label>
+                <input
+                  type="number"
+                  required
+                  value={materialityIdr}
+                  onChange={(e) => setMaterialityIdr(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A] font-mono bg-white"
+                />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-[#DDE4E2]">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#DDE4E2]">
             <Link
-              href="/"
+              href="/engagements"
               className="px-4 py-2.5 border border-[#DDE4E2] rounded-xl text-[#52636A] hover:bg-[#F1F4F3] font-semibold"
             >
               Batal
             </Link>
             <button
               type="submit"
-              disabled={isSaving}
-              className="finova-pill-cta bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs shadow-md cursor-pointer"
+              disabled={isSubmitting}
+              className="finova-pill-cta bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs font-bold shadow-md cursor-pointer disabled:opacity-50"
             >
-              <span>{isSaving ? 'Menyimpan...' : 'Buat Perikatan & Masuk ke Overview'}</span>
+              <span>{isSubmitting ? 'Menyimpan Data Klien...' : 'Simpan & Lanjut ke Unggah File Trial Balance'}</span>
               <div className="icon-circle">
                 <ArrowRight className="w-3.5 h-3.5 text-white" />
               </div>

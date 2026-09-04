@@ -1,5 +1,8 @@
 'use client';
 
+import { useParams } from 'next/navigation';
+import { repo } from '@/lib/db/repo-v4';
+
 import React, { useState, useEffect } from 'react';
 import {
   TrendingUp,
@@ -42,6 +45,11 @@ const DEFAULT_ADVISORY_DATA = {
 };
 
 export default function AdvisoryAnalyticsPage() {
+  const routeParams = useParams();
+  const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
+  const state = repo.getState();
+  const engagement = state.engagements.find((e: any) => e.id === engagementId);
+  const client = state.clients.find((c: any) => c.id === engagement?.clientId);
   const [data, setData] = useState<any>(DEFAULT_ADVISORY_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'cost' | 'ratios' | 'manufacturing' | 'whatif' | 'memo'>('cost');
@@ -573,7 +581,7 @@ export default function AdvisoryAnalyticsPage() {
             <div className="border-b border-[#DDE4E2] pb-4 flex items-center justify-between font-sans">
               <div>
                 <span className="text-[10px] font-bold text-[#0F8F7A] uppercase tracking-wider block">MEMO EKSEKUTIF KONSULTAN FINANSIAL</span>
-                <h2 className="text-lg font-bold text-[#102A32]">PT Nusantara Sukses Makmur — Dewan Direksi &amp; Komisaris</h2>
+                <h2 className="text-lg font-bold text-[#102A32]">{client?.legalName || 'Entitas Klien'} — Dewan Direksi &amp; Komisaris</h2>
                 <span className="text-xs text-[#52636A]">Diterbitkan oleh Tim Advisory FINOVA AI &bull; Periode Evaluasi FY 2026</span>
               </div>
               <button

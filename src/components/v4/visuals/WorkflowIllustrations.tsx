@@ -5,7 +5,20 @@ import { motion } from 'motion/react';
 import { ShieldCheck, FileSpreadsheet, ArrowRight, CheckCircle2, Lock, Sparkles, Database, Layers } from 'lucide-react';
 
 // 1. Files / Ingestion Scanner Illustration
-export function FileScannerIllustration() {
+export function FileScannerIllustration({
+  fileName,
+  fileHash,
+  rowCount,
+}: {
+  fileName?: string | null;
+  fileHash?: string | null;
+  rowCount?: number;
+} = {}) {
+  const isWaiting = fileName === null;
+  const displayFile = isWaiting ? 'Menunggu Berkas...' : (fileName || 'TB_Nusantara.xlsx');
+  const displayHash = isWaiting ? 'Siap Unggah' : (fileHash ? 'sha256:' + fileHash.substring(0, 8) + '...' : 'sha256:9f83a48e...');
+  const displayRows = isWaiting ? 'Menunggu Berkas' : (rowCount !== undefined ? rowCount + ' Akun Tervalidasi' : '22 Akun Tervalidasi');
+
   return (
     <div className="relative w-full h-44 rounded-xl overflow-hidden bg-gradient-to-br from-[#102A32] to-[#0A1D23] p-4 text-white flex items-center justify-between border border-[#1C3E49] shadow-inner">
       {/* Ambient background mesh */}
@@ -38,8 +51,8 @@ export function FileScannerIllustration() {
             <FileSpreadsheet className="w-5 h-5 text-[#4ECEA8]" />
             <span className="text-[9px] font-mono text-[#7A9EA8]">.XLSX</span>
           </div>
-          <div className="text-[10px] font-bold text-white truncate">TB_Nusantara.xlsx</div>
-          <div className="text-[8px] font-mono text-[#4ECEA8] mt-1 truncate">sha256:9f83a48e...</div>
+          <div className="text-[10px] font-bold text-white truncate">{displayFile}</div>
+          <div className="text-[8px] font-mono text-[#4ECEA8] mt-1 truncate">{displayHash}</div>
         </motion.div>
 
         {/* Animated Laser Connector */}
@@ -60,10 +73,10 @@ export function FileScannerIllustration() {
         >
           <div className="flex items-center justify-between mb-2">
             <Lock className="w-4 h-4 text-[#4ECEA8]" />
-            <span className="text-[9px] font-bold text-[#4ECEA8] px-1 py-0.2 bg-[#0F8F7A]/30 rounded">SEALED</span>
+            <span className="text-[9px] font-bold text-[#4ECEA8] px-1 py-0.2 bg-[#0F8F7A]/30 rounded">{isWaiting ? 'READY' : 'SEALED'}</span>
           </div>
           <div className="text-[10px] font-bold text-white">Dataset Snapshot</div>
-          <div className="text-[8px] text-[#A2B7BF] mt-1">22 Akun Tervalidasi</div>
+          <div className="text-[8px] text-[#A2B7BF] mt-1">{displayRows}</div>
         </motion.div>
       </div>
     </div>

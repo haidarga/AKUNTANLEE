@@ -1,5 +1,7 @@
 'use client';
 
+import { repo } from '@/lib/db/repo-v4';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, MessageSquare, X, Send, Bot, User, ArrowRight, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
 
@@ -70,13 +72,17 @@ function renderInlineFormatting(text: string, isUser: boolean) {
 
 export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const state = repo.getState();
+  const engagement = state.engagements.find((e: any) => e.id === engagementId);
+  const client = state.clients.find((c: any) => c.id === engagement?.clientId);
+  const clientDisplayName = client?.legalName || 'Entitas Klien';
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'msg-0',
       role: 'assistant',
-      content: 'Halo! Saya FINOVA AI Copilot (bertenaga model Qwen 3.8 & SAK Indonesia Engine). Saya memegang seluruh data kertas kerja audit PT Nusantara Sukses Makmur untuk Tahun Fiskal 2026. Silakan tanyakan apapun seputar laba bersih, EBITDA, uji keseimbangan neraca, pembengkakan biaya, atau simulasi pajak.',
+      content: 'Halo! Saya FINOVA AI Copilot (bertenaga model Qwen 3.8 & SAK Indonesia Engine). Saya memegang seluruh data kertas kerja audit ' + clientDisplayName + ' untuk Tahun Fiskal 2026. Silakan tanyakan apapun seputar laba bersih, EBITDA, uji keseimbangan neraca, pembengkakan biaya, atau simulasi pajak.',
       timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       model: 'qwen3.8-nvfp4',
     },
@@ -151,7 +157,7 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
   const quickPrompts = [
     'Apakah persamaan neraca Aset = L + E sudah seimbang?',
     'Jelaskan alasan akun 2199-00 harus masuk ke WP-F.4 menurut PSAK 10',
-    'Berapa laba bersih dan EBITDA PT Nusantara Sukses Makmur?',
+    'Berapa laba bersih dan EBITDA ' + clientDisplayName + '?',
   ];
 
   return (
@@ -186,7 +192,7 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
                   </span>
                 </h3>
                 <p className="text-[10px] text-white/75">
-                  Audit Workspace &bull; PT Nusantara Sukses Makmur
+                  Audit Workspace &bull; {clientDisplayName}
                 </p>
               </div>
             </div>

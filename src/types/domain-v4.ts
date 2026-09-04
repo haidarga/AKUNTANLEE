@@ -56,6 +56,8 @@ export interface ClientV4 {
   code: string; // "NSM"
   industry: string;
   status: 'active' | 'inactive';
+  taxIdNpwp?: string;
+  address?: string;
   createdAt: string;
 }
 
@@ -75,6 +77,7 @@ export interface EngagementV4 {
   managerId: string;
   seniorId: string;
   preparerId: string;
+  accountingStandard?: string;
   createdAt: string;
   updatedAt: string;
 }

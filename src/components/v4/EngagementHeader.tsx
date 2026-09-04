@@ -21,6 +21,9 @@ import {
   Sliders,
   ShieldCheck,
   UserCheck,
+  Pencil,
+  Building2,
+  X,
 } from 'lucide-react';
 import { EngagementStatusV4 } from '@/types/domain-v4';
 import { formatIdrNumber } from '@/lib/decimal';
@@ -48,6 +51,109 @@ export function EngagementHeader({
 }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
+
+  // Dynamic Editable Client & Engagement State
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentClientName, setCurrentClientName] = useState(clientName);
+  const [currentClientCode, setCurrentClientCode] = useState(clientCode);
+  const [currentTitle, setCurrentTitle] = useState(title);
+  const [currentPeriodYear, setCurrentPeriodYear] = useState(periodYear);
+  const [currentMateriality, setCurrentMateriality] = useState(materialityIdr);
+  const [currentTaxId, setCurrentTaxId] = useState('01.234.567.8-012.000');
+  const [currentIndustry, setCurrentIndustry] = useState('Manufaktur & Fabrikasi');
+
+  // Form edit states
+  const [editClientName, setEditClientName] = useState(clientName);
+  const [editClientCode, setEditClientCode] = useState(clientCode);
+  const [editTaxId, setEditTaxId] = useState('01.234.567.8-012.000');
+  const [editIndustry, setEditIndustry] = useState('Manufaktur & Fabrikasi');
+  const [editTitle, setEditTitle] = useState(title);
+  const [editMateriality, setEditMateriality] = useState(String(materialityIdr));
+  const [editAccountingStandard, setEditAccountingStandard] = useState('SAK_INDONESIA');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editSuccessMsg, setEditSuccessMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentClientName(clientName);
+    setEditClientName(clientName);
+  }, [clientName]);
+
+  useEffect(() => {
+    setCurrentClientCode(clientCode);
+    setEditClientCode(clientCode);
+  }, [clientCode]);
+
+  useEffect(() => {
+    setCurrentTitle(title);
+    setEditTitle(title);
+  }, [title]);
+
+  const handleOpenEditModal = () => {
+    setEditClientName(currentClientName);
+    setEditClientCode(currentClientCode);
+    setEditTitle(currentTitle);
+    setEditMateriality(String(currentMateriality));
+    setEditSuccessMsg(null);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEngagementDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingEdit(true);
+    setEditSuccessMsg(null);
+
+    try {
+      const res = await fetch(`/api/v1/engagements/${engagementId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientName: editClientName.trim(),
+          clientCode: editClientCode.trim().toUpperCase(),
+          taxIdNpwp: editTaxId.trim(),
+          industry: editIndustry,
+          name: editTitle.trim(),
+          materialityIdr: parseFloat(editMateriality) || 250000000,
+          accountingStandard: editAccountingStandard,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || json.message || 'Gagal menyimpan data');
+      }
+
+      setCurrentClientName(editClientName.trim());
+      setCurrentClientCode(editClientCode.trim().toUpperCase());
+      setCurrentTitle(editTitle.trim());
+      setCurrentMateriality(parseFloat(editMateriality) || 250000000);
+      setEditSuccessMsg('Data PT dan parameter perikatan berhasil diperbarui!');
+
+      // Notify other components (Overview, Copilot, etc.)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('finova:engagement-updated', {
+            detail: {
+              engagementId,
+              clientName: editClientName.trim(),
+              clientCode: editClientCode.trim().toUpperCase(),
+              title: editTitle.trim(),
+            },
+          })
+        );
+      }
+
+      setTimeout(() => {
+        setShowEditModal(false);
+        setEditSuccessMsg(null);
+        router.refresh();
+      }, 1200);
+    } catch (err: any) {
+      console.error('Error saving engagement details:', err);
+      alert(err.message || 'Gagal menyimpan perubahan');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   const [selectedCycle, setSelectedCycle] = useState<'Tahunan' | 'Semester 1' | 'Triwulan 4' | 'Bulanan'>('Tahunan');
   const [abVariant, setAbVariant] = useState<'variant_b_advisory' | 'variant_a_compliance' | 'variant_master'>('variant_master');
@@ -222,9 +328,24 @@ export function EngagementHeader({
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-[#102A32] text-white">
-                {clientCode}
+                {currentClientCode}
               </span>
-              <span className="font-semibold text-xs text-[#52636A]">{clientName}</span>
+              <button
+                type="button"
+                onClick={handleOpenEditModal}
+                className="font-bold text-xs text-[#102A32] hover:text-[#0F8F7A] underline decoration-dotted decoration-[#0F8F7A] underline-offset-4 flex items-center gap-1.5 cursor-pointer transition-colors"
+                title="Klik untuk mengubah nama PT, NPWP, atau parameter audit"
+              >
+                <span>{currentClientName}</span>
+                <Pencil className="w-3 h-3 text-[#0F8F7A]" />
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenEditModal}
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E8F5F1] hover:bg-[#D3EEE7] text-[#0F8F7A] border border-[#B2DFD6] flex items-center gap-1 cursor-pointer transition-colors"
+              >
+                <span>Ubah Data PT</span>
+              </button>
               {getStatusBadge(status)}
               {isStale && (
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#FFF7E8] text-[#B7791F] border border-[#F6E0B5] flex items-center gap-1 animate-pulse">
@@ -234,7 +355,7 @@ export function EngagementHeader({
               )}
             </div>
 
-            <h1 className="text-xl font-bold tracking-tight text-[#102A32]">{title}</h1>
+            <h1 className="text-xl font-bold tracking-tight text-[#102A32]">{currentTitle}</h1>
           </div>
 
           {/* Quick Period & Materiality Stats */}
@@ -262,7 +383,7 @@ export function EngagementHeader({
             </div>
             <div className="bg-[#F6F7F5] border border-[#DDE4E2] px-3 py-1.5 rounded-lg text-right">
               <span className="text-[10px] text-[#52636A] block">Materialitas Audit</span>
-              <span className="font-mono font-bold text-xs text-[#102A32]">{formatIdrNumber(materialityIdr)}</span>
+              <span className="font-mono font-bold text-xs text-[#102A32]">{formatIdrNumber(currentMateriality)}</span>
             </div>
           </div>
         </div>
@@ -317,6 +438,162 @@ export function EngagementHeader({
           })}
         </nav>
       </div>
+
+      {/* Modal Ubah Data PT & Perikatan */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-finova-in">
+          <div className="bg-white rounded-3xl border border-[#DDE4E2] shadow-2xl max-w-xl w-full p-6 sm:p-7 space-y-5 text-xs relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="absolute top-5 right-5 p-1.5 rounded-full text-[#7A8C93] hover:text-[#102A32] hover:bg-[#F6F7F5] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="space-y-1">
+              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]">
+                Kustomisasi Entitas
+              </span>
+              <h3 className="text-lg font-bold text-[#102A32]">
+                Ubah Identitas PT &amp; Parameter Perikatan
+              </h3>
+              <p className="text-[#52636A] text-[11px] leading-relaxed">
+                Ubah nama PT, NPWP, atau judul perikatan sesuai entitas nyata klien Anda. Seluruh modul (Overview, Workpaper, Tax, dan Ekspor) otomatis tersinkronisasi.
+              </p>
+            </div>
+
+            {editSuccessMsg && (
+              <div className="p-3 bg-[#E8F5F1] border border-[#B2DFD6] rounded-xl flex items-center gap-2 text-[#0F8F7A] font-semibold">
+                <CheckCircle2 className="w-4 h-4 text-[#0F8F7A] shrink-0" />
+                <span>{editSuccessMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveEngagementDetails} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block font-bold text-[#102A32]">
+                  Nama Lengkap Perusahaan / PT: <span className="text-[#E02424]">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editClientName}
+                  onChange={(e) => setEditClientName(e.target.value)}
+                  placeholder="Contoh: PT Sumber Makmur Abadi"
+                  className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0F8F7A] font-semibold text-sm text-[#102A32] bg-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-[#52636A]">
+                    Kode / Ticker Klien:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editClientCode}
+                    onChange={(e) => setEditClientCode(e.target.value.toUpperCase())}
+                    maxLength={8}
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-white font-mono uppercase text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-[#52636A]">
+                    NPWP Badan:
+                  </label>
+                  <input
+                    type="text"
+                    value={editTaxId}
+                    onChange={(e) => setEditTaxId(e.target.value)}
+                    placeholder="01.234.567.8-012.000"
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-white font-mono text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-[#52636A]">
+                    Sektor Industri:
+                  </label>
+                  <select
+                    value={editIndustry}
+                    onChange={(e) => setEditIndustry(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-white text-xs font-semibold"
+                  >
+                    <option value="Manufaktur & Fabrikasi">Manufaktur & Fabrikasi</option>
+                    <option value="Perdagangan & Retail">Perdagangan & Retail</option>
+                    <option value="Jasa & Konsultasi">Jasa & Konsultasi</option>
+                    <option value="Transportasi & Logistik">Transportasi & Logistik</option>
+                    <option value="Konstruksi & Properti">Konstruksi & Properti</option>
+                    <option value="F&B & Restoran">F&B & Restoran</option>
+                    <option value="Teknologi & Digital">Teknologi & Digital</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 pt-2 border-t border-[#DDE4E2]">
+                <label className="block font-bold text-[#102A32]">
+                  Judul Kertas Kerja / Perikatan:
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F8F7A] font-medium text-xs bg-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-[#52636A]">
+                    Standar Akuntansi:
+                  </label>
+                  <select
+                    value={editAccountingStandard}
+                    onChange={(e) => setEditAccountingStandard(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-white text-xs font-semibold"
+                  >
+                    <option value="SAK_INDONESIA">SAK Indonesia (PSAK Lengkap)</option>
+                    <option value="SAK_EP">SAK EP (Entitas Privat)</option>
+                    <option value="SAK_EMKM">SAK EMKM (Mikro, Kecil &amp; Menengah)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-[#52636A]">
+                    Ambang Materialitas (IDR):
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={editMateriality}
+                    onChange={(e) => setEditMateriality(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#DDE4E2] rounded-xl bg-white font-mono text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#DDE4E2]">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="px-4 py-2 border border-[#DDE4E2] rounded-xl text-[#52636A] hover:bg-[#F6F7F5] font-semibold"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingEdit}
+                  className="finova-pill-cta bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs font-bold shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  <span>{isSavingEdit ? 'Menyimpan...' : 'Simpan Perubahan PT'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
