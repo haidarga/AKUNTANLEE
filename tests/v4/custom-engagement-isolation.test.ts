@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { repo } from '@/lib/db/repo-v4';
 import { extractFinancialInputs } from '@/lib/advisory/custom-engagement';
+import { calculateWorkpaperVersion } from '@/lib/workpaper/engine';
 
 describe('custom engagement data isolation', () => {
   it('does not bind the Mandiri workspace to the SRI demo client', () => {
@@ -47,5 +48,22 @@ describe('custom engagement data isolation', () => {
       operatingProfitIdr: 210_000_000,
       netProfitIdr: 210_000_000,
     });
+  });
+
+  it('does not inject demo comparative balances into a custom workpaper', () => {
+    const result = calculateWorkpaperVersion({
+      tenantId: 'TENANT-001',
+      engagementId: 'ENG-MANDIRI-2026',
+      datasetVersionId: 'DSV-MANDIRI',
+      mappingSetId: 'MAPSET-MANDIRI',
+      accounts: [],
+      mappingDecisions: [],
+    });
+
+    for (const line of result.lines) {
+      expect(line.comparativePeriodIdr).toBeUndefined();
+      expect(line.varianceAmountIdr).toBeUndefined();
+      expect(line.variancePercent).toBeUndefined();
+    }
   });
 });
