@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { repo } from '@/lib/db/repo-v4';
 import { FileVersion } from '@/types/domain-v4';
+import { calculateWorkpaperVersion } from '@/lib/workpaper/engine';
 import { FileScannerIllustration } from '@/components/v4/visuals/WorkflowIllustrations';
 
 export default function FilesPage() {
@@ -51,6 +52,27 @@ export default function FilesPage() {
   const [uploadStatusText, setUploadStatusText] = useState('Memindai & Menghitung Hash...');
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      const storedFiles = localStorage.getItem('finova_files_' + engagement.id);
+      if (storedFiles) {
+        const parsed = JSON.parse(storedFiles);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setFileVersions(parsed);
+        }
+      }
+      const storedAcc = localStorage.getItem('finova_accounts_' + engagement.id);
+      if (storedAcc) {
+        const parsedAcc = JSON.parse(storedAcc);
+        if (Array.isArray(parsedAcc) && parsedAcc.length > 0) {
+          setExtractedCount(parsedAcc.length);
+        }
+      }
+    } catch (e) {
+      console.warn('Error loading stored files:', e);
+    }
+  }, [engagement.id]);
 
   // Real Client-Side File Processing using SheetJS & Web Crypto API
   const handleProcessRealFile = async (file: File) => {
@@ -194,6 +216,61 @@ export default function FilesPage() {
 
           repo.publishImportDataset(importJob, newDsv, extractedAccounts, user);
           setExtractedCount(extractedAccounts.length);
+
+          // Build automated SAK mapping decisions for custom accounts
+          const autoDecisions = extractedAccounts.map((acc: any, idx: number) => {
+            let target = 'WP-A.1';
+            const nameLower = (acc.accountName || '').toLowerCase();
+            const code = acc.accountCode || '';
+            if (code.startsWith('10') || code.startsWith('11') || nameLower.includes('kas') || nameLower.includes('bank')) target = 'WP-A.1';
+            else if (code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
+            else if (code.startsWith('13') || nameLower.includes('persediaan') || nameLower.includes('inventory')) target = 'WP-A.4';
+            else if (code.startsWith('14') || nameLower.includes('muka') || nameLower.includes('prepaid')) target = 'WP-A.5';
+            else if (nameLower.includes('akumulasi')) target = 'WP-B.2';
+            else if (code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan')) target = 'WP-B.1';
+            else if (code.startsWith('20') || code.startsWith('21') || nameLower.includes('utang usaha') || nameLower.includes('payable')) target = 'WP-C.1';
+            else if (code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax')) target = 'WP-C.2';
+            else if (code.startsWith('25') || nameLower.includes('bank') || nameLower.includes('pinjaman')) target = 'WP-D.1';
+            else if (code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital')) target = 'WP-E.1';
+            else if (code.startsWith('31') || nameLower.includes('laba') || nameLower.includes('retained')) target = 'WP-E.2';
+            else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue')) target = 'WP-F.1';
+            else if (code.startsWith('5') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
+            else target = 'WP-F.3';
+
+            return {
+              id: 'DEC-' + (idx + 1),
+              tenantId: user.tenantId,
+              mappingSetId: 'MAPSET-' + engagement.id,
+              accountRowId: acc.id || ('ACC-' + (idx + 1)),
+              sourceAccountCode: acc.accountCode,
+              sourceAccountName: acc.accountName,
+              amountIdr: acc.closingBalanceIdr || acc.balanceIdr || 0,
+              proposedTarget: target,
+              effectiveTarget: target,
+              confidenceScore: 96,
+              confidenceLevel: 'high' as const,
+              rationale: 'Pemetaan Otomatis SAK Standard Pattern',
+              status: 'mapped' as const,
+              isMaterial: false,
+            };
+          });
+
+          const customWpCalc = calculateWorkpaperVersion({
+            tenantId: user.tenantId,
+            engagementId: engagement.id,
+            datasetVersionId: newDsvId,
+            mappingSetId: 'MAPSET-' + engagement.id,
+            accounts: extractedAccounts,
+            mappingDecisions: autoDecisions,
+          });
+
+          try {
+            localStorage.setItem('finova_accounts_' + engagement.id, JSON.stringify(extractedAccounts));
+            localStorage.setItem('finova_wp_' + engagement.id, JSON.stringify(customWpCalc));
+            localStorage.setItem('finova_files_' + engagement.id, JSON.stringify([newFv, ...fileVersions]));
+          } catch (storageErr) {
+            console.warn('LocalStorage save warning:', storageErr);
+          }
         }
 
         setFileVersions([newFv, ...fileVersions]);

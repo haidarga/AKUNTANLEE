@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Briefcase, ArrowLeft, ArrowRight, ShieldCheck, DollarSign, Building2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { repo } from '@/lib/db/repo-v4';
+import { saveStoredCustomEngagement } from '@/lib/storage/finova-store';
 
 export default function NewEngagementPage() {
   const router = useRouter();
@@ -87,13 +88,34 @@ export default function NewEngagementPage() {
       }
 
       const createdEng = json.data;
+      const createdClient = json.client;
 
-      // Also cache to localStorage for instant local reactivity
+      saveStoredCustomEngagement(
+        {
+          ...createdEng,
+          clientName: createdClient?.legalName || payload.clientName || clientName,
+          clientCode: createdClient?.code || payload.clientCode || clientCode,
+          taxIdNpwp: createdClient?.taxIdNpwp || payload.taxIdNpwp || taxIdNpwp,
+          industry: createdClient?.industry || payload.industry || industry,
+          periodYear,
+        },
+        createdClient
+      );
+
       if (typeof window !== 'undefined') {
         localStorage.setItem('finova_active_engagement', createdEng.id);
+        window.dispatchEvent(
+          new CustomEvent('finova:engagement-updated', {
+            detail: {
+              engagementId: createdEng.id,
+              clientName: createdClient?.legalName || clientName,
+              clientCode: createdClient?.code || clientCode,
+              title: createdEng.name,
+            },
+          })
+        );
       }
 
-      // Route directly to the files upload zone
       router.push('/engagements/' + createdEng.id + '/files');
     } catch (err: any) {
       console.error('Error creating engagement:', err);

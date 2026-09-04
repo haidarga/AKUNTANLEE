@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { EngagementStatusV4 } from '@/types/domain-v4';
 import { formatIdrNumber } from '@/lib/decimal';
+import { getStoredCustomEngagements, saveStoredCustomEngagement } from '@/lib/storage/finova-store';
 
 interface HeaderProps {
   engagementId: string;
@@ -88,6 +89,34 @@ export function EngagementHeader({
     setEditTitle(title);
   }, [title]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const storedEngs = getStoredCustomEngagements();
+      const found = storedEngs.find((e) => e.id === engagementId);
+      if (found) {
+        if (found.clientName) {
+          setCurrentClientName(found.clientName);
+          setEditClientName(found.clientName);
+        }
+        if (found.clientCode) {
+          setCurrentClientCode(found.clientCode);
+          setEditClientCode(found.clientCode);
+        }
+        if (found.name) {
+          setCurrentTitle(found.name);
+          setEditTitle(found.name);
+        }
+        if (found.materialityIdr) {
+          setCurrentMateriality(found.materialityIdr);
+          setEditMateriality(String(found.materialityIdr));
+        }
+      }
+    } catch (err) {
+      console.warn('Error reading stored engagement in header:', err);
+    }
+  }, [engagementId]);
+
   const handleOpenEditModal = () => {
     setEditClientName(currentClientName);
     setEditClientCode(currentClientCode);
@@ -127,6 +156,19 @@ export function EngagementHeader({
       setCurrentTitle(editTitle.trim());
       setCurrentMateriality(parseFloat(editMateriality) || 250000000);
       setEditSuccessMsg('Data PT dan parameter perikatan berhasil diperbarui!');
+
+      saveStoredCustomEngagement(
+        {
+          id: engagementId,
+          name: editTitle.trim(),
+          clientName: editClientName.trim(),
+          clientCode: editClientCode.trim().toUpperCase(),
+          taxIdNpwp: editTaxId.trim(),
+          industry: editIndustry,
+          materialityIdr: parseFloat(editMateriality) || 250000000,
+          accountingStandard: editAccountingStandard,
+        }
+      );
 
       // Notify other components (Overview, Copilot, etc.)
       if (typeof window !== 'undefined') {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Briefcase,
@@ -18,14 +18,52 @@ import {
 import { repo } from '@/lib/db/repo-v4';
 import { EngagementStatusV4 } from '@/types/domain-v4';
 import { formatIdrNumber } from '@/lib/decimal';
+import { getStoredCustomEngagements, getStoredCustomClients } from '@/lib/storage/finova-store';
 
 export default function EngagementsListPage() {
   const state = repo.getState();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [allEngagements, setAllEngagements] = useState<any[]>(state.engagements);
+  const [allClients, setAllClients] = useState<any[]>(state.clients);
 
-  const engagements = state.engagements.filter((eng) => {
-    const client = state.clients.find((c) => c.id === eng.clientId);
+  useEffect(() => {
+    const storedEngs = getStoredCustomEngagements();
+    const storedClients = getStoredCustomClients();
+
+    const clientMap = new Map<string, any>();
+    for (const c of state.clients) clientMap.set(c.id, c);
+    for (const c of storedClients) clientMap.set(c.id, { ...clientMap.get(c.id), ...c });
+
+    const mergedMap = new Map<string, any>();
+    // Prioritize storedEngs at top
+    for (const e of storedEngs) mergedMap.set(e.id, e);
+    for (const e of state.engagements) {
+      if (!mergedMap.has(e.id)) mergedMap.set(e.id, e);
+    }
+
+    setAllEngagements(Array.from(mergedMap.values()));
+    setAllClients(Array.from(clientMap.values()));
+
+    // Also fetch fresh from API
+    fetch('/api/v1/engagements')
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.data && Array.isArray(json.data)) {
+          for (const e of json.data) {
+            mergedMap.set(e.id, { ...mergedMap.get(e.id), ...e });
+          }
+          setAllEngagements(Array.from(mergedMap.values()));
+        }
+      })
+      .catch((err) => console.warn('Directory API fetch fallback to local:', err));
+  }, []);
+
+  const engagements = allEngagements.filter((eng) => {
+    const client = allClients.find((c) => c.id === eng.clientId) || {
+      legalName: eng.clientName || 'PT Klien Audit Baru',
+      code: eng.clientCode || 'KLN',
+    };
     const matchSearch =
       eng.name.toLowerCase().includes(search.toLowerCase()) ||
       client?.legalName.toLowerCase().includes(search.toLowerCase()) ||
@@ -137,7 +175,7 @@ export default function EngagementsListPage() {
       {/* Engagements Grid with Interactive Hover Cards */}
       <div className="space-y-3">
         {engagements.map((eng) => {
-          const client = state.clients.find((c) => c.id === eng.clientId);
+          const client = allClients.find((c) => c.id === eng.clientId) || { legalName: eng.clientName || 'PT Klien Audit Baru', code: eng.clientCode || 'KLN' };
 
           return (
             <div
@@ -151,6 +189,11 @@ export default function EngagementsListPage() {
                   </span>
                   <span className="font-bold text-xs text-[#52636A]">{client?.legalName}</span>
                   {getStatusBadge(eng.status)}
+                  {eng.id !== 'ENG-2026-01' && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE]">
+                      Klien Kustom Baru
+                    </span>
+                  )}
                 </div>
 
                 <h3 className="text-base font-bold text-[#102A32]">{eng.name}</h3>
