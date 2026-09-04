@@ -62,6 +62,7 @@ export default function ExportsPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeRole, setActiveRole] = useState<UserRoleV4>('partner');
   const [mounted, setMounted] = useState(false);
+  const [activeSigner, setActiveSigner] = useState<string>("Lee Jonathan, CPA");
 
   useEffect(() => {
     setMounted(true);
@@ -69,6 +70,14 @@ export default function ExportsPage() {
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setActiveRole(saved as UserRoleV4);
     }
+
+    try {
+      const savedFirm = localStorage.getItem("finova_firm_profile");
+      if (savedFirm) {
+        const parsed = JSON.parse(savedFirm);
+        if (parsed?.managingPartnerName) setActiveSigner(parsed.managingPartnerName);
+      }
+    } catch (e) {}
 
     if (isCustomEngagement) {
       try {
@@ -204,7 +213,26 @@ export default function ExportsPage() {
       </div>
 
       {/* Isometric 3D Workbook Architecture Preview */}
-      <IsometricWorkbookPreview />
+      {(() => {
+        const cashLine = lines.find((l) => l.lineId === "WP-A.1");
+        const recLine = lines.find((l) => l.lineId === "WP-A.2");
+        const cashVal = Math.abs(cashLine?.currentPeriodIdr || 0);
+        const recVal = Math.abs(recLine?.currentPeriodIdr || 0);
+        const totalAssetsVal = wpVersion.totals.totalAssetsIdr || 0;
+        const activeSha = fileVersions[0]?.checksumSha256 || "568c968de29717f115b3d4dfb716e0b7cea3dd60ec90fd091997d679c75a1e91";
+        const clientCode = (engagement.clientId && engagement.clientId !== "CLI-002") ? engagement.clientId : (engagement.id === "ENG-MANDIRI-2026" ? "MANDIRI" : "CKI");
+
+        return (
+          <IsometricWorkbookPreview
+            signerName={activeSigner}
+            checksumSha256={activeSha}
+            cashAmountIdr={cashVal}
+            receivableAmountIdr={recVal}
+            totalAssetsIdr={totalAssetsVal}
+            clientCode={clientCode}
+          />
+        );
+      })()}
 
       {/* Pre-Flight Eligibility Checklist */}
       <div className="bg-white rounded-2xl border border-[#DDE4E2] p-6 shadow-2xs space-y-5 text-xs">

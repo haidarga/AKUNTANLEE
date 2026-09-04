@@ -22,7 +22,8 @@ import {
   Bot,
 } from 'lucide-react';
 import { repo } from '@/lib/db/repo-v4';
-import { MappingDecision, MappingStatus, UserRoleV4 } from '@/types/domain-v4';
+import { MappingDecision, MappingStatus, UserRoleV4, AccountRow } from '@/types/domain-v4';
+import { calculateWorkpaperVersion } from '@/lib/workpaper/engine';
 import { formatIdrNumber } from '@/lib/decimal';
 import { MappingFlowIllustration } from '@/components/v4/visuals/WorkflowIllustrations';
 
@@ -99,6 +100,28 @@ export default function AccountMappingPage() {
   const [excludingDecision, setExcludingDecision] = useState<MappingDecision | null>(null);
   const [exclusionReason, setExclusionReason] = useState('');
 
+  const recalculateWorkpaper = (currentDecisions: MappingDecision[]) => {
+    try {
+      const rawAccs = localStorage.getItem("finova_accounts_" + engagementId);
+      if (rawAccs) {
+        const accs: AccountRow[] = JSON.parse(rawAccs);
+        if (Array.isArray(accs) && accs.length > 0) {
+          const wpCalc = calculateWorkpaperVersion({
+            tenantId: engagement.tenantId || "TENANT-001",
+            engagementId,
+            datasetVersionId: "DSV-" + engagementId,
+            mappingSetId: "MAPSET-" + engagementId,
+            accounts: accs,
+            mappingDecisions: currentDecisions,
+          });
+          localStorage.setItem("finova_wp_" + engagementId, JSON.stringify(wpCalc));
+        }
+      }
+    } catch (err) {
+      console.warn("Error recalculating workpaper from mapping:", err);
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
     const saved = localStorage.getItem('finova_v4_role');
@@ -112,6 +135,7 @@ export default function AccountMappingPage() {
         const parsed = JSON.parse(storedMap);
         if (Array.isArray(parsed) && parsed.length > 0) {
           setDecisions(parsed);
+          recalculateWorkpaper(parsed);
           return;
         }
       }
@@ -124,20 +148,23 @@ export default function AccountMappingPage() {
             let target = 'WP-A.1';
             const nameLower = (acc.accountName || '').toLowerCase();
             const code = acc.accountCode || '';
-            if (code.startsWith('10') || code.startsWith('11') || nameLower.includes('kas') || nameLower.includes('bank')) target = 'WP-A.1';
-            else if (code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
-            else if (code.startsWith('13') || nameLower.includes('persediaan') || nameLower.includes('inventory')) target = 'WP-A.4';
-            else if (code.startsWith('14') || nameLower.includes('muka') || nameLower.includes('prepaid')) target = 'WP-A.5';
-            else if (nameLower.includes('akumulasi')) target = 'WP-B.2';
-            else if (code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan')) target = 'WP-B.1';
-            else if (code.startsWith('20') || code.startsWith('21') || nameLower.includes('utang usaha') || nameLower.includes('payable')) target = 'WP-C.1';
-            else if (code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax')) target = 'WP-C.2';
-            else if (code.startsWith('25') || nameLower.includes('bank') || nameLower.includes('pinjaman')) target = 'WP-D.1';
-            else if (code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital')) target = 'WP-E.1';
-            else if (code.startsWith('31') || nameLower.includes('laba') || nameLower.includes('retained')) target = 'WP-E.2';
-            else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue')) target = 'WP-F.1';
-            else if (code.startsWith('5') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
-            else target = 'WP-F.3';
+            if (code.startsWith('10') || code.startsWith('111') || nameLower.includes('kas') || nameLower.includes('bank operasional') || nameLower.includes('bank giro')) target = 'WP-A.1';
+            else if (code.startsWith('112') || code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
+            else if (nameLower.includes('cadangan') || nameLower.includes('ecl') || nameLower.includes('penurunan nilai')) target = 'WP-A.3';
+            else if (code.startsWith('13') || code.startsWith('113') || nameLower.includes('persediaan') || nameLower.includes('inventory') || nameLower.includes('barang')) target = 'WP-A.4';
+            else if (code.startsWith('14') || code.startsWith('118') || nameLower.includes('muka') || nameLower.includes('prepaid') || nameLower.includes('sewa gedung')) target = 'WP-A.5';
+            else if (nameLower.includes('akumulasi') || nameLower.includes('penyusutan aset')) target = 'WP-B.2';
+            else if (code.startsWith('121') || code.startsWith('122') || code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan') || nameLower.includes('peralatan') || nameLower.includes('komputer')) target = 'WP-B.1';
+            else if (code.startsWith('201') || code.startsWith('211') || (code.startsWith('20') && nameLower.includes('usaha')) || nameLower.includes('utang usaha') || nameLower.includes('pemasok') || nameLower.includes('payable') || nameLower.includes('sub-konsultan')) target = 'WP-C.1';
+            else if (code.startsWith('202') || code.startsWith('212') || code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax') || nameLower.includes('pph') || nameLower.includes('ppn')) target = 'WP-C.2';
+            else if (code.startsWith('203') || code.startsWith('213') || nameLower.includes('utang gaji') || nameLower.includes('bonus') || nameLower.includes('akrual')) target = 'WP-C.3';
+            else if (code.startsWith('221') || code.startsWith('25') || (code.startsWith('2') && (nameLower.includes('bank') || nameLower.includes('pinjaman') || nameLower.includes('kredit') || nameLower.includes('loan')))) target = 'WP-D.1';
+            else if (code.startsWith('301') || code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital') || nameLower.includes('saham')) target = 'WP-E.1';
+            else if (code.startsWith('302') || code.startsWith('31') || nameLower.includes('laba ditahan') || nameLower.includes('retained') || nameLower.includes('saldo laba')) target = 'WP-E.2';
+            else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue') || nameLower.includes('jasa')) target = 'WP-F.1';
+            else if (code.startsWith('501') || code.startsWith('510') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
+            else if (nameLower.includes('beban') || nameLower.includes('biaya') || nameLower.includes('gaji') || nameLower.includes('sewa') || nameLower.includes('utilitas') || nameLower.includes('listrik') || nameLower.includes('air') || nameLower.includes('telepon') || nameLower.includes('penyusutan') || nameLower.includes('operasional') || nameLower.includes('umum') || code.startsWith('5') || code.startsWith('6')) target = 'WP-F.3';
+            else target = 'WP-F.4';
 
             return {
               id: 'DEC-' + (idx + 1),
@@ -332,23 +359,24 @@ export default function AccountMappingPage() {
   const progressPercent = decisions.length > 0 ? Math.round((mappedCount / decisions.length) * 100) : 0;
 
   const getConfidenceBadge = (level: string, score: number) => {
+    const displayScore = score > 1 ? score : score * 100;
     if (level === 'high') {
       return (
         <span className="inline-flex items-center gap-1 font-mono font-bold text-[11px] text-[#0F8F7A] bg-[#E8F5F1] px-2.5 py-0.5 rounded-full border border-[#B2DFD6]">
-          High ({(score * 100).toFixed(0)}%)
+          High ({displayScore.toFixed(0)}%)
         </span>
       );
     }
     if (level === 'medium') {
       return (
         <span className="inline-flex items-center gap-1 font-mono font-bold text-[11px] text-[#B7791F] bg-[#FFF7E8] px-2.5 py-0.5 rounded-full border border-[#F6E0B5]">
-          Medium ({(score * 100).toFixed(0)}%)
+          Medium ({displayScore.toFixed(0)}%)
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1 font-mono font-bold text-[11px] text-[#C83E4D] bg-[#FDECEF] px-2.5 py-0.5 rounded-full border border-[#F8B4BD]">
-        Low ({(score * 100).toFixed(0)}%)
+        Low ({displayScore.toFixed(0)}%)
       </span>
     );
   };

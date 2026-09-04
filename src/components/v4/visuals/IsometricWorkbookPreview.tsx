@@ -2,8 +2,27 @@
 
 import React from 'react';
 import { FileSpreadsheet, ShieldCheck, Hash, Layers, Sparkles, CheckCircle2 } from 'lucide-react';
+import { formatIdrNumber } from '@/lib/decimal';
 
-export function IsometricWorkbookPreview() {
+export interface IsometricWorkbookPreviewProps {
+  signerName?: string;
+  checksumSha256?: string;
+  cashAmountIdr?: number;
+  receivableAmountIdr?: number;
+  totalAssetsIdr?: number;
+  clientCode?: string;
+}
+
+export function IsometricWorkbookPreview({
+  signerName = 'Lee Jonathan, CPA',
+  checksumSha256 = '568c968de29717f115b3d4dfb716e0b7cea3dd60ec90fd091997d679c75a1e91',
+  cashAmountIdr = 0,
+  receivableAmountIdr = 0,
+  totalAssetsIdr = 0,
+  clientCode = 'CLIENT',
+}: IsometricWorkbookPreviewProps = {}) {
+  const shortHash = checksumSha256.length > 24 ? checksumSha256.slice(0, 20) + '...' : checksumSha256;
+
   return (
     <div className="rounded-2xl bg-gradient-to-br from-[#102A32] via-[#163842] to-[#0D2228] border border-[#204754] p-6 text-white shadow-md relative overflow-hidden">
       {/* Ambient Glows */}
@@ -18,7 +37,7 @@ export function IsometricWorkbookPreview() {
           </div>
 
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-            Pratinjau Arsitektur Workbook XLSX (.xlsx)
+            Pratinjau Arsitektur Workbook XLSX ({clientCode}_FY2026.xlsx)
           </h2>
           <p className="text-xs text-[#A1B8C0] leading-relaxed">
             Workbook yang dihasilkan mematuhi standar atestasi Kantor Akuntan Publik. Setiap berkas memuat struktur multi-sheet berpenanda tangan digital yang lolos uji baca ulang kriptografi (*read-back verification*).
@@ -32,7 +51,7 @@ export function IsometricWorkbookPreview() {
                 Lead Schedule
               </strong>
               <span className="text-[10px] text-[#7A8C93] block mt-0.5">
-                18 Baris Akun Induk & Formula Agregasi
+                18 Baris Akun Induk SAK & Formula Agregasi
               </span>
             </div>
 
@@ -58,9 +77,9 @@ export function IsometricWorkbookPreview() {
               <span className="text-[#0F8F7A] font-bold">READ-ONLY</span>
             </div>
             <div className="text-[9px] font-mono text-[#D1E0E5] space-y-0.5">
-              <div>Signer: Bambang Hendrawan, CPA</div>
-              <div>Hash: 9f83a48e71c9b204...</div>
-              <div className="text-[#0F8F7A] font-bold">Tie-Out: 100% BALANCED (PASS)</div>
+              <div>Signer: {signerName}</div>
+              <div className="truncate">Hash: {shortHash}</div>
+              <div className="text-[#0F8F7A] font-bold">Tie-Out: {totalAssetsIdr > 0 ? "100% BALANCED (PASS)" : "MENUNGGU FINALISASI"}</div>
             </div>
           </div>
 
@@ -76,15 +95,15 @@ export function IsometricWorkbookPreview() {
             <div className="text-[9px] font-mono space-y-0.5 text-[#52636A]">
               <div className="flex justify-between font-bold text-[#102A32]">
                 <span>WP-A.1 Kas & Bank</span>
-                <span>Rp 4.500.000.000</span>
+                <span>Rp {cashAmountIdr.toLocaleString('id-ID')}</span>
               </div>
               <div className="flex justify-between">
                 <span>WP-A.2 Piutang Usaha</span>
-                <span>Rp 9.850.000.000</span>
+                <span>Rp {receivableAmountIdr.toLocaleString('id-ID')}</span>
               </div>
               <div className="flex justify-between font-bold text-[#0F8F7A] border-t border-[#DDE4E2] pt-0.5">
                 <span>Total Aset (A = L + E)</span>
-                <span>Rp 34.550.000.000</span>
+                <span>Rp {totalAssetsIdr.toLocaleString('id-ID')}</span>
               </div>
             </div>
           </div>

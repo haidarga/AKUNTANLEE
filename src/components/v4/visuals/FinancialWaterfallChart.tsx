@@ -13,15 +13,25 @@ interface WaterfallStep {
   endValue: number;
 }
 
-export function FinancialWaterfallChart() {
+export interface FinancialWaterfallChartProps {
+  revenue?: number;
+  cogs?: number;
+  opex?: number;
+  netIncome?: number;
+}
+
+export function FinancialWaterfallChart({
+  revenue = 0,
+  cogs = 0,
+  opex = 0,
+  netIncome,
+}: FinancialWaterfallChartProps = {}) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  // FY 2026 Financial Bridge Steps
-  const revenue = 52_400_000_000;
-  const cogs = 35_950_000_000;
-  const grossProfit = revenue - cogs; // 16_450_000_000
-  const opex = 12_200_000_000;
-  const netIncome = grossProfit - opex; // 4_250_000_000
+  const grossProfit = revenue - cogs;
+  const finalNetIncome = netIncome !== undefined ? netIncome : (grossProfit - opex);
+  const grossMargin = revenue > 0 ? ((grossProfit / revenue) * 100).toFixed(1) : "0.0";
+  const netMargin = revenue > 0 ? ((finalNetIncome / revenue) * 100).toFixed(1) : "0.0";
 
   const steps: WaterfallStep[] = [
     {
@@ -42,7 +52,7 @@ export function FinancialWaterfallChart() {
     },
     {
       label: 'Laba Kotor',
-      sublabel: 'Margin 31,4%',
+      sublabel: `Margin ${grossMargin}%`,
       amount: grossProfit,
       type: 'subtotal',
       startValue: 0,
@@ -54,20 +64,20 @@ export function FinancialWaterfallChart() {
       amount: -opex,
       type: 'subtract',
       startValue: grossProfit,
-      endValue: netIncome,
+      endValue: finalNetIncome,
     },
     {
       label: 'Laba Bersih Tahun Berjalan',
-      sublabel: 'Net Margin 8,1%',
-      amount: netIncome,
+      sublabel: `Net Margin ${netMargin}%`,
+      amount: finalNetIncome,
       type: 'total',
       startValue: 0,
-      endValue: netIncome,
+      endValue: finalNetIncome,
     },
   ];
 
   const chartHeight = 140;
-  const maxVal = revenue * 1.05;
+  const maxVal = Math.max(revenue, grossProfit, Math.abs(finalNetIncome), 1000000) * 1.05;
 
   return (
     <div className="finova-bezel-outer">
@@ -85,7 +95,7 @@ export function FinancialWaterfallChart() {
                 </span>
               </h3>
               <p className="text-[11px] text-[#52636A]">
-                Visualisasi dekomposisi pergerakan dari Pendapatan Usaha hingga Laba Bersih Kertas Kerja FY 2026.
+                Visualisasi dekomposisi pergerakan dari Pendapatan Usaha hingga Laba Bersih Kertas Kerja.
               </p>
             </div>
           </div>
@@ -97,7 +107,7 @@ export function FinancialWaterfallChart() {
             </div>
             <div>
               <span className="text-[10px] text-[#52636A] block">Laba Bersih</span>
-              <strong className="text-[#0F8F7A]">{formatIdrNumber(netIncome)}</strong>
+              <strong className="text-[#0F8F7A]">{formatIdrNumber(finalNetIncome)}</strong>
             </div>
           </div>
         </div>
@@ -115,7 +125,7 @@ export function FinancialWaterfallChart() {
               let heightPx: number;
 
               if (step.type === 'start' || step.type === 'subtotal' || step.type === 'total') {
-                heightPx = Math.max(16, (step.endValue / maxVal) * chartHeight);
+                heightPx = Math.max(16, (Math.max(0, step.endValue) / maxVal) * chartHeight);
                 topPx = chartHeight - heightPx;
               } else {
                 // subtract
@@ -192,11 +202,11 @@ export function FinancialWaterfallChart() {
           <div className="flex items-center gap-2 text-[#0F8F7A] font-semibold text-[11px]">
             <Sparkles className="w-3.5 h-3.5 shrink-0" />
             <span>
-              Laba Bersih Teragregasi: <strong>Rp 4.250.000.000</strong> terverifikasi tepat menyerap ke Ekuitas Kertas Kerja (WP-E.2 Retained Earnings).
+              Laba Bersih Teragregasi: <strong>{formatIdrNumber(finalNetIncome)}</strong> terverifikasi tepat menyerap ke Ekuitas Kertas Kerja (WP-E.2 Retained Earnings).
             </span>
           </div>
           <span className="font-mono text-[10px] text-[#52636A] font-bold shrink-0">
-            TIE-OUT: 100% MATCH
+            TIE-OUT: {revenue > 0 ? "100% MATCH" : "MENUNGGU DATA"}
           </span>
         </div>
       </div>

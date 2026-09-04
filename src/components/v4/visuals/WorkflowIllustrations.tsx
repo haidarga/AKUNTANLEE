@@ -139,9 +139,9 @@ export function MappingFlowIllustration({
 export function BalanceScaleIllustration({
   isBalanced = true,
   diff = 0,
-  assets = 34_550_000_000,
-  liabilities = 12_050_000_000,
-  equity = 22_500_000_000,
+  assets = 0,
+  liabilities = 0,
+  equity = 0,
 }: {
   isBalanced?: boolean;
   diff?: number;

@@ -117,73 +117,90 @@ export default function WorkpaperPage() {
     }
 
     try {
-      const customWpRaw = localStorage.getItem('finova_wp_' + engagementId);
-      if (customWpRaw) {
-        const customWp = JSON.parse(customWpRaw);
-        if (customWp?.workpaperVersion && customWp?.lines?.length > 0) {
-          setWpVersion(customWp.workpaperVersion);
-          setLines(customWp.lines);
-          if (customWp.checks?.length > 0) {
-            setChecks(customWp.checks);
-          }
-          return;
-        }
-      }
-
       const customAccountsRaw = localStorage.getItem('finova_accounts_' + engagementId);
+      const customMappingRaw = localStorage.getItem('finova_mapping_' + engagementId);
+
       if (customAccountsRaw) {
         const accs = JSON.parse(customAccountsRaw);
         if (Array.isArray(accs) && accs.length > 0) {
-          const autoDecisions = accs.map((acc: any, idx: number) => {
-            let target = 'WP-A.1';
-            const nameLower = (acc.accountName || '').toLowerCase();
-            const code = acc.accountCode || '';
-            if (code.startsWith('10') || code.startsWith('11') || nameLower.includes('kas') || nameLower.includes('bank')) target = 'WP-A.1';
-            else if (code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
-            else if (code.startsWith('13') || nameLower.includes('persediaan') || nameLower.includes('inventory')) target = 'WP-A.4';
-            else if (code.startsWith('14') || nameLower.includes('muka') || nameLower.includes('prepaid')) target = 'WP-A.5';
-            else if (nameLower.includes('akumulasi')) target = 'WP-B.2';
-            else if (code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan')) target = 'WP-B.1';
-            else if (code.startsWith('20') || code.startsWith('21') || nameLower.includes('utang usaha') || nameLower.includes('payable')) target = 'WP-C.1';
-            else if (code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax')) target = 'WP-C.2';
-            else if (code.startsWith('25') || nameLower.includes('bank') || nameLower.includes('pinjaman')) target = 'WP-D.1';
-            else if (code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital')) target = 'WP-E.1';
-            else if (code.startsWith('31') || nameLower.includes('laba') || nameLower.includes('retained')) target = 'WP-E.2';
-            else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue')) target = 'WP-F.1';
-            else if (code.startsWith('5') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
-            else target = 'WP-F.3';
+          let activeDecs = [];
+          if (customMappingRaw) {
+            try {
+              const parsedMap = JSON.parse(customMappingRaw);
+              if (Array.isArray(parsedMap) && parsedMap.length > 0) {
+                activeDecs = parsedMap;
+              }
+            } catch (e) {}
+          }
 
-            return {
-              id: 'DEC-' + (idx + 1),
-              tenantId: 'TENANT-001',
-              mappingSetId: 'MAPSET-' + engagementId,
-              accountRowId: acc.id || ('ACC-' + (idx + 1)),
-              sourceAccountCode: acc.accountCode,
-              sourceAccountName: acc.accountName,
-              amountIdr: acc.closingBalanceIdr || acc.balanceIdr || 0,
-              proposedTarget: target,
-              effectiveTarget: target,
-              confidenceScore: 96,
-              confidenceLevel: 'high' as const,
-              rationale: 'Pemetaan Otomatis SAK Standard Pattern',
-              status: 'mapped' as const,
-              isMaterial: false,
-            };
-          });
+          if (activeDecs.length === 0) {
+            activeDecs = accs.map((acc: any, idx: number) => {
+              let target = 'WP-A.1';
+              const nameLower = (acc.accountName || '').toLowerCase();
+              const code = acc.accountCode || '';
+              if (code.startsWith('10') || code.startsWith('111') || nameLower.includes('kas') || nameLower.includes('bank operasional') || nameLower.includes('bank giro')) target = 'WP-A.1';
+              else if (code.startsWith('112') || code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
+              else if (nameLower.includes('cadangan') || nameLower.includes('ecl') || nameLower.includes('penurunan nilai')) target = 'WP-A.3';
+              else if (code.startsWith('13') || code.startsWith('113') || nameLower.includes('persediaan') || nameLower.includes('inventory') || nameLower.includes('barang')) target = 'WP-A.4';
+              else if (code.startsWith('14') || code.startsWith('118') || nameLower.includes('muka') || nameLower.includes('prepaid') || nameLower.includes('sewa gedung')) target = 'WP-A.5';
+              else if (nameLower.includes('akumulasi') || nameLower.includes('penyusutan aset')) target = 'WP-B.2';
+              else if (code.startsWith('121') || code.startsWith('122') || code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan') || nameLower.includes('peralatan') || nameLower.includes('komputer')) target = 'WP-B.1';
+              else if (code.startsWith('201') || code.startsWith('211') || (code.startsWith('20') && nameLower.includes('usaha')) || nameLower.includes('utang usaha') || nameLower.includes('pemasok') || nameLower.includes('payable') || nameLower.includes('sub-konsultan')) target = 'WP-C.1';
+              else if (code.startsWith('202') || code.startsWith('212') || code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax') || nameLower.includes('pph') || nameLower.includes('ppn')) target = 'WP-C.2';
+              else if (code.startsWith('203') || code.startsWith('213') || nameLower.includes('utang gaji') || nameLower.includes('bonus') || nameLower.includes('akrual')) target = 'WP-C.3';
+              else if (code.startsWith('221') || code.startsWith('25') || (code.startsWith('2') && (nameLower.includes('bank') || nameLower.includes('pinjaman') || nameLower.includes('kredit') || nameLower.includes('loan')))) target = 'WP-D.1';
+              else if (code.startsWith('301') || code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital') || nameLower.includes('saham')) target = 'WP-E.1';
+              else if (code.startsWith('302') || code.startsWith('31') || nameLower.includes('laba ditahan') || nameLower.includes('retained') || nameLower.includes('saldo laba')) target = 'WP-E.2';
+              else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue') || nameLower.includes('jasa')) target = 'WP-F.1';
+              else if (code.startsWith('501') || code.startsWith('510') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
+              else if (nameLower.includes('beban') || nameLower.includes('biaya') || nameLower.includes('gaji') || nameLower.includes('sewa') || nameLower.includes('utilitas') || nameLower.includes('listrik') || nameLower.includes('air') || nameLower.includes('telepon') || nameLower.includes('penyusutan') || nameLower.includes('operasional') || nameLower.includes('umum') || code.startsWith('5') || code.startsWith('6')) target = 'WP-F.3';
+              else target = 'WP-F.4';
+
+              return {
+                id: 'DEC-' + (idx + 1),
+                tenantId: 'TENANT-001',
+                mappingSetId: 'MAPSET-' + engagementId,
+                accountRowId: acc.id || ('ACC-' + (idx + 1)),
+                sourceAccountCode: acc.accountCode,
+                sourceAccountName: acc.accountName,
+                amountIdr: acc.closingBalanceIdr || acc.balanceIdr || 0,
+                proposedTarget: target,
+                effectiveTarget: target,
+                confidenceScore: 96,
+                confidenceLevel: 'high' as const,
+                rationale: 'Pemetaan Otomatis SAK Standard Pattern',
+                status: 'mapped' as const,
+                isMaterial: false,
+              };
+            });
+          }
 
           const customWpCalc = calculateWorkpaperVersion({
-            tenantId: 'TENANT-001',
+            tenantId: engagement.tenantId || 'TENANT-001',
             engagementId,
             datasetVersionId: 'DSV-' + engagementId,
             mappingSetId: 'MAPSET-' + engagementId,
             accounts: accs,
-            mappingDecisions: autoDecisions,
+            mappingDecisions: activeDecs,
           });
 
           setWpVersion(customWpCalc.workpaperVersion);
           setLines(customWpCalc.lines);
           if (customWpCalc.checks) setChecks(customWpCalc.checks);
           localStorage.setItem('finova_wp_' + engagementId, JSON.stringify(customWpCalc));
+          return;
+        }
+      }
+
+      // If finova_wp already cached
+      const customWpRaw = localStorage.getItem('finova_wp_' + engagementId);
+      if (customWpRaw) {
+        const customWp = JSON.parse(customWpRaw);
+        if (customWp?.workpaperVersion && customWp?.lines?.length > 0) {
+          setWpVersion(customWp.workpaperVersion);
+          setLines(customWp.lines);
+          if (customWp.checks?.length > 0) setChecks(customWp.checks);
+          return;
         }
       }
     } catch (e) {
@@ -208,11 +225,30 @@ export default function WorkpaperPage() {
           setWpVersion(data.data);
         }
       }
-      const user = state.users.find((u) => u.role === activeRole) || state.users[0];
-      const newWp = repo.recalculateWorkpaper(engagement.id, user);
-      setWpVersion(newWp);
-      setLines([...repo.getState().workpaperLines]);
-      setChecks([...repo.getState().validationChecks]);
+      const customAccountsRaw = localStorage.getItem('finova_accounts_' + engagementId);
+      const customMappingRaw = localStorage.getItem('finova_mapping_' + engagementId);
+      if (customAccountsRaw) {
+        const accs = JSON.parse(customAccountsRaw);
+        const decs = customMappingRaw ? JSON.parse(customMappingRaw) : [];
+        const wpCalc = calculateWorkpaperVersion({
+          tenantId: engagement.tenantId || 'TENANT-001',
+          engagementId,
+          datasetVersionId: 'DSV-' + engagementId,
+          mappingSetId: 'MAPSET-' + engagementId,
+          accounts: accs,
+          mappingDecisions: decs,
+        });
+        setWpVersion(wpCalc.workpaperVersion);
+        setLines(wpCalc.lines);
+        if (wpCalc.checks) setChecks(wpCalc.checks);
+        localStorage.setItem('finova_wp_' + engagementId, JSON.stringify(wpCalc));
+      } else {
+        const user = state.users.find((u) => u.role === activeRole) || state.users[0];
+        const newWp = repo.recalculateWorkpaper(engagement.id, user);
+        setWpVersion(newWp);
+        setLines([...repo.getState().workpaperLines]);
+        setChecks([...repo.getState().validationChecks]);
+      }
     } catch (e) {
       console.error('Error during recalculate:', e);
     } finally {
@@ -291,10 +327,33 @@ export default function WorkpaperPage() {
       )}
 
       {/* Visual Balance Scale Gauge */}
-      <BalanceScaleIllustration isBalanced={true} />
+      <BalanceScaleIllustration
+        isBalanced={wpVersion.totals.balanceSheetDiffIdr === 0 && lines.length > 0}
+        diff={Math.abs(wpVersion.totals.balanceSheetDiffIdr)}
+        assets={wpVersion.totals.totalAssetsIdr}
+        liabilities={wpVersion.totals.totalLiabilitiesIdr}
+        equity={wpVersion.totals.totalEquityIdr}
+      />
 
       {/* Visual Financial Waterfall Bridge Chart */}
-      <FinancialWaterfallChart />
+      {(() => {
+        const revLine = lines.find((l) => l.lineId === "WP-F.1");
+        const cogsLine = lines.find((l) => l.lineId === "WP-F.2");
+        const opexLine = lines.find((l) => l.lineId === "WP-F.3");
+        const currentRev = Math.abs(revLine?.currentPeriodIdr || 0);
+        const currentCogs = Math.abs(cogsLine?.currentPeriodIdr || 0);
+        const currentOpex = Math.abs(opexLine?.currentPeriodIdr || 0);
+        const currentNet = currentRev - currentCogs - currentOpex;
+
+        return (
+          <FinancialWaterfallChart
+            revenue={currentRev}
+            cogs={currentCogs}
+            opex={currentOpex}
+            netIncome={currentNet}
+          />
+        );
+      })()}
 
       {/* Tie-Out Validation Bar */}
       <div className="bg-white p-4 rounded-2xl border border-[#DDE4E2] shadow-2xs space-y-3 text-xs">

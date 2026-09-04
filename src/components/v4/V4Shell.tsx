@@ -40,6 +40,18 @@ export function V4Shell({ children }: ShellProps) {
     }
     return repo.getFirmProfile()?.name || "KAP Haidar & Rekan";
   });
+  const [managingPartnerName, setManagingPartnerName] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('finova_firm_profile');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.managingPartnerName) return parsed.managingPartnerName;
+        }
+      } catch (e) {}
+    }
+    return repo.getFirmProfile()?.managingPartnerName || "Lee Jonathan, CPA";
+  });
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
 
@@ -71,6 +83,7 @@ export function V4Shell({ children }: ShellProps) {
           const parsed = JSON.parse(savedFirm);
           if (parsed?.name) {
             setFirmName(parsed.name);
+            if (parsed.managingPartnerName) setManagingPartnerName(parsed.managingPartnerName);
             repo.updateFirmProfile(parsed);
           }
         }
@@ -109,8 +122,19 @@ export function V4Shell({ children }: ShellProps) {
     window.dispatchEvent(new Event('storage'));
   };
 
+  const getInitials = (n: string) => {
+    const parts = n.replace(/[^a-zA-Z\s]/g, '').trim().split(/\s+/);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return (n.slice(0, 2) || 'MP').toUpperCase();
+  };
+
   const roleMeta: Record<UserRoleV4, { label: string; name: string; avatar: string; color: string }> = {
-    partner: { label: 'Managing Partner', name: 'Haidar, CPA, CA', avatar: 'HD', color: 'bg-[#102A32] text-white' },
+    partner: {
+      label: 'Managing Partner',
+      name: managingPartnerName || 'Lee Jonathan, CPA',
+      avatar: getInitials(managingPartnerName || 'Lee Jonathan'),
+      color: 'bg-[#102A32] text-white'
+    },
     manager: { label: 'Engagement Manager', name: 'Siti Rahmawati, S.E., M.Ak., CA', avatar: 'SR', color: 'bg-[#0F8F7A] text-white' },
     senior: { label: 'Senior In-Charge', name: 'Ahmad Pratama, S.Ak', avatar: 'AP', color: 'bg-[#0F8F7A] text-white' },
     preparer: { label: 'Preparer (Junior)', name: 'Budi Santoso, S.Ak', avatar: 'BS', color: 'bg-[#52636A] text-white' },
