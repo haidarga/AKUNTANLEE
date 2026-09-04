@@ -20,7 +20,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { repo } from '@/lib/db/repo-v4';
-import { ExportArtifact, UserRoleV4 } from '@/types/domain-v4';
+import { ExportArtifact, UserRoleV4, WorkpaperVersion, ValidationCheckResult, MappingDecision, FileVersion } from '@/types/domain-v4';
 
 export default function ExportsPage() {
   const routeParams = useParams();
@@ -46,8 +46,12 @@ export default function ExportsPage() {
     updatedAt: new Date().toISOString(),
   };
   const isCustomEngagement = engagementId !== 'ENG-2026-01';
-  const wpVersion = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
-  const checks = state.validationChecks;
+  const defaultWp = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
+  const [wpVersion, setWpVersion] = useState<WorkpaperVersion>(defaultWp);
+  const [checks, setChecks] = useState<ValidationCheckResult[]>(state.validationChecks);
+  const [mappingDecisions, setMappingDecisions] = useState<MappingDecision[]>(state.mappingDecisions);
+  const [fileVersions, setFileVersions] = useState<FileVersion[]>(state.fileVersions);
+
   const initialArtifacts = isCustomEngagement
     ? state.exportArtifacts.filter((a) => a.engagementId === engagement.id)
     : state.exportArtifacts;
@@ -67,6 +71,33 @@ export default function ExportsPage() {
 
     if (isCustomEngagement) {
       try {
+        const storedWp = localStorage.getItem('finova_wp_' + engagementId);
+        if (storedWp) {
+          const parsedWp = JSON.parse(storedWp);
+          if (parsedWp?.totals) {
+            setWpVersion(parsedWp);
+          }
+          if (parsedWp?.validationChecks && Array.isArray(parsedWp.validationChecks)) {
+            setChecks(parsedWp.validationChecks);
+          }
+        }
+
+        const storedMapping = localStorage.getItem('finova_mapping_' + engagementId);
+        if (storedMapping) {
+          const parsedMapping = JSON.parse(storedMapping);
+          if (Array.isArray(parsedMapping)) {
+            setMappingDecisions(parsedMapping);
+          }
+        }
+
+        const storedFiles = localStorage.getItem('finova_files_' + engagementId);
+        if (storedFiles) {
+          const parsedFiles = JSON.parse(storedFiles);
+          if (Array.isArray(parsedFiles)) {
+            setFileVersions(parsedFiles);
+          }
+        }
+
         const storedArtifacts = localStorage.getItem('finova_exports_' + engagementId);
         if (storedArtifacts) {
           const parsed = JSON.parse(storedArtifacts);
@@ -79,9 +110,10 @@ export default function ExportsPage() {
   }, [engagementId, isCustomEngagement]);
 
   // Pre-Flight Eligibility Checklist (Section 45.3)
-  const isStale = wpVersion?.isStale;
+  const isStale = Boolean(wpVersion?.isStale);
   const hasBlockingErrors = checks.some((c) => c.status === 'fail' && c.severity === 'blocking');
-  const needsReviewCount = state.mappingDecisions.filter((d) => d.status === 'needs_review').length;
+  const relevantMapping = isCustomEngagement ? mappingDecisions : state.mappingDecisions;
+  const needsReviewCount = relevantMapping.filter((d) => d.status === 'needs_review').length;
   const hasUnmapped = needsReviewCount > 0;
   const isEligible = !isStale && !hasBlockingErrors && !hasUnmapped;
 
@@ -110,6 +142,10 @@ export default function ExportsPage() {
           userRole: activeRole,
           userId: user.id,
           operatorName: user.name,
+          clientCode: engagement.name?.slice(0, 4)?.toUpperCase() || 'MNDR',
+          customWp: isCustomEngagement ? wpVersion : undefined,
+          customLines: isCustomEngagement && (wpVersion as any)?.lines ? (wpVersion as any).lines : undefined,
+          sourceChecksum: isCustomEngagement && fileVersions[0] ? fileVersions[0].checksumSha256 : undefined,
         }),
       });
 
