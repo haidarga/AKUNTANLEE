@@ -13,6 +13,11 @@ const ROOT_DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_DIR = IS_VERCEL ? path.join('/tmp', 'finova_data') : ROOT_DATA_DIR;
 const DB_PATH = path.join(DATA_DIR, 'finova.db');
 
+/** Compatibility mirror must share the writable runtime directory with SQLite. */
+export function getStateMirrorPath(dataDir = DATA_DIR): string {
+  return path.join(dataDir, 'finova_store.json');
+}
+
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
@@ -105,7 +110,7 @@ function initSchema(db: Database.Database) {
   // Seed initial app_state from finova_store.json if empty
   const stateRow = db.prepare('SELECT key FROM app_state WHERE key = ?').get('finova_v4_state');
   if (!stateRow) {
-    const storePath = fs.existsSync(path.join(DATA_DIR, 'finova_store.json')) ? path.join(DATA_DIR, 'finova_store.json') : path.join(ROOT_DATA_DIR, 'finova_store.json');
+    const storePath = fs.existsSync(getStateMirrorPath()) ? getStateMirrorPath() : path.join(ROOT_DATA_DIR, 'finova_store.json');
     if (fs.existsSync(storePath)) {
       try {
         const raw = fs.readFileSync(storePath, 'utf8');
@@ -266,7 +271,7 @@ export function saveStateToDb(state: FinovaV4State): void {
       `).run(jsonStr, now);
 
       // Also mirror to finova_store.json for backwards compatibility
-      const storePath = fs.existsSync(path.join(DATA_DIR, 'finova_store.json')) ? path.join(DATA_DIR, 'finova_store.json') : path.join(ROOT_DATA_DIR, 'finova_store.json');
+      const storePath = getStateMirrorPath();
       fs.writeFileSync(storePath, jsonStr, 'utf8');
     });
 
