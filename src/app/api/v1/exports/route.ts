@@ -8,7 +8,7 @@ import path from 'path';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { engagementId, userRole, customWp, customLines, sourceChecksum, clientCode } = body;
+    const { engagementId, userRole, operatorName, customWp, customLines, sourceChecksum, clientCode } = body;
     const user = repo.getState().users.find((u) => u.role === (userRole as UserRoleV4)) || repo.getState().users[0];
 
     // Authorization check
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
         lines: lines,
         checks: checks,
         userId: user.id,
-        operatorName: user.name,
+        operatorName: typeof operatorName === 'string' && operatorName.trim() ? operatorName.trim() : user.name,
         sourceFileVersionChecksum: sourceChecksum || fv?.checksumSha256 || '0000000000000000000000000000000000000000000000000000000000000000',
       });
 
@@ -40,7 +40,14 @@ export async function POST(request: Request) {
       }
 
       repo.getState().exportArtifacts.unshift(result.artifact);
-      return NextResponse.json({ data: result.artifact, request_id: `req-${Date.now()}` }, { status: 202 });
+      return NextResponse.json(
+        {
+          data: result.artifact,
+          contentBase64: result.buffer.toString('base64'),
+          request_id: `req-${Date.now()}`,
+        },
+        { status: 202 },
+      );
     }
 
     const result = repo.generateExport(engagementId || 'ENG-2026-01', user);

@@ -57,6 +57,7 @@ export default function ExportsPage() {
     ? state.exportArtifacts.filter((a) => a.engagementId === engagement.id)
     : state.exportArtifacts;
   const [artifacts, setArtifacts] = useState<ExportArtifact[]>(initialArtifacts);
+  const [artifactPayloads, setArtifactPayloads] = useState<Record<string, string>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -120,6 +121,12 @@ export default function ExportsPage() {
             setArtifacts(parsed);
           }
         }
+
+        const storedPayloads = localStorage.getItem('finova_export_payloads_' + engagementId);
+        if (storedPayloads) {
+          const parsed = JSON.parse(storedPayloads);
+          if (parsed && typeof parsed === 'object') setArtifactPayloads(parsed);
+        }
       } catch (e) {}
     }
   }, [engagementId, isCustomEngagement]);
@@ -156,8 +163,21 @@ export default function ExportsPage() {
           engagementId: engagement.id,
           userRole: activeRole,
           userId: user.id,
-          operatorName: user.name,
-          clientCode: engagement.name?.slice(0, 4)?.toUpperCase() || 'MNDR',
+          operatorName: activeSigner || user.name,
+          clientCode: (() => {
+            if (!isCustomEngagement) {
+              return state.clients.find((client) => client.id === engagement.clientId)?.code || 'EXP';
+            }
+
+            const sourceName = fileVersions[0]?.originalName || '';
+            const candidate = sourceName
+              .replace(/\.[^.]+$/, '')
+              .split(/[^a-zA-Z0-9]+/)
+              .filter(Boolean)
+              .find((part) => !/^(trial|balance|tb|pt|cv|fy|20\d{2}|final|uji)$/i.test(part));
+
+            return (candidate || 'MANDIRI').toUpperCase().slice(0, 24);
+          })(),
           customWp: isCustomEngagement ? wpVersion : undefined,
           customLines: isCustomEngagement && lines.length > 0 ? lines : undefined,
           sourceChecksum: isCustomEngagement && fileVersions[0] ? fileVersions[0].checksumSha256 : undefined,
@@ -172,6 +192,13 @@ export default function ExportsPage() {
       if (data.data) {
         const updated = [data.data, ...artifacts.filter((a) => a.id !== data.data.id)];
         setArtifacts(updated);
+        if (typeof data.contentBase64 === 'string' && data.contentBase64) {
+          const updatedPayloads = { ...artifactPayloads, [data.data.id]: data.contentBase64 };
+          setArtifactPayloads(updatedPayloads);
+          try {
+            localStorage.setItem('finova_export_payloads_' + engagement.id, JSON.stringify(updatedPayloads));
+          } catch (e) {}
+        }
         try {
           localStorage.setItem('finova_exports_' + engagement.id, JSON.stringify(updated));
         } catch (e) {}
@@ -187,6 +214,31 @@ export default function ExportsPage() {
   };
 
   const handleDownloadFile = (artifactId: string) => {
+    const payload = artifactPayloads[artifactId];
+    const artifact = artifacts.find((item) => item.id === artifactId);
+
+    if (payload && artifact) {
+      const binary = window.atob(payload);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) {
+        bytes[index] = binary.charCodeAt(index);
+      }
+
+      const url = URL.createObjectURL(
+        new Blob([bytes], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        }),
+      );
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = artifact.filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      return;
+    }
+
     window.open(`/api/v1/exports/${artifactId}/download`, '_blank');
   };
 
