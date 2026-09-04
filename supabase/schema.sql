@@ -198,6 +198,7 @@ CREATE INDEX idx_workpapers_engagement ON workpaper_versions(engagement_id);
 -- -------------------------------------------------------------------------
 CREATE TABLE workpaper_lines (
     id TEXT PRIMARY KEY DEFAULT ('WPL-' || substring(gen_random_uuid()::text, 1, 10)),
+    firm_id TEXT REFERENCES firms(id) ON DELETE CASCADE,
     workpaper_version_id TEXT NOT NULL REFERENCES workpaper_versions(id) ON DELETE CASCADE,
     wp_code TEXT NOT NULL,
     wp_title TEXT NOT NULL,
@@ -293,6 +294,9 @@ ALTER TABLE audit_adjustments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE review_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 
+-- Pastikan kolom firm_id ada di workpaper_lines jika tabel dibuat dari skema sebelumnya
+ALTER TABLE workpaper_lines ADD COLUMN IF NOT EXISTS firm_id TEXT REFERENCES firms(id) ON DELETE CASCADE;
+
 -- Dynamic Policy Generator — STRICT MULTI-TENANT ISOLATION
 -- Helper Function: Mengekstrak firm_id dari Session JWT atau Context Setting
 CREATE OR REPLACE FUNCTION current_firm_id() 
@@ -348,7 +352,7 @@ CREATE POLICY "firms_tenant_isolation_update" ON firms
     USING (id = current_firm_id() OR auth.role() = 'service_role')
     WITH CHECK (id = current_firm_id() OR auth.role() = 'service_role');
 
--- 3. Kebijakan Isolasi Multi-Tenant untuk 11 Tabel Anak Berbasis firm_id
+-- 3. Kebijakan Isolasi Multi-Tenant untuk 10 Tabel Anak dengan Kolom firm_id
 DO $$
 DECLARE
     tbl text;
@@ -357,7 +361,7 @@ BEGIN
         SELECT unnest(ARRAY[
             'firm_memberships', 'clients', 'engagements',
             'file_sources', 'dataset_versions', 'trial_balance_accounts',
-            'workpaper_versions', 'workpaper_lines', 'audit_adjustments',
+            'workpaper_versions', 'audit_adjustments',
             'review_notes', 'audit_logs'
         ])
     LOOP
@@ -379,6 +383,55 @@ BEGIN
         );
     END LOOP;
 END $$;
+
+-- 4. Kebijakan Isolasi Khusus untuk WORKPAPER_LINES (Mendukung direct firm_id & join via workpaper_versions)
+DROP POLICY IF EXISTS "tenant_isolation_select_workpaper_lines" ON workpaper_lines;
+CREATE POLICY "tenant_isolation_select_workpaper_lines" ON workpaper_lines
+    FOR SELECT USING (
+        auth.role() = 'service_role' 
+        OR (firm_id IS NOT NULL AND firm_id = current_firm_id())
+        OR EXISTS (
+            SELECT 1 FROM workpaper_versions wv 
+            WHERE wv.id = workpaper_lines.workpaper_version_id 
+            AND (wv.firm_id = current_firm_id() OR auth.role() = 'service_role')
+        )
+    );
+
+DROP POLICY IF EXISTS "tenant_isolation_insert_workpaper_lines" ON workpaper_lines;
+CREATE POLICY "tenant_isolation_insert_workpaper_lines" ON workpaper_lines
+    FOR INSERT WITH CHECK (
+        auth.role() = 'service_role' 
+        OR (firm_id IS NOT NULL AND firm_id = current_firm_id())
+        OR EXISTS (
+            SELECT 1 FROM workpaper_versions wv 
+            WHERE wv.id = workpaper_lines.workpaper_version_id 
+            AND (wv.firm_id = current_firm_id() OR auth.role() = 'service_role')
+        )
+    );
+
+DROP POLICY IF EXISTS "tenant_isolation_update_workpaper_lines" ON workpaper_lines;
+CREATE POLICY "tenant_isolation_update_workpaper_lines" ON workpaper_lines
+    FOR UPDATE USING (
+        auth.role() = 'service_role' 
+        OR (firm_id IS NOT NULL AND firm_id = current_firm_id())
+        OR EXISTS (
+            SELECT 1 FROM workpaper_versions wv 
+            WHERE wv.id = workpaper_lines.workpaper_version_id 
+            AND (wv.firm_id = current_firm_id() OR auth.role() = 'service_role')
+        )
+    );
+
+DROP POLICY IF EXISTS "tenant_isolation_delete_workpaper_lines" ON workpaper_lines;
+CREATE POLICY "tenant_isolation_delete_workpaper_lines" ON workpaper_lines
+    FOR DELETE USING (
+        auth.role() = 'service_role' 
+        OR (firm_id IS NOT NULL AND firm_id = current_firm_id())
+        OR EXISTS (
+            SELECT 1 FROM workpaper_versions wv 
+            WHERE wv.id = workpaper_lines.workpaper_version_id 
+            AND (wv.firm_id = current_firm_id() OR auth.role() = 'service_role')
+        )
+    );
 
 -- Inisialisasi 1 KAP default
 INSERT INTO firms (id, legal_name, short_name, license_number, address, email, phone, status)
