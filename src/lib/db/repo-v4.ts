@@ -197,7 +197,7 @@ function createInitialState(): FinovaV4State {
   const engagementEmpty: EngagementV4 = {
     id: 'ENG-MANDIRI-2026',
     tenantId: 'TENANT-001',
-    clientId: 'CLI-002',
+    clientId: 'CLI-MANDIRI',
     name: 'Kertas Kerja Audit Mandiri FY 2026 (Unggah Berkas Klien Sendiri)',
     periodStart: '2026-01-01',
     periodEnd: '2026-12-31',
@@ -495,6 +495,15 @@ function createInitialState(): FinovaV4State {
     clients: [
       client1,
       {
+        id: 'CLI-MANDIRI',
+        tenantId: 'TENANT-001',
+        legalName: 'PT Klien Mandiri',
+        code: 'MNDR',
+        industry: 'Belum ditentukan',
+        status: 'active',
+        createdAt: '2026-01-20T08:00:00Z',
+      },
+      {
         id: 'CLI-002',
         tenantId: 'TENANT-001',
         legalName: 'PT Surya Retail Indonesia',
@@ -620,12 +629,12 @@ class FinovaV4Repository {
       } catch (e) {
         console.warn('Fallback to initial state in browser:', e);
       }
-      this.state = clientState || createInitialState();
+      this.state = this.applyStateMigrations(clientState || createInitialState());
       return;
     }
 
     const disk = this.loadFromDisk();
-    this.state = disk || createInitialState();
+    this.state = this.applyStateMigrations(disk || createInitialState());
     if (!this.state.firmProfile) {
       this.state.firmProfile = createInitialState().firmProfile;
       this.persist();
@@ -633,6 +642,26 @@ class FinovaV4Repository {
     if (!disk) {
       this.persist();
     }
+  }
+
+  private applyStateMigrations(state: FinovaV4State): FinovaV4State {
+    const mandiriClient: ClientV4 = {
+      id: 'CLI-MANDIRI',
+      tenantId: 'TENANT-001',
+      legalName: 'PT Klien Mandiri',
+      code: 'MNDR',
+      industry: 'Belum ditentukan',
+      status: 'active',
+      createdAt: '2026-01-20T08:00:00Z',
+    };
+    const mandiriEngagement = state.engagements.find((item) => item.id === 'ENG-MANDIRI-2026');
+
+    if (mandiriEngagement) mandiriEngagement.clientId = mandiriClient.id;
+    const existingClientIndex = state.clients.findIndex((item) => item.id === mandiriClient.id);
+    if (existingClientIndex >= 0) state.clients[existingClientIndex] = mandiriClient;
+    else state.clients.push(mandiriClient);
+
+    return state;
   }
 
   private loadFromDisk(): FinovaV4State | null {
@@ -873,7 +902,7 @@ class FinovaV4Repository {
   getState(): FinovaV4State {
     const disk = this.loadFromDisk();
     if (disk) {
-      this.state = disk;
+      this.state = this.applyStateMigrations(disk);
     }
     return this.state;
   }

@@ -27,6 +27,7 @@ import { formatIdrNumber } from '@/lib/decimal';
 import { calculateFinancialRatios } from '@/lib/advisory/ratios';
 import { analyzeCostAnomaliesAndAdvise } from '@/lib/advisory/cost-anomaly-analyzer';
 import { calculateManufacturingBreakdown } from '@/lib/advisory/manufacturing-breakdown';
+import { extractFinancialInputs } from '@/lib/advisory/custom-engagement';
 
 const DEFAULT_ADVISORY_DATA = {
   ratios: calculateFinancialRatios({
@@ -54,12 +55,14 @@ export default function AdvisoryAnalyticsPage() {
   const client = state.clients.find((c: any) => c.id === engagement?.clientId);
   const [data, setData] = useState<any>(DEFAULT_ADVISORY_DATA);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'cost' | 'ratios' | 'manufacturing' | 'whatif' | 'memo'>('cost');
+  const isCustomEngagement = engagementId !== 'ENG-2026-01';
+  const [activeTab, setActiveTab] = useState<'cost' | 'ratios' | 'manufacturing' | 'whatif' | 'memo'>(
+    isCustomEngagement ? 'ratios' : 'cost',
+  );
   const [umrHike, setUmrHike] = useState(8);
   const [rawMatShock, setRawMatShock] = useState(10);
   const [logisticsEff, setLogisticsEff] = useState(15);
   const [simResults, setSimResults] = useState<any>(null);
-  const isCustomEngagement = engagementId !== 'ENG-2026-01';
   const [hasData, setHasData] = useState<boolean>(!isCustomEngagement);
 
   useEffect(() => {
@@ -71,28 +74,19 @@ export default function AdvisoryAnalyticsPage() {
           setHasData(true);
           if (storedWp) {
             const parsedWp = JSON.parse(storedWp);
-            const totals = parsedWp.workpaperVersion?.totals || {};
-            const assets = totals.totalAssetsIdr || 2_295_000_000;
-            const liab = totals.totalLiabilitiesIdr || 500_000_000;
-            const eq = totals.totalEquityIdr || (assets - liab);
-            const rev = assets * 1.15;
-            const customRatios = calculateFinancialRatios({
-              currentAssetsIdr: assets * 0.45,
-              inventoryIdr: assets * 0.1,
-              cashAndEquivalentsIdr: assets * 0.25,
-              currentLiabilitiesIdr: liab * 0.6,
-              totalLiabilitiesIdr: liab,
-              totalEquityIdr: eq,
-              totalAssetsIdr: assets,
-              revenueIdr: rev,
-              grossProfitIdr: rev * 0.55,
-              operatingProfitIdr: rev * 0.22,
-              netProfitIdr: totals.netIncomeIdr || rev * 0.18,
-            });
+            const workpaperVersion = parsedWp.workpaperVersion;
+            const customLines = Array.isArray(parsedWp.lines) ? parsedWp.lines : [];
+            if (!workpaperVersion?.totals || customLines.length === 0) {
+              setHasData(false);
+              setIsLoading(false);
+              return;
+            }
+            const ratioInputs = extractFinancialInputs(customLines, workpaperVersion.totals);
+            const customRatios = calculateFinancialRatios(ratioInputs);
             setData({
               ratios: customRatios,
-              costAdvisory: analyzeCostAnomaliesAndAdvise({ annualRevenueIdr: rev }),
-              manufacturing: calculateManufacturingBreakdown({ targetCogsIdr: rev * 0.45 }),
+              costAdvisory: DEFAULT_ADVISORY_DATA.costAdvisory,
+              manufacturing: DEFAULT_ADVISORY_DATA.manufacturing,
             });
             setIsLoading(false);
             return;
@@ -160,13 +154,17 @@ export default function AdvisoryAnalyticsPage() {
             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#B7791F]/15 text-[#B7791F] border border-[#B7791F]/30">
               ANALISIS STRATEGIS & KONSULTASI BISNIS
             </span>
-            <span className="text-[10px] text-[#52636A]">Analisis Data Finansial & Standar Industri Manufaktur</span>
+            <span className="text-[10px] text-[#52636A]">
+              {isCustomEngagement ? 'Analisis hanya dari dataset perikatan aktif' : 'Analisis Data Finansial & Standar Industri Manufaktur'}
+            </span>
           </div>
           <h2 className="text-base font-bold text-[#102A32]">
             Analisis Kinerja Keuangan & Diagnosa Konsultan (Advisory Hub)
           </h2>
           <p className="text-xs text-[#52636A] mt-0.5">
-            Menjawab pertanyaan kunci direksi: <em>&quot;Jika biaya operasional membengkak, langkah nyata apa yang harus diambil manajemen?&quot;</em>, didukung evaluasi rasio keuangan dan simulasi biaya pabrikasi.
+            {isCustomEngagement
+              ? 'Rasio dihitung dari kertas kerja aktif. Analisis anomali, memo, dan simulasi hanya dibuka setelah data komparatif serta rincian biaya tersedia.'
+              : <>Menjawab pertanyaan kunci direksi: <em>&quot;Jika biaya operasional membengkak, langkah nyata apa yang harus diambil manajemen?&quot;</em>, didukung evaluasi rasio keuangan dan simulasi biaya pabrikasi.</>}
           </p>
         </div>
 
@@ -203,7 +201,8 @@ export default function AdvisoryAnalyticsPage() {
       ) : (
         <>
       {/* Advisory Navigation Tabs */}
-      <div className="flex border-b border-[#DDE4E2] gap-2 overflow-x-auto">
+        <div className="flex border-b border-[#DDE4E2] gap-2 overflow-x-auto">
+        {!isCustomEngagement && (
         <button
           onClick={() => setActiveTab('cost')}
           className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 whitespace-nowrap ${
@@ -215,6 +214,7 @@ export default function AdvisoryAnalyticsPage() {
           <AlertOctagon className="w-4 h-4" />
           <span>1. Diagnosa Biaya Membengkak &amp; Solusi Nyata (&quot;What&apos;s Next&quot;)</span>
         </button>
+        )}
 
         <button
           onClick={() => setActiveTab('ratios')}
@@ -228,6 +228,7 @@ export default function AdvisoryAnalyticsPage() {
           <span>2. Barometer Rasio Finansial ({ratios.ratingGrade})</span>
         </button>
 
+        {!isCustomEngagement && (
         <button
           onClick={() => setActiveTab('manufacturing')}
           className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 whitespace-nowrap ${
@@ -239,7 +240,9 @@ export default function AdvisoryAnalyticsPage() {
           <Factory className="w-4 h-4" />
           <span>3. Analisis Biaya Pokok Produksi Pabrik (HPP / COGM)</span>
         </button>
+        )}
 
+        {!isCustomEngagement && (
         <button
           onClick={() => setActiveTab('whatif')}
           className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 whitespace-nowrap ${
@@ -251,7 +254,9 @@ export default function AdvisoryAnalyticsPage() {
           <Sliders className="w-4 h-4" />
           <span>4. Simulasi Sensitivitas Skenario Bisnis (&quot;What-If&quot;)</span>
         </button>
+        )}
 
+        {!isCustomEngagement && (
         <button
           onClick={() => setActiveTab('memo')}
           className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 whitespace-nowrap ${
@@ -263,7 +268,15 @@ export default function AdvisoryAnalyticsPage() {
           <FileText className="w-4 h-4" />
           <span>5. Memo Strategis untuk Klien</span>
         </button>
+        )}
       </div>
+
+      {isCustomEngagement && (
+        <div className="p-4 rounded-xl bg-[#FFF7E8] border border-[#F6E0B5] text-xs text-[#102A32]">
+          <strong>Analisis dibatasi pada data yang benar-benar tersedia.</strong>{' '}
+          Unggah periode komparatif dan rincian HPP/beban jika Anda ingin membuka deteksi anomali, simulasi, dan memo strategis. FINOVA tidak akan mengisi data yang hilang dengan contoh klien lain.
+        </div>
+      )}
 
       {/* TAB 1: BIAYA MEMBENGKAK & WHAT'S NEXT */}
       {activeTab === 'cost' && (
