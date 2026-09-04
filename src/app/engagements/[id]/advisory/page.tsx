@@ -82,7 +82,11 @@ export default function AdvisoryAnalyticsPage() {
               return;
             }
             const ratioInputs = extractFinancialInputs(customLines, workpaperVersion.totals);
-            const customRatios = calculateFinancialRatios(ratioInputs);
+            const customRatios = calculateFinancialRatios({
+              ...ratioInputs,
+              clientName: client?.legalName,
+              industry: client?.industry,
+            });
             setData({
               ratios: customRatios,
               costAdvisory: DEFAULT_ADVISORY_DATA.costAdvisory,
@@ -115,7 +119,7 @@ export default function AdvisoryAnalyticsPage() {
       }
     };
     loadAdvisoryData();
-  }, [engagementId, isCustomEngagement]);
+  }, [client?.industry, client?.legalName, engagementId, isCustomEngagement]);
 
   useEffect(() => {
     const fetchSimulation = async () => {

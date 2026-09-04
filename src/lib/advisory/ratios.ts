@@ -21,6 +21,8 @@ export interface FinancialHealthScorecard {
 }
 
 export function calculateFinancialRatios(params: {
+  clientName?: string;
+  industry?: string;
   currentAssetsIdr: number;
   inventoryIdr: number;
   cashAndEquivalentsIdr: number;
@@ -34,6 +36,8 @@ export function calculateFinancialRatios(params: {
   netProfitIdr: number;
 }): FinancialHealthScorecard {
   const {
+    clientName = 'Entitas klien',
+    industry,
     currentAssetsIdr,
     inventoryIdr,
     cashAndEquivalentsIdr,
@@ -74,11 +78,11 @@ export function calculateFinancialRatios(params: {
       benchmarkRange: '1.50x - 2.50x',
       status: currentRatio >= 1.5 ? 'PRIME' : currentRatio >= 1.0 ? 'ADEQUATE' : 'WATCHLIST',
       interpretation: currentRatio >= 1.5
-        ? 'Perusahaan memiliki bantalan likuiditas kas & piutang yang sangat aman untuk menutup hutang jatuh tempo.'
+        ? 'Perusahaan memiliki bantalan likuiditas kas dan piutang yang aman untuk menutup utang jatuh tempo.'
         : 'Kemampuan membayar kewajiban jangka pendek berada pada level minimum toleransi.',
       recommendation: currentRatio >= 1.5
         ? 'Pertahankan manajemen kas, surplus likuiditas dapat dioptimalkan ke instrumen pasar uang berimbal hasil tinggi.'
-        : 'Percepat perputaran penagihan piutang dan renegosiasi termin hutang supplier.',
+        : 'Percepat penagihan piutang dan evaluasi ulang termin pembayaran kepada pemasok.',
     },
     {
       id: 'RATIO-QR',
@@ -90,9 +94,9 @@ export function calculateFinancialRatios(params: {
       benchmarkRange: '> 1.00x',
       status: quickRatio >= 1.0 ? 'PRIME' : quickRatio >= 0.8 ? 'ADEQUATE' : 'WATCHLIST',
       interpretation: quickRatio >= 1.0
-        ? 'Aset yang paling likuid (tanpa bergantung pada penjualan persediaan gudang) cukup untuk melunasi seluruh hutang lancar.'
+        ? 'Aset yang paling likuid cukup untuk melunasi seluruh utang lancar tanpa bergantung pada konversi persediaan.'
         : 'Ketergantungan terhadap konversi persediaan menjadi uang tunai cukup tinggi.',
-      recommendation: 'Jaga siklus konversi kas dan terapkan just-in-time stock control.',
+      recommendation: 'Jaga siklus konversi kas dan sesuaikan tingkat persediaan dengan kebutuhan operasional.',
     },
     {
       id: 'RATIO-DER',
@@ -104,7 +108,7 @@ export function calculateFinancialRatios(params: {
       benchmarkRange: '< 100% (Maksimal 150%)',
       status: der <= 80 ? 'PRIME' : der <= 150 ? 'ADEQUATE' : 'WATCHLIST',
       interpretation: `Rasio leverage berada pada ${der.toFixed(1)}%. Struktur modal didominasi oleh permodalan sendiri (ekuitas), meminimalkan risiko kepailitan.`,
-      recommendation: 'Kapasitas borrowing power masih sangat longgar jika perusahaan ingin mengajukan fasilitas kredit ekspansi pabrik.',
+      recommendation: 'Evaluasi kapasitas pendanaan secara berkala dan selaraskan fasilitas kredit dengan kebutuhan ekspansi perusahaan.',
     },
     {
       id: 'RATIO-GPM',
@@ -116,7 +120,7 @@ export function calculateFinancialRatios(params: {
       benchmarkRange: '25.0% - 40.0%',
       status: gpm >= 28 ? 'PRIME' : gpm >= 20 ? 'ADEQUATE' : 'WATCHLIST',
       interpretation: `Margin laba kotor sebesar ${gpm.toFixed(1)}% mencerminkan efisiensi penetapan harga jual dan pengendalian biaya langsung/HPP yang prima.`,
-      recommendation: 'Kunci kontrak pasokan bahan baku jangka panjang dengan supplier utama untuk mengunci margin.',
+      recommendation: 'Tinjau harga jual dan biaya langsung secara berkala untuk melindungi margin kotor.',
     },
     {
       id: 'RATIO-NPM',
@@ -127,7 +131,7 @@ export function calculateFinancialRatios(params: {
       unit: '%',
       benchmarkRange: '5.0% - 15.0%',
       status: npm >= 8 ? 'PRIME' : npm >= 4 ? 'ADEQUATE' : 'WATCHLIST',
-      interpretation: `Margin laba bersih sebesar ${npm.toFixed(1)}% melampaui rata-rata industri manufaktur/dagang sejenis di Indonesia (rata-rata 6-7%).`,
+      interpretation: `Margin laba bersih sebesar ${npm.toFixed(1)}% menunjukkan porsi laba yang tersisa setelah seluruh beban. Bandingkan dengan benchmark ${industry ? `industri ${industry}` : 'industri yang relevan'} sebelum mengambil keputusan strategis.`,
       recommendation: 'Teruskan program efisiensi beban operasional dan automasi pembukuan guna mempertahankan marjin dua digit.',
     },
     {
@@ -152,6 +156,6 @@ export function calculateFinancialRatios(params: {
     overallHealthScore: score,
     ratingGrade: score >= 85 ? 'AAA (Sangat Prima)' : score >= 70 ? 'AA (Kuat & Stabil)' : 'BBB (Waspada Efisiensi)',
     metrics,
-    summaryNarrative: `Profil fundamental PT Nusantara Sukses Makmur berada pada kondisi ${score >= 85 ? 'Sangat Prima (AAA)' : 'Stabil (AA)'} dengan skor kesehatan ${score}/100. Likuiditas lancar (Current Ratio ${currentRatio.toFixed(2)}x) dan marjin laba bersih (${npm.toFixed(1)}%) berada di atas ambang aman industri.`,
+    summaryNarrative: `Profil fundamental ${clientName} berada pada kondisi ${score >= 85 ? 'Sangat Prima (AAA)' : 'Stabil (AA)'} dengan skor kesehatan ${score}/100. Current Ratio tercatat ${currentRatio.toFixed(2)}x dan marjin laba bersih ${npm.toFixed(1)}%; keduanya perlu dibaca bersama karakteristik ${industry ? `industri ${industry}` : 'industri klien'}.`,
   };
 }

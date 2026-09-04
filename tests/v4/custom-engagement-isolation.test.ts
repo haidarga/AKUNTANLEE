@@ -3,6 +3,7 @@ import { repo } from '@/lib/db/repo-v4';
 import { extractFinancialInputs } from '@/lib/advisory/custom-engagement';
 import { calculateWorkpaperVersion } from '@/lib/workpaper/engine';
 import { chatWithAuditCopilot } from '@/lib/ai/client';
+import { calculateFinancialRatios } from '@/lib/advisory/ratios';
 
 describe('custom engagement data isolation', () => {
   it('does not bind the Mandiri workspace to the SRI demo client', () => {
@@ -78,5 +79,31 @@ describe('custom engagement data isolation', () => {
     expect(result.reply).toContain('Rp1.805.000.000');
     expect(result.reply).not.toContain('Nusantara Sukses Makmur');
     expect(result.reply).not.toContain('34,55 Miliar');
+  });
+
+  it('keeps ratio narratives and recommendations generic to the active client', () => {
+    const result = calculateFinancialRatios({
+      clientName: 'PT Cakrawala Konsultan Indonesia',
+      industry: 'Jasa & Konsultasi',
+      currentAssetsIdr: 1_040_000_000,
+      inventoryIdr: 350_000_000,
+      cashAndEquivalentsIdr: 415_000_000,
+      currentLiabilitiesIdr: 375_000_000,
+      totalLiabilitiesIdr: 775_000_000,
+      totalEquityIdr: 1_030_000_000,
+      totalAssetsIdr: 1_805_000_000,
+      revenueIdr: 520_000_000,
+      grossProfitIdr: 520_000_000,
+      operatingProfitIdr: 210_000_000,
+      netProfitIdr: 210_000_000,
+    });
+
+    const narrative = [
+      result.summaryNarrative,
+      ...result.metrics.flatMap((metric) => [metric.interpretation, metric.recommendation]),
+    ].join(' ');
+
+    expect(result.summaryNarrative).toContain('PT Cakrawala Konsultan Indonesia');
+    expect(narrative).not.toMatch(/Nusantara Sukses Makmur|pabrik|bahan baku|manufaktur\/dagang/i);
   });
 });
