@@ -54,6 +54,18 @@ export default function FilesPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    fetch('/api/v1/engagements/' + engagement.id + '/files')
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.data?.files && json.data.files.length > 0) {
+          setFileVersions(json.data.files);
+        }
+        if (json.data?.accounts && json.data.accounts.length > 0) {
+          setExtractedCount(json.data.accounts.length);
+        }
+      })
+      .catch(() => {});
+
     try {
       const storedFiles = localStorage.getItem('finova_files_' + engagement.id);
       if (storedFiles) {
@@ -272,6 +284,19 @@ export default function FilesPage() {
             accounts: extractedAccounts,
             mappingDecisions: autoDecisions,
           });
+
+          fetch('/api/v1/engagements/' + engagement.id + '/files', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileName: file.name,
+              fileSize: file.size,
+              sha256Checksum: sha256,
+              sheetNames: sheetNames,
+              accounts: extractedAccounts,
+              storageBucket: 'audit-vault',
+            }),
+          }).catch((err) => console.warn('Supabase file save error:', err));
 
           try {
             localStorage.setItem('finova_accounts_' + engagement.id, JSON.stringify(extractedAccounts));

@@ -73,6 +73,15 @@
       "createdAt": "2024-06-01T00:00:00Z"
     },
     {
+      "id": "CLI-MANDIRI",
+      "tenantId": "TENANT-001",
+      "legalName": "PT Klien Mandiri",
+      "code": "MNDR",
+      "industry": "Belum ditentukan",
+      "status": "active",
+      "createdAt": "2026-01-20T08:00:00Z"
+    },
+    {
       "id": "CLI-002",
       "tenantId": "TENANT-001",
       "legalName": "PT Surya Retail Indonesia",
@@ -91,13 +100,13 @@
       "createdAt": "2026-01-16T09:00:00Z"
     },
     {
-      "id": "CLI-MTMKVPXZ",
+      "id": "CLI-MTMO954C",
       "tenantId": "TENANT-001",
       "legalName": "PT Orbit Audit Digital Perkasa",
       "code": "OAD26",
       "industry": "Teknologi Informasi & SaaS",
       "status": "active",
-      "createdAt": "2026-09-04T06:33:46.007Z",
+      "createdAt": "2026-09-04T08:08:11.052Z",
       "taxIdNpwp": "01.999.888.7-011.000"
     }
   ],
@@ -122,7 +131,7 @@
     {
       "id": "ENG-MANDIRI-2026",
       "tenantId": "TENANT-001",
-      "clientId": "CLI-002",
+      "clientId": "CLI-MANDIRI",
       "name": "Kertas Kerja Audit Mandiri FY 2026 (Unggah Berkas Klien Sendiri)",
       "periodStart": "2026-01-01",
       "periodEnd": "2026-12-31",
@@ -138,7 +147,7 @@
     },
     {
       "tenantId": "TENANT-001",
-      "clientId": "CLI-MTMKVPXZ",
+      "clientId": "CLI-MTMO954C",
       "name": "Audit Kertas Kerja Tahunan OAD FY 2026",
       "periodStart": "2026-01-01",
       "periodEnd": "2026-12-31",
@@ -150,8 +159,8 @@
       "seniorId": "USR-SENIOR-01",
       "preparerId": "USR-PREPARER-01",
       "id": "ENG-2026-03",
-      "createdAt": "2026-09-04T06:33:46.007Z",
-      "updatedAt": "2026-09-04T06:33:46.016Z",
+      "createdAt": "2026-09-04T08:08:11.052Z",
+      "updatedAt": "2026-09-04T08:08:11.062Z",
       "accountingStandard": "SAK_INDONESIA"
     }
   ],
@@ -1003,7 +1012,7 @@
   ],
   "workpaperVersions": [
     {
-      "id": "WPV-MTMKVPXZ",
+      "id": "WPV-MTMO954D",
       "engagementId": "ENG-2026-03",
       "datasetVersionId": "DSV-ENG-2026-03",
       "mappingSetId": "MAPSET-ENG-2026-03",
@@ -1012,7 +1021,7 @@
       "isStale": false,
       "unmappedCount": 0,
       "checksum": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-      "generatedAt": "2026-09-04T06:33:46.007Z",
+      "generatedAt": "2026-09-04T08:08:11.053Z",
       "generatedBy": "USR-PARTNER-01",
       "summary": {
         "totalAssets": 0,
@@ -1025,7 +1034,7 @@
       }
     },
     {
-      "id": "WPV-MTMKVPW1",
+      "id": "WPV-MTMO9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
       "datasetVersionIds": [
@@ -1044,7 +1053,7 @@
         "balanceSheetDiffIdr": 0
       },
       "isStale": false,
-      "calculatedAt": "2026-09-04T06:33:45.946Z"
+      "calculatedAt": "2026-09-04T08:08:10.991Z"
     }
   ],
   "workpaperLines": [
@@ -1064,7 +1073,7 @@
       "variancePercent": 7.1,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-1-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-A-1-9527"
     },
     {
       "lineId": "WP-A.2",
@@ -1081,7 +1090,7 @@
       "variancePercent": 43.8,
       "validationState": "valid",
       "commentCount": 1,
-      "primaryEvidenceLinkId": "EVL-WP-A-2-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-A-2-9527"
     },
     {
       "lineId": "WP-A.3",
@@ -1098,7 +1107,7 @@
       "variancePercent": 33.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-3-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-A-3-9527"
     },
     {
       "lineId": "WP-A.4",
@@ -1116,7 +1125,7 @@
       "variancePercent": 19,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-4-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-A-4-9527"
     },
     {
       "lineId": "WP-A.5",
@@ -1133,7 +1142,7 @@
       "variancePercent": 12.5,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-5-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-A-5-9527"
     },
     {
       "lineId": "WP-B.1",
@@ -1151,7 +1160,7 @@
       "variancePercent": 10.7,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-1-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-B-1-9527"
     },
     {
       "lineId": "WP-B.2",
@@ -1168,7 +1177,7 @@
       "variancePercent": 22.4,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-2-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-B-2-9527"
     },
     {
       "lineId": "WP-B.3",
@@ -1185,7 +1194,7 @@
       "variancePercent": 8.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-3-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-B-3-9527"
     },
     {
       "lineId": "WP-C.1",
@@ -1203,7 +1212,7 @@
       "variancePercent": 18.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-1-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-C-1-9527"
     },
     {
       "lineId": "WP-C.2",
@@ -1220,7 +1229,7 @@
       "variancePercent": 18.8,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-2-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-C-2-9527"
     },
     {
       "lineId": "WP-C.3",
@@ -1237,7 +1246,7 @@
       "variancePercent": 12.5,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-3-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-C-3-9527"
     },
     {
       "lineId": "WP-D.1",
@@ -1254,7 +1263,7 @@
       "variancePercent": 10,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-D-1-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-D-1-9527"
     },
     {
       "lineId": "WP-D.2",
@@ -1271,7 +1280,7 @@
       "variancePercent": 11.4,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-D-2-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-D-2-9527"
     },
     {
       "lineId": "WP-E.1",
@@ -1288,7 +1297,7 @@
       "variancePercent": 0,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-E-1-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-E-1-9527"
     },
     {
       "lineId": "WP-E.2",
@@ -1305,7 +1314,7 @@
       "variancePercent": -6.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-E-2-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-E-2-9527"
     },
     {
       "lineId": "WP-F.1",
@@ -1322,7 +1331,7 @@
       "variancePercent": 9.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-1-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-F-1-9527"
     },
     {
       "lineId": "WP-F.2",
@@ -1339,7 +1348,7 @@
       "variancePercent": 21.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-2-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-F-2-9527"
     },
     {
       "lineId": "WP-F.3",
@@ -1356,7 +1365,7 @@
       "variancePercent": 8.9,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-3-VPW1"
+      "primaryEvidenceLinkId": "EVL-WP-F-3-9527"
     },
     {
       "lineId": "WP-F.4",
@@ -1375,10 +1384,10 @@
   ],
   "evidenceLinks": [
     {
-      "id": "EVL-WP-A-1-VPW1",
+      "id": "EVL-WP-A-1-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-A.1",
       "targetAmountIdr": 4500000000,
       "sourceFileVersionId": "FV-001",
@@ -1398,10 +1407,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-2-VPW1",
+      "id": "EVL-WP-A-2-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-A.2",
       "targetAmountIdr": 9850000000,
       "sourceFileVersionId": "FV-001",
@@ -1421,10 +1430,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-3-VPW1",
+      "id": "EVL-WP-A-3-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-A.3",
       "targetAmountIdr": 200000000,
       "sourceFileVersionId": "FV-001",
@@ -1444,10 +1453,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-4-VPW1",
+      "id": "EVL-WP-A-4-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-A.4",
       "targetAmountIdr": 8450000000,
       "sourceFileVersionId": "FV-001",
@@ -1467,10 +1476,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-5-VPW1",
+      "id": "EVL-WP-A-5-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-A.5",
       "targetAmountIdr": 450000000,
       "sourceFileVersionId": "FV-001",
@@ -1490,10 +1499,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-1-VPW1",
+      "id": "EVL-WP-B-1-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-B.1",
       "targetAmountIdr": 15500000000,
       "sourceFileVersionId": "FV-001",
@@ -1513,10 +1522,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-2-VPW1",
+      "id": "EVL-WP-B-2-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-B.2",
       "targetAmountIdr": 4650000000,
       "sourceFileVersionId": "FV-001",
@@ -1536,10 +1545,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-3-VPW1",
+      "id": "EVL-WP-B-3-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-B.3",
       "targetAmountIdr": 650000000,
       "sourceFileVersionId": "FV-001",
@@ -1559,10 +1568,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-1-VPW1",
+      "id": "EVL-WP-C-1-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-C.1",
       "targetAmountIdr": 4850000000,
       "sourceFileVersionId": "FV-001",
@@ -1582,10 +1591,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-2-VPW1",
+      "id": "EVL-WP-C-2-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-C.2",
       "targetAmountIdr": 380000000,
       "sourceFileVersionId": "FV-001",
@@ -1605,10 +1614,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-3-VPW1",
+      "id": "EVL-WP-C-3-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-C.3",
       "targetAmountIdr": 540000000,
       "sourceFileVersionId": "FV-001",
@@ -1628,10 +1637,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-D-1-VPW1",
+      "id": "EVL-WP-D-1-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-D.1",
       "targetAmountIdr": 5500000000,
       "sourceFileVersionId": "FV-001",
@@ -1651,10 +1660,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-D-2-VPW1",
+      "id": "EVL-WP-D-2-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-D.2",
       "targetAmountIdr": 780000000,
       "sourceFileVersionId": "FV-001",
@@ -1674,10 +1683,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-E-1-VPW1",
+      "id": "EVL-WP-E-1-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-E.1",
       "targetAmountIdr": 8000000000,
       "sourceFileVersionId": "FV-001",
@@ -1697,10 +1706,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-E-2-VPW1",
+      "id": "EVL-WP-E-2-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-E.2",
       "targetAmountIdr": 9940000000,
       "sourceFileVersionId": "FV-001",
@@ -1720,10 +1729,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-1-VPW1",
+      "id": "EVL-WP-F-1-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-F.1",
       "targetAmountIdr": 52400000000,
       "sourceFileVersionId": "FV-001",
@@ -1743,10 +1752,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-2-VPW1",
+      "id": "EVL-WP-F-2-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-F.2",
       "targetAmountIdr": 35950000000,
       "sourceFileVersionId": "FV-001",
@@ -1766,10 +1775,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-3-VPW1",
+      "id": "EVL-WP-F-3-9527",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMKVPW1",
+      "workpaperVersionId": "WPV-MTMO9527",
       "targetLineId": "WP-F.3",
       "targetAmountIdr": 12200000000,
       "sourceFileVersionId": "FV-001",
@@ -1868,7 +1877,7 @@
       "createdByUserId": "USR-PARTNER-01",
       "readbackVerified": true,
       "fileSizeBytes": 21652,
-      "createdAt": "2026-09-04T06:33:45.946Z"
+      "createdAt": "2026-09-04T08:08:10.991Z"
     }
   ],
   "auditEvents": [
@@ -1881,9 +1890,9 @@
       "action": "engagement_created",
       "resourceType": "Engagement",
       "resourceId": "ENG-2026-03",
-      "requestId": "req-1788503626007",
-      "id": "EVT-MTMKVPXZ-530",
-      "timestamp": "2026-09-04T06:33:46.007Z"
+      "requestId": "req-1788509291052",
+      "id": "EVT-MTMO954D-841",
+      "timestamp": "2026-09-04T08:08:11.053Z"
     },
     {
       "id": "EVT-001",
@@ -1941,7 +1950,7 @@
       "actorRole": "manager",
       "action": "workpaper_calculated",
       "resourceType": "WorkpaperVersion",
-      "resourceId": "WPV-MTMKVPW1",
+      "resourceId": "WPV-MTMO9527",
       "timestamp": "2026-01-18T10:15:00Z",
       "requestId": "req-wp-004"
     }
@@ -2037,7 +2046,7 @@
         "role": "preparer"
       }
     ],
-    "updatedAt": "2026-09-04T06:33:45.937Z"
+    "updatedAt": "2026-09-04T08:08:10.974Z"
   },
   "adjustments": [
     {

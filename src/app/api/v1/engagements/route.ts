@@ -1,15 +1,13 @@
 import { NextResponse } from 'next/server';
 import { repo } from '@/lib/db/repo-v4';
-import { UserRoleV4, ClientV4, EngagementV4 } from '@/types/domain-v4';
 import { saveStateToDb } from '@/lib/db/sqlite';
-import {
-  isSupabaseConfigured,
-  getSupabase,
-} from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
 import {
   fetchEngagementsFromSupabase,
   saveEngagementToSupabase,
 } from '@/lib/supabase/service';
+import { ClientV4, EngagementV4, UserRoleV4 } from '@/types/domain-v4';
+import { DEMO_CLIENT, DEMO_ENGAGEMENT } from '@/lib/demo/fixtures';
 
 function parseCustomEngagementsCookie(request: Request) {
   try {
@@ -28,17 +26,20 @@ function parseCustomEngagementsCookie(request: Request) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tenantId = searchParams.get('tenantId') || 'TENANT-001';
-  const state = repo.getState();
+  const isDemo = searchParams.get('demo') === '1';
 
   const mergedMap = new Map<string, any>();
 
-  // 1. Base list from repository (seeded / demo clients)
-  const baseList = state.engagements.filter((e) => e.tenantId === tenantId);
-  for (const eng of baseList) {
-    mergedMap.set(eng.id, eng);
+  // 1. If demo mode is explicitly requested, include demo engagement
+  if (isDemo) {
+    mergedMap.set(DEMO_ENGAGEMENT.id, {
+      ...DEMO_ENGAGEMENT,
+      clientName: DEMO_CLIENT.legalName,
+      clientCode: DEMO_CLIENT.code,
+    });
   }
 
-  // 2. Query from Supabase if configured
+  // 2. Query from Supabase if configured (Source of Truth)
   if (isSupabaseConfigured()) {
     try {
       const sbResult = await fetchEngagementsFromSupabase(tenantId);
@@ -48,15 +49,28 @@ export async function GET(request: Request) {
         }
       }
     } catch (sbErr) {
-      console.warn('Supabase fetch failed, falling back to local/cookie cache:', sbErr);
+      console.warn('Supabase fetch failed, falling back to local cache:', sbErr);
     }
   }
 
-  // 3. Custom engagements from cookie (guarantees cross-lambda serverless persistence)
+  // 3. Custom engagements from cookie (cross-lambda serverless persistence)
   const cookieEngs = parseCustomEngagementsCookie(request);
   for (const eng of cookieEngs) {
-    const existing = mergedMap.get(eng.id) || {};
-    mergedMap.set(eng.id, { ...existing, ...eng });
+    // Never leak demo id into custom list
+    if (eng.id !== 'ENG-2026-01' && eng.id !== 'ENG-DEMO-2026') {
+      const existing = mergedMap.get(eng.id) || {};
+      mergedMap.set(eng.id, { ...existing, ...eng });
+    }
+  }
+
+  // 4. Custom engagements from repo state (excluding demo unless isDemo)
+  const state = repo.getState();
+  for (const eng of state.engagements) {
+    if (eng.id !== 'ENG-2026-01' && eng.id !== 'ENG-DEMO-2026') {
+      if (!mergedMap.has(eng.id)) {
+        mergedMap.set(eng.id, eng);
+      }
+    }
   }
 
   const list = Array.from(mergedMap.values());
@@ -127,8 +141,13 @@ export async function POST(request: Request) {
       }
       finalClientId = createdClient.id;
     } else if (!finalClientId) {
-      finalClientId = state.clients[0]?.id || 'CLI-001';
-      createdClient = state.clients.find((c) => c.id === finalClientId);
+      createdClient = repo.createClient({
+        legalName: effectiveClientName,
+        code: effectiveClientCode || 'KLN',
+        industry: industry || 'Manufaktur & Fabrikasi',
+        tenantId: user.tenantId,
+      });
+      finalClientId = createdClient.id;
     } else {
       createdClient = state.clients.find((c) => c.id === finalClientId);
     }
