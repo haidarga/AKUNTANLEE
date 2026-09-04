@@ -20,6 +20,7 @@ describe('custom export download integrity', () => {
         body: JSON.stringify({
           engagementId: 'ENG-MANDIRI-2026',
           userRole: 'partner',
+          operatorName: 'Dimas Cakrawala, CPA, CA',
           clientCode: 'CAKRAWALA',
           sourceChecksum: '568c968de29717f115b3d4dfb716e0b7cea3dd60ec90fd091997d679c75a1e91',
           customWp: {
@@ -56,8 +57,10 @@ describe('custom export download integrity', () => {
     expect(flattened).toContain('ENG-MANDIRI-2026');
     expect(flattened).toContain('568c968de29717f115b3d4dfb716e0b7cea3dd60ec90fd091997d679c75a1e91');
     expect(flattened).toContain('1805000000');
+    expect(flattened).toContain('Dimas Cakrawala, CPA, CA');
     expect(flattened).not.toContain('Nusantara Sukses Makmur');
     expect(flattened).not.toContain('ENG-2026-01');
+    expect(flattened).not.toContain('Haidar');
   });
 
   it('returns 404 instead of silently downloading another engagement artifact', async () => {
