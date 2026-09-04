@@ -45,9 +45,13 @@ export default function ExportsPage() {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+  const isCustomEngagement = engagementId !== 'ENG-2026-01';
   const wpVersion = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
   const checks = state.validationChecks;
-  const [artifacts, setArtifacts] = useState<ExportArtifact[]>(state.exportArtifacts);
+  const initialArtifacts = isCustomEngagement
+    ? state.exportArtifacts.filter((a) => a.engagementId === engagement.id)
+    : state.exportArtifacts;
+  const [artifacts, setArtifacts] = useState<ExportArtifact[]>(initialArtifacts);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -60,7 +64,19 @@ export default function ExportsPage() {
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setActiveRole(saved as UserRoleV4);
     }
-  }, []);
+
+    if (isCustomEngagement) {
+      try {
+        const storedArtifacts = localStorage.getItem('finova_exports_' + engagementId);
+        if (storedArtifacts) {
+          const parsed = JSON.parse(storedArtifacts);
+          if (Array.isArray(parsed)) {
+            setArtifacts(parsed);
+          }
+        }
+      } catch (e) {}
+    }
+  }, [engagementId, isCustomEngagement]);
 
   // Pre-Flight Eligibility Checklist (Section 45.3)
   const isStale = wpVersion?.isStale;
@@ -102,7 +118,15 @@ export default function ExportsPage() {
         throw new Error(data.message || data.error || 'Gagal membuat ekspor XLSX.');
       }
 
-      setArtifacts([...repo.getState().exportArtifacts]);
+      if (data.data) {
+        const updated = [data.data, ...artifacts.filter((a) => a.id !== data.data.id)];
+        setArtifacts(updated);
+        try {
+          localStorage.setItem('finova_exports_' + engagement.id, JSON.stringify(updated));
+        } catch (e) {}
+      } else {
+        setArtifacts([...repo.getState().exportArtifacts]);
+      }
     } catch (err: any) {
       setErrorMessage(err.message);
     } finally {

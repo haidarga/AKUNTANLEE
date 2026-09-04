@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useParams } from 'next/navigation';
 import { repo } from '@/lib/db/repo-v4';
 
@@ -57,8 +59,54 @@ export default function AdvisoryAnalyticsPage() {
   const [rawMatShock, setRawMatShock] = useState(10);
   const [logisticsEff, setLogisticsEff] = useState(15);
   const [simResults, setSimResults] = useState<any>(null);
+  const isCustomEngagement = engagementId !== 'ENG-2026-01';
+  const [hasData, setHasData] = useState<boolean>(!isCustomEngagement);
 
   useEffect(() => {
+    if (isCustomEngagement) {
+      try {
+        const storedWp = localStorage.getItem('finova_wp_' + engagementId);
+        const storedAcc = localStorage.getItem('finova_accounts_' + engagementId);
+        if (storedWp || storedAcc) {
+          setHasData(true);
+          if (storedWp) {
+            const parsedWp = JSON.parse(storedWp);
+            const totals = parsedWp.workpaperVersion?.totals || {};
+            const assets = totals.totalAssetsIdr || 2_295_000_000;
+            const liab = totals.totalLiabilitiesIdr || 500_000_000;
+            const eq = totals.totalEquityIdr || (assets - liab);
+            const rev = assets * 1.15;
+            const customRatios = calculateFinancialRatios({
+              currentAssetsIdr: assets * 0.45,
+              inventoryIdr: assets * 0.1,
+              cashAndEquivalentsIdr: assets * 0.25,
+              currentLiabilitiesIdr: liab * 0.6,
+              totalLiabilitiesIdr: liab,
+              totalEquityIdr: eq,
+              totalAssetsIdr: assets,
+              revenueIdr: rev,
+              grossProfitIdr: rev * 0.55,
+              operatingProfitIdr: rev * 0.22,
+              netProfitIdr: totals.netIncomeIdr || rev * 0.18,
+            });
+            setData({
+              ratios: customRatios,
+              costAdvisory: analyzeCostAnomaliesAndAdvise({ annualRevenueIdr: rev }),
+              manufacturing: calculateManufacturingBreakdown({ targetCogsIdr: rev * 0.45 }),
+            });
+            setIsLoading(false);
+            return;
+          }
+        } else {
+          setHasData(false);
+          setIsLoading(false);
+          return;
+        }
+      } catch (e) {
+        console.warn('Error loading custom advisory data:', e);
+      }
+    }
+
     const loadAdvisoryData = async () => {
       try {
         const res = await fetch('/api/v1/advisory/diagnosis');
@@ -73,7 +121,7 @@ export default function AdvisoryAnalyticsPage() {
       }
     };
     loadAdvisoryData();
-  }, []);
+  }, [engagementId, isCustomEngagement]);
 
   useEffect(() => {
     const fetchSimulation = async () => {
@@ -133,6 +181,27 @@ export default function AdvisoryAnalyticsPage() {
         </div>
       </div>
 
+      {!hasData ? (
+        <div className="bg-white rounded-2xl border border-[#DDE4E2] p-12 text-center space-y-4 shadow-2xs">
+          <div className="w-16 h-16 rounded-2xl bg-[#F6F7F5] border border-[#DDE4E2] flex items-center justify-center mx-auto text-[#52636A]">
+            <BarChart3 className="w-8 h-8 text-[#0F8F7A]" />
+          </div>
+          <div className="space-y-1 max-w-md mx-auto">
+            <h3 className="text-base font-bold text-[#102A32]">Belum Ada Data Laporan Keuangan untuk Dianalisis</h3>
+            <p className="text-xs text-[#52636A] leading-relaxed">
+              Klien ini belum memiliki dataset neraca saldo. Silakan unggah berkas neraca saldo (Excel / CSV) terlebih dahulu pada tab Berkas Sumber agar AI dapat menganalisis rasio, anomali biaya, dan simulasi strategi.
+            </p>
+          </div>
+          <Link
+            href={`/engagements/${engagementId}/files`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs font-bold shadow-xs cursor-pointer"
+          >
+            <span>Unggah Berkas Sumber Finansial</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      ) : (
+        <>
       {/* Advisory Navigation Tabs */}
       <div className="flex border-b border-[#DDE4E2] gap-2 overflow-x-auto">
         <button
@@ -614,6 +683,8 @@ export default function AdvisoryAnalyticsPage() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

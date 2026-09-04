@@ -91,13 +91,13 @@
       "createdAt": "2026-01-16T09:00:00Z"
     },
     {
-      "id": "CLI-MTMGSWEM",
+      "id": "CLI-MTMJCCB9",
       "tenantId": "TENANT-001",
       "legalName": "PT Orbit Audit Digital Perkasa",
       "code": "OAD26",
       "industry": "Teknologi Informasi & SaaS",
       "status": "active",
-      "createdAt": "2026-09-04T04:39:35.950Z",
+      "createdAt": "2026-09-04T05:50:42.261Z",
       "taxIdNpwp": "01.999.888.7-011.000"
     }
   ],
@@ -138,7 +138,7 @@
     },
     {
       "tenantId": "TENANT-001",
-      "clientId": "CLI-MTMGSWEM",
+      "clientId": "CLI-MTMJCCB9",
       "name": "Audit Kertas Kerja Tahunan OAD FY 2026",
       "periodStart": "2026-01-01",
       "periodEnd": "2026-12-31",
@@ -150,8 +150,8 @@
       "seniorId": "USR-SENIOR-01",
       "preparerId": "USR-PREPARER-01",
       "id": "ENG-2026-03",
-      "createdAt": "2026-09-04T04:39:35.951Z",
-      "updatedAt": "2026-09-04T04:39:35.969Z",
+      "createdAt": "2026-09-04T05:50:42.261Z",
+      "updatedAt": "2026-09-04T05:50:42.270Z",
       "accountingStandard": "SAK_INDONESIA"
     }
   ],
@@ -1003,7 +1003,7 @@
   ],
   "workpaperVersions": [
     {
-      "id": "WPV-MTMGSWEN",
+      "id": "WPV-MTMJCCB9",
       "engagementId": "ENG-2026-03",
       "datasetVersionId": "DSV-ENG-2026-03",
       "mappingSetId": "MAPSET-ENG-2026-03",
@@ -1012,7 +1012,7 @@
       "isStale": false,
       "unmappedCount": 0,
       "checksum": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-      "generatedAt": "2026-09-04T04:39:35.951Z",
+      "generatedAt": "2026-09-04T05:50:42.261Z",
       "generatedBy": "USR-PARTNER-01",
       "summary": {
         "totalAssets": 0,
@@ -1025,7 +1025,7 @@
       }
     },
     {
-      "id": "WPV-MTMGSWD4",
+      "id": "WPV-MTMJCC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
       "datasetVersionIds": [
@@ -1044,7 +1044,7 @@
         "balanceSheetDiffIdr": 0
       },
       "isStale": false,
-      "calculatedAt": "2026-09-04T04:39:35.905Z"
+      "calculatedAt": "2026-09-04T05:50:42.222Z"
     }
   ],
   "workpaperLines": [
@@ -1064,7 +1064,7 @@
       "variancePercent": 7.1,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-1-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-A-1-CC9X"
     },
     {
       "lineId": "WP-A.2",
@@ -1081,7 +1081,7 @@
       "variancePercent": 43.8,
       "validationState": "valid",
       "commentCount": 1,
-      "primaryEvidenceLinkId": "EVL-WP-A-2-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-A-2-CC9X"
     },
     {
       "lineId": "WP-A.3",
@@ -1098,7 +1098,7 @@
       "variancePercent": 33.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-3-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-A-3-CC9X"
     },
     {
       "lineId": "WP-A.4",
@@ -1116,7 +1116,7 @@
       "variancePercent": 19,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-4-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-A-4-CC9X"
     },
     {
       "lineId": "WP-A.5",
@@ -1133,7 +1133,7 @@
       "variancePercent": 12.5,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-5-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-A-5-CC9X"
     },
     {
       "lineId": "WP-B.1",
@@ -1151,7 +1151,7 @@
       "variancePercent": 10.7,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-1-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-B-1-CC9X"
     },
     {
       "lineId": "WP-B.2",
@@ -1168,7 +1168,7 @@
       "variancePercent": 22.4,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-2-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-B-2-CC9X"
     },
     {
       "lineId": "WP-B.3",
@@ -1185,7 +1185,7 @@
       "variancePercent": 8.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-3-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-B-3-CC9X"
     },
     {
       "lineId": "WP-C.1",
@@ -1203,7 +1203,7 @@
       "variancePercent": 18.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-1-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-C-1-CC9X"
     },
     {
       "lineId": "WP-C.2",
@@ -1220,7 +1220,7 @@
       "variancePercent": 18.8,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-2-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-C-2-CC9X"
     },
     {
       "lineId": "WP-C.3",
@@ -1237,7 +1237,7 @@
       "variancePercent": 12.5,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-3-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-C-3-CC9X"
     },
     {
       "lineId": "WP-D.1",
@@ -1254,7 +1254,7 @@
       "variancePercent": 10,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-D-1-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-D-1-CC9X"
     },
     {
       "lineId": "WP-D.2",
@@ -1271,7 +1271,7 @@
       "variancePercent": 11.4,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-D-2-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-D-2-CC9X"
     },
     {
       "lineId": "WP-E.1",
@@ -1288,7 +1288,7 @@
       "variancePercent": 0,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-E-1-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-E-1-CC9X"
     },
     {
       "lineId": "WP-E.2",
@@ -1305,7 +1305,7 @@
       "variancePercent": -6.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-E-2-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-E-2-CC9X"
     },
     {
       "lineId": "WP-F.1",
@@ -1322,7 +1322,7 @@
       "variancePercent": 9.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-1-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-F-1-CC9X"
     },
     {
       "lineId": "WP-F.2",
@@ -1339,7 +1339,7 @@
       "variancePercent": 21.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-2-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-F-2-CC9X"
     },
     {
       "lineId": "WP-F.3",
@@ -1356,7 +1356,7 @@
       "variancePercent": 8.9,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-3-SWD4"
+      "primaryEvidenceLinkId": "EVL-WP-F-3-CC9X"
     },
     {
       "lineId": "WP-F.4",
@@ -1375,15 +1375,15 @@
   ],
   "evidenceLinks": [
     {
-      "id": "EVL-WP-A-1-SWD4",
+      "id": "EVL-WP-A-1-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-A.1",
       "targetAmountIdr": 4500000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A3:F3",
       "sourceRowNumber": 3,
@@ -1398,15 +1398,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-2-SWD4",
+      "id": "EVL-WP-A-2-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-A.2",
       "targetAmountIdr": 9850000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A4:F4",
       "sourceRowNumber": 4,
@@ -1421,15 +1421,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-3-SWD4",
+      "id": "EVL-WP-A-3-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-A.3",
       "targetAmountIdr": 200000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A5:F5",
       "sourceRowNumber": 5,
@@ -1444,15 +1444,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-4-SWD4",
+      "id": "EVL-WP-A-4-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-A.4",
       "targetAmountIdr": 8450000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A6:F6",
       "sourceRowNumber": 6,
@@ -1467,15 +1467,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-5-SWD4",
+      "id": "EVL-WP-A-5-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-A.5",
       "targetAmountIdr": 450000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A8:F8",
       "sourceRowNumber": 8,
@@ -1490,15 +1490,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-1-SWD4",
+      "id": "EVL-WP-B-1-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-B.1",
       "targetAmountIdr": 15500000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A9:F9",
       "sourceRowNumber": 9,
@@ -1513,15 +1513,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-2-SWD4",
+      "id": "EVL-WP-B-2-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-B.2",
       "targetAmountIdr": 4650000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A11:F11",
       "sourceRowNumber": 11,
@@ -1536,15 +1536,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-3-SWD4",
+      "id": "EVL-WP-B-3-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-B.3",
       "targetAmountIdr": 650000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A12:F12",
       "sourceRowNumber": 12,
@@ -1559,15 +1559,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-1-SWD4",
+      "id": "EVL-WP-C-1-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-C.1",
       "targetAmountIdr": 4850000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A13:F13",
       "sourceRowNumber": 13,
@@ -1582,15 +1582,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-2-SWD4",
+      "id": "EVL-WP-C-2-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-C.2",
       "targetAmountIdr": 380000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A14:F14",
       "sourceRowNumber": 14,
@@ -1605,15 +1605,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-3-SWD4",
+      "id": "EVL-WP-C-3-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-C.3",
       "targetAmountIdr": 540000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A15:F15",
       "sourceRowNumber": 15,
@@ -1628,15 +1628,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-D-1-SWD4",
+      "id": "EVL-WP-D-1-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-D.1",
       "targetAmountIdr": 5500000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A17:F17",
       "sourceRowNumber": 17,
@@ -1651,15 +1651,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-D-2-SWD4",
+      "id": "EVL-WP-D-2-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-D.2",
       "targetAmountIdr": 780000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A18:F18",
       "sourceRowNumber": 18,
@@ -1674,15 +1674,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-E-1-SWD4",
+      "id": "EVL-WP-E-1-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-E.1",
       "targetAmountIdr": 8000000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A19:F19",
       "sourceRowNumber": 19,
@@ -1697,15 +1697,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-E-2-SWD4",
+      "id": "EVL-WP-E-2-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-E.2",
       "targetAmountIdr": 9940000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A20:F20",
       "sourceRowNumber": 20,
@@ -1720,15 +1720,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-1-SWD4",
+      "id": "EVL-WP-F-1-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-F.1",
       "targetAmountIdr": 52400000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A21:F21",
       "sourceRowNumber": 21,
@@ -1743,15 +1743,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-2-SWD4",
+      "id": "EVL-WP-F-2-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-F.2",
       "targetAmountIdr": 35950000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A22:F22",
       "sourceRowNumber": 22,
@@ -1766,15 +1766,15 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-3-SWD4",
+      "id": "EVL-WP-F-3-CC9X",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMGSWD4",
+      "workpaperVersionId": "WPV-MTMJCC9X",
       "targetLineId": "WP-F.3",
       "targetAmountIdr": 12200000000,
       "sourceFileVersionId": "FV-001",
-      "sourceFileName": "TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx",
-      "sourceChecksumSha256": "9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92",
+      "sourceFileName": "TB_ENG-2026-01.xlsx",
+      "sourceChecksumSha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "sheetName": "Trial Balance",
       "cellRange": "Trial Balance!A23:F23",
       "sourceRowNumber": 23,
@@ -1868,7 +1868,7 @@
       "createdByUserId": "USR-PARTNER-01",
       "readbackVerified": true,
       "fileSizeBytes": 21652,
-      "createdAt": "2026-09-04T04:39:35.905Z"
+      "createdAt": "2026-09-04T05:50:42.222Z"
     }
   ],
   "auditEvents": [
@@ -1881,9 +1881,9 @@
       "action": "engagement_created",
       "resourceType": "Engagement",
       "resourceId": "ENG-2026-03",
-      "requestId": "req-1788496775951",
-      "id": "EVT-MTMGSWEN-27",
-      "timestamp": "2026-09-04T04:39:35.951Z"
+      "requestId": "req-1788501042261",
+      "id": "EVT-MTMJCCB9-720",
+      "timestamp": "2026-09-04T05:50:42.261Z"
     },
     {
       "id": "EVT-001",
@@ -1941,7 +1941,7 @@
       "actorRole": "manager",
       "action": "workpaper_calculated",
       "resourceType": "WorkpaperVersion",
-      "resourceId": "WPV-MTMGSWD4",
+      "resourceId": "WPV-MTMJCC9X",
       "timestamp": "2026-01-18T10:15:00Z",
       "requestId": "req-wp-004"
     }
@@ -2037,7 +2037,7 @@
         "role": "preparer"
       }
     ],
-    "updatedAt": "2026-09-04T04:39:35.896Z"
+    "updatedAt": "2026-09-04T05:50:42.213Z"
   },
   "adjustments": [
     {

@@ -124,7 +124,7 @@ export default function EngagementsListPage() {
           <div className="mt-6 pt-6 border-t border-[#DDE4E2]/80 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
             <div>
               <span className="text-[#52636A] text-[11px] block">Perikatan Aktif</span>
-              <span className="font-mono font-bold text-lg text-[#102A32]">{state.engagements.length} Entitas</span>
+              <span className="font-mono font-bold text-lg text-[#102A32]">{allEngagements.length} Entitas</span>
             </div>
             <div>
               <span className="text-[#52636A] text-[11px] block">Total Saldo Dikelola</span>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   Calculator,
@@ -83,14 +84,31 @@ const DEFAULT_TAX_DATA = (() => {
 })();
 
 export default function TaxCompliancePage() {
+  const routeParams = useParams();
+  const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
+  const isCustomEngagement = engagementId !== 'ENG-2026-01';
   const [activeSubTab, setActiveSubTab] = useState<'pph21' | 'ppn' | 'badan'>('pph21');
   const [data, setData] = useState<any>(DEFAULT_TAX_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [showImporter, setShowImporter] = useState(false);
   const [importNotice, setImportNotice] = useState<string | null>(null);
   const [sampleClientFile, setSampleClientFile] = useState<'PT_Surya_Retail' | 'CV_Maju_Logistik'>('PT_Surya_Retail');
+  const [hasPayroll, setHasPayroll] = useState<boolean>(!isCustomEngagement);
 
   useEffect(() => {
+    if (isCustomEngagement) {
+      try {
+        const storedPayroll = localStorage.getItem('finova_payroll_' + engagementId);
+        if (storedPayroll) {
+          setHasPayroll(true);
+        } else {
+          setHasPayroll(false);
+          setIsLoading(false);
+          return;
+        }
+      } catch (e) {}
+    }
+
     const loadTaxData = async () => {
       try {
         const res = await fetch('/api/v1/tax/calculate');
@@ -105,7 +123,7 @@ export default function TaxCompliancePage() {
       }
     };
     loadTaxData();
-  }, []);
+  }, [engagementId, isCustomEngagement]);
 
   // Zero loading flash: tax data is pre-populated synchronously
   if (!data) return null;
@@ -292,6 +310,26 @@ export default function TaxCompliancePage() {
 
       {/* TAB 1: PPH 21 TER */}
       {activeSubTab === 'pph21' && (
+        !hasPayroll ? (
+          <div className="bg-white rounded-2xl border border-[#DDE4E2] p-12 text-center space-y-4 shadow-2xs">
+            <div className="w-16 h-16 rounded-2xl bg-[#F6F7F5] border border-[#DDE4E2] flex items-center justify-center mx-auto text-[#52636A]">
+              <Receipt className="w-8 h-8 text-[#0F8F7A]" />
+            </div>
+            <div className="space-y-1 max-w-md mx-auto">
+              <h3 className="text-base font-bold text-[#102A32]">Belum Ada Data Penggajian (Payroll) Klien Ini</h3>
+              <p className="text-xs text-[#52636A] leading-relaxed">
+                Klien ini belum memiliki data payroll karyawan. Silakan buka Smart Payroll Importer untuk memuat berkas rekap gaji atau menguji simulasi kalkulasi PPh 21 TER (PP 58/2023).
+              </p>
+            </div>
+            <button
+              onClick={() => setShowImporter(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs font-bold shadow-xs cursor-pointer"
+            >
+              <UploadCloud className="w-4 h-4" />
+              <span>Buka Smart Payroll Importer</span>
+            </button>
+          </div>
+        ) : (
         <div className="space-y-6">
           {/* Quick Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -415,6 +453,7 @@ export default function TaxCompliancePage() {
             </div>
           </div>
         </div>
+        )
       )}
 
       {/* TAB 2: PPN EQUALIZATION */}

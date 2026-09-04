@@ -62,10 +62,32 @@ export default function WorkpaperPage() {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  const activeWp = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
+  const isCustomEngagement = engagementId !== 'ENG-2026-01';
+  const emptyWp: WorkpaperVersion = {
+    id: `WPV-${engagementId}`,
+    tenantId: 'TENANT-001',
+    engagementId,
+    datasetVersionIds: [`DSV-${engagementId}`],
+    mappingSetId: `MAPSET-${engagementId}`,
+    templateVersion: 'FINOVA-LEAD-v1.0',
+    versionNumber: 1,
+    status: 'draft',
+    totals: {
+      totalAssetsIdr: 0,
+      totalLiabilitiesIdr: 0,
+      totalEquityIdr: 0,
+      netIncomeIdr: 0,
+      tbDebitCreditDiffIdr: 0,
+      balanceSheetDiffIdr: 0,
+    },
+    isStale: false,
+    calculatedAt: new Date().toISOString(),
+  };
+
+  const activeWp = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || (isCustomEngagement ? emptyWp : state.workpaperVersions[0]);
   const [wpVersion, setWpVersion] = useState<WorkpaperVersion>(activeWp);
-  const [lines, setLines] = useState<WorkpaperLineItem[]>(state.workpaperLines);
-  const [checks, setChecks] = useState<ValidationCheckResult[]>(state.validationChecks);
+  const [lines, setLines] = useState<WorkpaperLineItem[]>(isCustomEngagement ? [] : state.workpaperLines);
+  const [checks, setChecks] = useState<ValidationCheckResult[]>(isCustomEngagement ? [] : state.validationChecks);
   const [activeRole, setActiveRole] = useState<UserRoleV4>('senior');
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -367,14 +389,35 @@ export default function WorkpaperPage() {
           </div>
         </div>
 
-        <AuditSpreadsheet
-          lines={lines}
-          onOpenEvidence={handleOpenEvidence}
-          onOpenComment={(line) => {
-            setSelectedNoteLine(line);
-            setIsNotesOpen(true);
-          }}
-        />
+        {lines.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-[#DDE4E2] p-12 text-center space-y-4 shadow-2xs">
+            <div className="w-16 h-16 rounded-2xl bg-[#F6F7F5] border border-[#DDE4E2] flex items-center justify-center mx-auto text-[#52636A]">
+              <Table className="w-8 h-8 text-[#0F8F7A]" />
+            </div>
+            <div className="space-y-1 max-w-md mx-auto">
+              <h3 className="text-base font-bold text-[#102A32]">Kertas Kerja Belum Memiliki Data Neraca Saldo</h3>
+              <p className="text-xs text-[#52636A] leading-relaxed">
+                Silakan unggah berkas neraca saldo (Excel / CSV) terlebih dahulu pada tab Berkas Sumber untuk memuat akun dan menghitung Lead Schedule secara otomatis.
+              </p>
+            </div>
+            <Link
+              href={`/engagements/${engagement.id}/files`}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs font-bold shadow-xs cursor-pointer"
+            >
+              <span>Unggah Berkas Sumber Finansial</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        ) : (
+          <AuditSpreadsheet
+            lines={lines}
+            onOpenEvidence={handleOpenEvidence}
+            onOpenComment={(line) => {
+              setSelectedNoteLine(line);
+              setIsNotesOpen(true);
+            }}
+          />
+        )}
 
         {/* Totals Summary Footer Card */}
         <div className="p-5 bg-white rounded-2xl border border-[#DDE4E2] shadow-2xs grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">

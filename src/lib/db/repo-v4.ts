@@ -1219,22 +1219,24 @@ class FinovaV4Repository {
     this.assertTenantAccess(actor.tenantId, eng.tenantId);
     this.assertPermission(actor.role, 'authorize_export');
 
-    const wp = this.state.workpaperVersions[0];
+    const client = this.state.clients.find((c) => c.id === eng.clientId);
+    const clientCode = client?.code || 'EXP';
+    const wp = this.state.workpaperVersions.find((w) => w.engagementId === eng.id) || this.state.workpaperVersions[0];
     if (!wp) throw new Error('Kertas kerja belum dihitung.');
 
-    const fv = this.state.fileVersions[0];
+    const fv = this.state.fileVersions.find((f) => f.engagementId === eng.id) || this.state.fileVersions[0];
 
     const result = generateWorkpaperXlsx({
       tenantId: eng.tenantId,
       engagementId: eng.id,
-      clientCode: 'NSM',
+      clientCode: clientCode,
       periodYear: '2026',
       workpaperVersion: wp,
       lines: this.state.workpaperLines,
       checks: this.state.validationChecks,
       userId: actor.id,
       operatorName: actor.name,
-      sourceFileVersionChecksum: fv?.checksumSha256 || '9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92',
+      sourceFileVersionChecksum: fv?.checksumSha256 || '0000000000000000000000000000000000000000000000000000000000000000',
     });
 
     this.state.exportArtifacts.unshift(result.artifact);

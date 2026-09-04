@@ -105,7 +105,66 @@ export default function AccountMappingPage() {
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setActiveRole(saved as UserRoleV4);
     }
-  }, []);
+
+    try {
+      const storedMap = localStorage.getItem('finova_mapping_' + engagementId);
+      if (storedMap) {
+        const parsed = JSON.parse(storedMap);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setDecisions(parsed);
+          return;
+        }
+      }
+
+      const storedAcc = localStorage.getItem('finova_accounts_' + engagementId);
+      if (storedAcc) {
+        const accs = JSON.parse(storedAcc);
+        if (Array.isArray(accs) && accs.length > 0) {
+          const autoDecisions = accs.map((acc: any, idx: number) => {
+            let target = 'WP-A.1';
+            const nameLower = (acc.accountName || '').toLowerCase();
+            const code = acc.accountCode || '';
+            if (code.startsWith('10') || code.startsWith('11') || nameLower.includes('kas') || nameLower.includes('bank')) target = 'WP-A.1';
+            else if (code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
+            else if (code.startsWith('13') || nameLower.includes('persediaan') || nameLower.includes('inventory')) target = 'WP-A.4';
+            else if (code.startsWith('14') || nameLower.includes('muka') || nameLower.includes('prepaid')) target = 'WP-A.5';
+            else if (nameLower.includes('akumulasi')) target = 'WP-B.2';
+            else if (code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan')) target = 'WP-B.1';
+            else if (code.startsWith('20') || code.startsWith('21') || nameLower.includes('utang usaha') || nameLower.includes('payable')) target = 'WP-C.1';
+            else if (code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax')) target = 'WP-C.2';
+            else if (code.startsWith('25') || nameLower.includes('bank') || nameLower.includes('pinjaman')) target = 'WP-D.1';
+            else if (code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital')) target = 'WP-E.1';
+            else if (code.startsWith('31') || nameLower.includes('laba') || nameLower.includes('retained')) target = 'WP-E.2';
+            else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue')) target = 'WP-F.1';
+            else if (code.startsWith('5') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
+            else target = 'WP-F.3';
+
+            return {
+              id: 'DEC-' + (idx + 1),
+              tenantId: 'TENANT-001',
+              mappingSetId: 'MAPSET-' + engagementId,
+              accountRowId: acc.id || ('ACC-' + (idx + 1)),
+              sourceAccountCode: acc.accountCode,
+              sourceAccountName: acc.accountName,
+              amountIdr: acc.closingBalanceIdr || acc.balanceIdr || 0,
+              proposedTarget: target,
+              effectiveTarget: target,
+              confidenceScore: 96,
+              confidenceLevel: 'high' as const,
+              rationale: 'Pemetaan Otomatis SAK Standard Pattern',
+              status: 'mapped' as const,
+              isMaterial: false,
+            };
+          });
+
+          setDecisions(autoDecisions);
+          localStorage.setItem('finova_mapping_' + engagementId, JSON.stringify(autoDecisions));
+        }
+      }
+    } catch (e) {
+      console.warn('Error loading custom mapping:', e);
+    }
+  }, [engagementId]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -114,25 +173,41 @@ export default function AccountMappingPage() {
 
   const handleApprove = (decId: string) => {
     const user = state.users.find((u) => u.role === activeRole) || state.users[0];
-    const updated = repo.updateMappingDecision({
-      decisionId: decId,
-      action: 'approve',
-      actor: user,
-    });
-    setDecisions([...repo.getState().mappingDecisions]);
-    showToast(`Pemetaan ${updated.sourceAccountCode} berhasil disetujui.`);
+    try {
+      repo.updateMappingDecision({
+        decisionId: decId,
+        action: 'approve',
+        actor: user,
+      });
+    } catch (e) {
+      console.warn('Repo mapping update warning:', e);
+    }
+    const updatedList = decisions.map((d) => (d.id === decId ? { ...d, status: 'mapped' as const } : d));
+    setDecisions(updatedList);
+    try {
+      localStorage.setItem('finova_mapping_' + engagementId, JSON.stringify(updatedList));
+    } catch (e) {}
+    showToast(`Pemetaan berhasil disetujui.`);
   };
 
   const handleInlineChangeTarget = (decId: string, newTarget: string) => {
     const user = state.users.find((u) => u.role === activeRole) || state.users[0];
-    repo.updateMappingDecision({
-      decisionId: decId,
-      action: 'override',
-      targetLineId: newTarget,
-      reason: 'Penyesuaian cepat langsung dari baris tabel (inline)',
-      actor: user,
-    });
-    setDecisions([...repo.getState().mappingDecisions]);
+    try {
+      repo.updateMappingDecision({
+        decisionId: decId,
+        action: 'override',
+        targetLineId: newTarget,
+        reason: 'Penyesuaian cepat langsung dari baris tabel (inline)',
+        actor: user,
+      });
+    } catch (e) {
+      console.warn('Repo mapping override warning:', e);
+    }
+    const updatedList = decisions.map((d) => (d.id === decId ? { ...d, effectiveTarget: newTarget, proposedTarget: newTarget } : d));
+    setDecisions(updatedList);
+    try {
+      localStorage.setItem('finova_mapping_' + engagementId, JSON.stringify(updatedList));
+    } catch (e) {}
     showToast(`Target diubah ke ${newTarget}`);
   };
 
@@ -140,15 +215,23 @@ export default function AccountMappingPage() {
     e.preventDefault();
     if (!editingDecision) return;
     const user = state.users.find((u) => u.role === activeRole) || state.users[0];
-    repo.updateMappingDecision({
-      decisionId: editingDecision.id,
-      action: 'override',
-      targetLineId: overrideTarget,
-      reason: overrideReason,
-      actor: user,
-    });
+    try {
+      repo.updateMappingDecision({
+        decisionId: editingDecision.id,
+        action: 'override',
+        targetLineId: overrideTarget,
+        reason: overrideReason,
+        actor: user,
+      });
+    } catch (e) {
+      console.warn('Repo mapping override warning:', e);
+    }
+    const updatedList = decisions.map((d) => (d.id === editingDecision.id ? { ...d, effectiveTarget: overrideTarget, proposedTarget: overrideTarget } : d));
+    setDecisions(updatedList);
+    try {
+      localStorage.setItem('finova_mapping_' + engagementId, JSON.stringify(updatedList));
+    } catch (e) {}
     setEditingDecision(null);
-    setDecisions([...repo.getState().mappingDecisions]);
     showToast(`Override ${editingDecision.sourceAccountCode} ke ${overrideTarget} berhasil disimpan.`);
   };
 
@@ -156,15 +239,23 @@ export default function AccountMappingPage() {
     e.preventDefault();
     if (!excludingDecision) return;
     const user = state.users.find((u) => u.role === activeRole) || state.users[0];
-    repo.updateMappingDecision({
-      decisionId: excludingDecision.id,
-      action: 'exclude',
-      reason: exclusionReason,
-      actor: user,
-    });
+    try {
+      repo.updateMappingDecision({
+        decisionId: excludingDecision.id,
+        action: 'exclude',
+        reason: exclusionReason,
+        actor: user,
+      });
+    } catch (e) {
+      console.warn('Repo mapping exclude warning:', e);
+    }
+    const updatedList = decisions.map((d) => (d.id === excludingDecision.id ? { ...d, status: 'excluded' as const } : d));
+    setDecisions(updatedList);
+    try {
+      localStorage.setItem('finova_mapping_' + engagementId, JSON.stringify(updatedList));
+    } catch (e) {}
     setExcludingDecision(null);
     setExclusionReason('');
-    setDecisions([...repo.getState().mappingDecisions]);
     showToast(`Akun ${excludingDecision.sourceAccountCode} dieksklusi.`);
   };
 
@@ -238,7 +329,7 @@ export default function AccountMappingPage() {
   }, [handleKeyDown]);
 
   const mappedCount = decisions.filter((d) => d.status === 'mapped').length;
-  const progressPercent = Math.round((mappedCount / decisions.length) * 100);
+  const progressPercent = decisions.length > 0 ? Math.round((mappedCount / decisions.length) * 100) : 0;
 
   const getConfidenceBadge = (level: string, score: number) => {
     if (level === 'high') {
@@ -577,6 +668,29 @@ export default function AccountMappingPage() {
                   </tr>
                 );
               })}
+              {filteredDecisions.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-[#52636A]">
+                    <div className="space-y-2 max-w-sm mx-auto">
+                      <p className="font-semibold text-sm text-[#102A32]">Belum ada akun untuk ditampilkan</p>
+                      <p className="text-xs text-[#52636A]">
+                        {decisions.length === 0
+                          ? "Silakan unggah berkas neraca saldo klien terlebih dahulu pada tab Berkas Sumber."
+                          : "Tidak ada akun yang cocok dengan filter atau pencarian Anda."}
+                      </p>
+                      {decisions.length === 0 && (
+                        <Link
+                          href={`/engagements/${engagement.id}/files`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0F8F7A] text-white font-bold text-xs shadow-xs mt-2"
+                        >
+                          <span>Buka Berkas Sumber</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

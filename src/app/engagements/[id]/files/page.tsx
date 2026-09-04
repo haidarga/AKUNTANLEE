@@ -149,6 +149,7 @@ export default function FilesPage() {
         const credit = parseNum(r[creditCol]);
         const balance = balanceCol !== codeCol && balanceCol !== nameCol && r[balanceCol] !== undefined ? parseNum(r[balanceCol]) : (debit - credit);
 
+        const fileVerId = `FV-00${fileVersions.length + 1}`;
         extractedAccounts.push({
           id: `ACC-UP-${extractedAccounts.length + 1}`,
           datasetVersionId: newDsvId,
@@ -160,6 +161,14 @@ export default function FilesPage() {
           closingBalanceIdr: balance,
           periodEnd: '2026-12-31',
           currency: 'IDR',
+          sourceLocator: {
+            fileVersionId: fileVerId,
+            fileName: file.name,
+            checksumSha256: sha256,
+            sheetName: firstSheetName,
+            rowNumber: i + 1,
+            cellRange: `A${i + 1}:F${i + 1}`,
+          },
         });
       }
 
@@ -266,6 +275,7 @@ export default function FilesPage() {
 
           try {
             localStorage.setItem('finova_accounts_' + engagement.id, JSON.stringify(extractedAccounts));
+            localStorage.setItem('finova_mapping_' + engagement.id, JSON.stringify(autoDecisions));
             localStorage.setItem('finova_wp_' + engagement.id, JSON.stringify(customWpCalc));
             localStorage.setItem('finova_files_' + engagement.id, JSON.stringify([newFv, ...fileVersions]));
           } catch (storageErr) {
