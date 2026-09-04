@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { repo } from '@/lib/db/repo-v4';
 import { extractFinancialInputs } from '@/lib/advisory/custom-engagement';
 import { calculateWorkpaperVersion } from '@/lib/workpaper/engine';
+import { chatWithAuditCopilot } from '@/lib/ai/client';
 
 describe('custom engagement data isolation', () => {
   it('does not bind the Mandiri workspace to the SRI demo client', () => {
@@ -65,5 +66,17 @@ describe('custom engagement data isolation', () => {
       expect(line.varianceAmountIdr).toBeUndefined();
       expect(line.variancePercent).toBeUndefined();
     }
+  });
+
+  it('keeps copilot answers inside the active engagement context', async () => {
+    const result = await chatWithAuditCopilot(
+      [{ role: 'user', content: 'Gimana hasil review perikatan ini?' }],
+      'PT Cakrawala Konsultan Indonesia; total aset Rp1.805.000.000; laba bersih Rp210.000.000.',
+    );
+
+    expect(result.reply).toContain('PT Cakrawala Konsultan Indonesia');
+    expect(result.reply).toContain('Rp1.805.000.000');
+    expect(result.reply).not.toContain('Nusantara Sukses Makmur');
+    expect(result.reply).not.toContain('34,55 Miliar');
   });
 });
