@@ -199,8 +199,8 @@ export function EngagementHeader({
 
   const [selectedCycle, setSelectedCycle] = useState<'Tahunan' | 'Semester 1' | 'Triwulan 4' | 'Bulanan'>('Tahunan');
   const [abVariant, setAbVariant] = useState<'variant_b_advisory' | 'variant_a_compliance' | 'variant_master'>('variant_master');
-  const [userName, setUserName] = useState<string>('Haidar, CPA, CA');
-  const [showPersonaBanner, setShowPersonaBanner] = useState<boolean>(true);
+  const [userName, setUserName] = useState<string>('Partner Aktif');
+  const [showPersonaBanner] = useState<boolean>(false);
 
   useEffect(() => {
     // Read active variant from localStorage / cookie
@@ -213,6 +213,12 @@ export function EngagementHeader({
     if (storedName) {
       setUserName(decodeURIComponent(storedName));
     }
+
+    try {
+      const storedFirm = localStorage.getItem('finova_firm_profile');
+      const firm = storedFirm ? JSON.parse(storedFirm) : null;
+      if (firm?.managingPartnerName) setUserName(firm.managingPartnerName);
+    } catch {}
   }, []);
 
   const switchVariant = (newVariant: 'variant_b_advisory' | 'variant_a_compliance') => {
@@ -221,14 +227,8 @@ export function EngagementHeader({
     document.cookie = `finova_ab_variant=${newVariant}; path=/; max-age=604800`;
 
     if (newVariant === 'variant_b_advisory') {
-      const rinaName = 'Ibu Rina Asmara, Ak.';
-      setUserName(rinaName);
-      localStorage.setItem('finova_user_name', rinaName);
       router.push(`/engagements/${engagementId}/advisory`);
     } else {
-      const bundaName = 'Bunda';
-      setUserName(bundaName);
-      localStorage.setItem('finova_user_name', bundaName);
       router.push(`/engagements/${engagementId}/tax`);
     }
   };
