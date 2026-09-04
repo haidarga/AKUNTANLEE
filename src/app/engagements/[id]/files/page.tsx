@@ -357,7 +357,7 @@ export default function FilesPage() {
         rowCount={
           extractedCount !== null
             ? extractedCount
-            : (fileVersions.length > 0 ? (engagement.id === "ENG-2026-01" ? 22 : 16) : undefined)
+            : (fileVersions.length > 0 ? (engagement.id === "ENG-2026-01" ? 22 : undefined) : undefined)
         }
       />
 

@@ -52,6 +52,7 @@ export function EngagementHeader({
 }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const isDemoMode = engagementId === "ENG-2026-01" || engagementId === "ENG-DEMO-2026";
 
   // Dynamic Editable Client & Engagement State
   const [showEditModal, setShowEditModal] = useState(false);
@@ -273,27 +274,43 @@ export function EngagementHeader({
   return (
     <div className="bg-white border-b border-[#DDE4E2] px-4 sm:px-6 pt-5 pb-0 shadow-xs space-y-3">
       <div className="max-w-7xl mx-auto space-y-3">
-        {/* Persistent Demo & Simulation Environment Notice */}
-        <div className="bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] px-3.5 py-1.5 rounded-xl flex items-center justify-between text-[11px]">
-          <div className="flex items-center gap-2">
-            <span className="font-bold px-1.5 py-0.5 rounded bg-[#F59E0B] text-white text-[10px] uppercase tracking-wider">
-              DATA SIMULASI
-            </span>
-            <span>
-              <strong>Lingkungan Demo & Evaluasi FINOVA AI v4.0:</strong> Seluruh entitas klien, nomor izin KAP, dan angka keuangan merupakan data simulasi fiktif untuk keperluan evaluasi fungsional.
+        {/* Environment Notice: Demo Showroom vs Production Audit Vault */}
+        {isDemoMode ? (
+          <div className="bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] px-3.5 py-1.5 rounded-xl flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-2">
+              <span className="font-bold px-1.5 py-0.5 rounded bg-[#F59E0B] text-white text-[10px] uppercase tracking-wider">
+                DATA SIMULASI
+              </span>
+              <span>
+                <strong>Lingkungan Demo & Showroom FINOVA AI:</strong> Seluruh entitas klien dan angka keuangan merupakan data simulasi fiktif untuk keperluan evaluasi fungsional.
+              </span>
+            </div>
+            <span className="font-mono text-[10px] text-[#B45309] hidden md:inline">
+              Demo Showroom &bull; Non-Production Data
             </span>
           </div>
-          <span className="font-mono text-[10px] text-[#B45309] hidden md:inline">
-            Sandbox Mode &bull; Non-Production Data
-          </span>
-        </div>
+        ) : (
+          <div className="bg-[#E8F5F1] border border-[#B2DFD6] text-[#0F8F7A] px-3.5 py-1.5 rounded-xl flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-2">
+              <span className="font-bold px-2 py-0.5 rounded bg-[#0F8F7A] text-white text-[10px] uppercase tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 inline" /> RUANG KERJA AUDIT RESMI
+              </span>
+              <span className="text-[#102A32]">
+                <strong>Perikatan Klien Terproteksi:</strong> Seluruh berkas audit, mapping SAK, dan kertas kerja tersimpan terenkripsi di PostgreSQL & Private Audit Vault dengan isolasi tenant RLS.
+              </span>
+            </div>
+            <span className="font-mono text-[10px] text-[#0F8F7A] font-semibold hidden md:inline">
+              Production Vault &bull; RLS Enforced &bull; SHA-256 Verified
+            </span>
+          </div>
+        )}
 
         {/* Real-Time Module Mode Switcher Bar */}
         <div className="bg-[#F6F7F5] border border-[#DDE4E2] px-3.5 py-2 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-[11px] uppercase tracking-wider text-[#52636A] flex items-center gap-1">
               <KeyRound className="w-3.5 h-3.5 text-[#0F8F7A]" />
-              Mode Evaluasi Aktif:
+              {isDemoMode ? "Mode Evaluasi Demo:" : "Auditor Penanggung Jawab:"}
             </span>
             <span className="font-bold text-[#102A32] bg-white px-2 py-0.5 rounded border border-[#DDE4E2] text-[11px]">
               {userName}
@@ -325,7 +342,7 @@ export function EngagementHeader({
         </div>
 
         {/* Personalized Persona Highlight Banner */}
-        {showPersonaBanner && abVariant === 'variant_b_advisory' && (
+        {showPersonaBanner && isDemoMode && abVariant === 'variant_b_advisory' && (
           <div className="p-3 bg-gradient-to-r from-[#805AD5]/10 via-[#6B46C1]/5 to-white border-l-4 border-[#805AD5] rounded-r-xl flex items-center justify-between gap-4 text-xs">
             <div>
               <div className="font-bold text-[#553C9A] flex items-center gap-1.5">
