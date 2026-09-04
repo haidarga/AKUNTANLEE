@@ -26,6 +26,7 @@ export default function EngagementsListPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [allEngagements, setAllEngagements] = useState<any[]>(state.engagements);
   const [allClients, setAllClients] = useState<any[]>(state.clients);
+  const [firmName, setFirmName] = useState<string>(state.firmProfile?.name || "KAP Haidar & Rekan");
 
   useEffect(() => {
     const storedEngs = getStoredCustomEngagements();
@@ -36,6 +37,14 @@ export default function EngagementsListPage() {
     for (const c of storedClients) clientMap.set(c.id, { ...clientMap.get(c.id), ...c });
 
     const mergedMap = new Map<string, any>();
+    try {
+      const savedFirm = localStorage.getItem('finova_firm_profile');
+      if (savedFirm) {
+        const parsed = JSON.parse(savedFirm);
+        if (parsed?.name) setFirmName(parsed.name);
+      }
+    } catch (e) {}
+
     // Prioritize storedEngs at top
     for (const e of storedEngs) mergedMap.set(e.id, e);
     for (const e of state.engagements) {
@@ -97,7 +106,7 @@ export default function EngagementsListPage() {
             <div className="space-y-2 max-w-2xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F5F1] text-[#0F8F7A] text-xs font-semibold border border-[#B2DFD6]">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>{state.firmProfile?.name || "KAP Haidar & Rekan"} &bull; Sistem Kertas Kerja v4.0</span>
+                <span>{firmName} &bull; Sistem Kertas Kerja v4.0</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#102A32]">
                 Daftar Perikatan Audit & Atestasi Aktif

@@ -278,6 +278,18 @@ export default function FilesPage() {
             localStorage.setItem('finova_mapping_' + engagement.id, JSON.stringify(autoDecisions));
             localStorage.setItem('finova_wp_' + engagement.id, JSON.stringify(customWpCalc));
             localStorage.setItem('finova_files_' + engagement.id, JSON.stringify([newFv, ...fileVersions]));
+            localStorage.setItem('finova_import_job_' + engagement.id, JSON.stringify({
+              id: 'IMP-' + engagement.id,
+              tenantId: engagement.tenantId || 'TENANT-001',
+              engagementId: engagement.id,
+              fileVersionId: newFv.id,
+              fileName: file.name,
+              fileHash: newFv.checksumSha256,
+              datasetType: 'trial_balance',
+              sheetNames: sheetNames,
+              rowCount: extractedAccounts.length,
+              createdAt: new Date().toISOString(),
+            }));
           } catch (storageErr) {
             console.warn('LocalStorage save warning:', storageErr);
           }
@@ -308,7 +320,15 @@ export default function FilesPage() {
   return (
     <div className="space-y-6 text-[#102A32] animate-finova-in">
       {/* Visual Ingestion Scanner Illustration */}
-      <FileScannerIllustration fileName={fileVersions.length > 0 ? fileVersions[0].originalName : null} fileHash={fileVersions.length > 0 ? fileVersions[0].checksumSha256 : null} rowCount={fileVersions.length > 0 ? 22 : undefined} />
+      <FileScannerIllustration
+        fileName={fileVersions.length > 0 ? fileVersions[0].originalName : null}
+        fileHash={fileVersions.length > 0 ? fileVersions[0].checksumSha256 : null}
+        rowCount={
+          extractedCount !== null
+            ? extractedCount
+            : (fileVersions.length > 0 ? (engagement.id === "ENG-2026-01" ? 22 : 16) : undefined)
+        }
+      />
 
       {/* Hidden native input */}
       <input
@@ -474,7 +494,7 @@ export default function FilesPage() {
 
               <div className="shrink-0 flex items-center gap-2">
                 <Link
-                  href={`/engagements/${engagement.id}/imports/IMP-001`}
+                  href={`/engagements/${engagement.id}/imports/IMP-${engagement.id}`}
                   className="finova-pill-cta bg-[#102A32] hover:bg-[#0F8F7A] text-white text-xs shadow-xs"
                 >
                   <span>Konfigurasi Import</span>

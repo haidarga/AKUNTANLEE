@@ -28,6 +28,18 @@ interface ShellProps {
 export function V4Shell({ children }: ShellProps) {
   const pathname = usePathname();
   const [role, setRole] = useState<UserRoleV4>('partner');
+  const [firmName, setFirmName] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('finova_firm_profile');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.name) return parsed.name;
+        }
+      } catch (e) {}
+    }
+    return repo.getFirmProfile()?.name || "KAP Haidar & Rekan";
+  });
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
 
@@ -52,10 +64,30 @@ export function V4Shell({ children }: ShellProps) {
     };
     checkAuth();
 
+    const syncFirm = () => {
+      try {
+        const savedFirm = localStorage.getItem('finova_firm_profile');
+        if (savedFirm) {
+          const parsed = JSON.parse(savedFirm);
+          if (parsed?.name) {
+            setFirmName(parsed.name);
+            repo.updateFirmProfile(parsed);
+          }
+        }
+      } catch (e) {}
+    };
+    syncFirm();
+    window.addEventListener('finova_firm_updated', syncFirm);
+    window.addEventListener('storage', syncFirm);
+
     const saved = localStorage.getItem('finova_v4_role');
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setRole(saved as UserRoleV4);
     }
+    return () => {
+      window.removeEventListener('finova_firm_updated', syncFirm);
+      window.removeEventListener('storage', syncFirm);
+    };
   }, [pathname, isPublicRoute]);
 
   if (isPublicRoute) {
@@ -112,7 +144,7 @@ export function V4Shell({ children }: ShellProps) {
             {/* Tenant Identity per PRD Section 41.1 */}
             <div className="hidden md:flex items-center gap-1.5 text-xs text-[#52636A]">
               <Building className="w-3.5 h-3.5 text-[#7A8C93]" />
-              <Link href="/settings" className="font-semibold text-[#102A32] hover:text-[#0F8F7A] transition-colors flex items-center gap-1" title="Klik untuk ubah profil KAP"><span>{repo.getFirmProfile()?.name || "KAP Haidar & Rekan"}</span></Link>
+              <Link href="/settings" className="font-semibold text-[#102A32] hover:text-[#0F8F7A] transition-colors flex items-center gap-1" title="Klik untuk ubah profil KAP"><span>{firmName}</span></Link>
             </div>
           </div>
 

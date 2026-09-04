@@ -73,6 +73,25 @@ export default function OnboardingPage() {
 
   // Load existing profile if available
   useEffect(() => {
+    try {
+      const cached = localStorage.getItem('finova_firm_profile');
+      if (cached) {
+        const f: FirmProfile = JSON.parse(cached);
+        if (f.name) setName(f.name);
+        if (f.shortName) setShortName(f.shortName);
+        if (f.licenseNumber) setLicenseNumber(f.licenseNumber);
+        if (f.managingPartnerName) setManagingPartnerName(f.managingPartnerName);
+        if (f.managingPartnerApNumber) setManagingPartnerApNumber(f.managingPartnerApNumber);
+        if (f.address) setAddress(f.address);
+        if (f.city) setCity(f.city);
+        if (f.email) setEmail(f.email);
+        if (f.phone) setPhone(f.phone);
+        if (f.defaultAccountingStandard) setDefaultAccountingStandard(f.defaultAccountingStandard);
+        if (f.defaultMaterialityIdr) setDefaultMaterialityIdr(f.defaultMaterialityIdr);
+        if (f.teamMembers && f.teamMembers.length > 0) setTeamMembers(f.teamMembers);
+      }
+    } catch (e) {}
+
     fetch('/api/v1/firm')
       .then((res) => res.json())
       .then((data) => {
@@ -143,6 +162,13 @@ export default function OnboardingPage() {
 
       const data = await res.json();
       if (data.success) {
+        const savedProfile = data.data || payload;
+        try {
+          localStorage.setItem('finova_firm_profile', JSON.stringify(savedProfile));
+          document.cookie = "finova_firm_profile=" + encodeURIComponent(JSON.stringify(savedProfile)) + "; path=/; max-age=31536000; SameSite=Lax";
+          window.dispatchEvent(new CustomEvent('finova_firm_updated', { detail: savedProfile }));
+          // repo updated via api
+        } catch (e) {}
         setTimeout(() => {
           router.push('/engagements');
         }, 400);

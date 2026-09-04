@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
@@ -62,6 +62,28 @@ export default function EngagementOverviewPage() {
   const needsReviewDecisions = decisions.filter((d) => d.status === 'needs_review');
   const isAllMapped = decisions.length > 0 && needsReviewDecisions.length === 0;
   const hasFiles = files.length > 0;
+  const [customFiles, setCustomFiles] = useState<any[]>(files);
+  const [customAccounts, setCustomAccounts] = useState<any[]>([]);
+  const [customDecisions, setCustomDecisions] = useState<any[]>(decisions);
+
+  useEffect(() => {
+    try {
+      const savedFiles = localStorage.getItem('finova_files_' + engagementId);
+      if (savedFiles) setCustomFiles(JSON.parse(savedFiles));
+
+      const savedAcc = localStorage.getItem('finova_accounts_' + engagementId);
+      if (savedAcc) setCustomAccounts(JSON.parse(savedAcc));
+
+      const savedMap = localStorage.getItem('finova_mapping_' + engagementId);
+      if (savedMap) setCustomDecisions(JSON.parse(savedMap));
+    } catch (e) {}
+  }, [engagementId]);
+
+  const activeFiles = customFiles.length > 0 ? customFiles : files;
+  const activeDecisions = customDecisions.length > 0 ? customDecisions : (engagement.id === "ENG-2026-01" ? decisions : []);
+  const activeNeedsReview = activeDecisions.filter((d: any) => d.status === "needs_review");
+  const isCustomAllMapped = activeDecisions.length > 0 && activeNeedsReview.length === 0;
+
   const checks = state.validationChecks;
   const auditEvents = state.auditEvents.slice(0, 4);
 
@@ -182,19 +204,25 @@ export default function EngagementOverviewPage() {
               <CheckCircle2 className="w-4 h-4 text-[#0F8F7A]" />
               1. Berkas Sumber
             </div>
-            <div className="text-[11px] text-[#52636A] mt-1 font-medium">1 File XLSX Bersih</div>
+            <div className="text-[11px] text-[#52636A] mt-1 font-medium">{activeFiles.length > 0 ? (activeFiles.length + " Berkas " + (activeFiles[0].originalName?.endsWith(".csv") ? "CSV" : "XLSX") + " Bersih") : "Belum Ada Berkas"}</div>
           </Link>
 
           {/* Step 2 */}
           <Link
-            href={`/engagements/${engagement.id}/imports/IMP-001`}
+            href={`/engagements/${engagement.id}/imports/IMP-${engagement.id}`}
             className="p-3 rounded-xl bg-[#E8F5F1] border border-[#B2DFD6] hover:bg-[#D3EEE7] transition-all"
           >
             <div className="font-bold flex items-center gap-1.5 text-[#0F8F7A]">
               <CheckCircle2 className="w-4 h-4 text-[#0F8F7A]" />
               2. Normalisasi
             </div>
-            <div className="text-[11px] text-[#52636A] mt-1 font-medium">22 Akun Tervalidasi</div>
+            <div className="text-[11px] text-[#52636A] mt-1 font-medium">
+              {customAccounts.length > 0
+                ? customAccounts.length + " Akun Tervalidasi"
+                : engagement.id === "ENG-2026-01"
+                ? "22 Akun Tervalidasi"
+                : "Menunggu Normalisasi"}
+            </div>
           </Link>
 
           {/* Step 3 */}
@@ -211,7 +239,7 @@ export default function EngagementOverviewPage() {
               3. Pemetaan Akun
             </div>
             <div className="text-[11px] text-[#52636A] mt-1 font-medium">
-              {isAllMapped ? `${decisions.length} Akun Terpetakan (100%)` : `${needsReviewDecisions.length} Perlu Konfirmasi`}
+              {isCustomAllMapped ? `${activeDecisions.length} Akun Terpetakan (100%)` : activeDecisions.length > 0 ? `${activeNeedsReview.length} Perlu Konfirmasi` : "Belum Dimulai"}
             </div>
           </Link>
 
