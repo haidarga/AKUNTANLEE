@@ -194,6 +194,24 @@ function createInitialState(): FinovaV4State {
     createdAt: '2024-06-01T00:00:00Z',
   };
 
+  const engagementEmpty: EngagementV4 = {
+    id: 'ENG-MANDIRI-2026',
+    tenantId: 'TENANT-001',
+    clientId: 'CLI-002',
+    name: 'Kertas Kerja Audit Mandiri FY 2026 (Unggah Berkas Klien Sendiri)',
+    periodStart: '2026-01-01',
+    periodEnd: '2026-12-31',
+    currency: 'IDR',
+    materialityIdr: 250_000_000,
+    status: 'preparing',
+    leadPartnerId: 'USR-PARTNER-01',
+    managerId: 'USR-MANAGER-01',
+    seniorId: 'USR-SENIOR-01',
+    preparerId: 'USR-PREPARER-01',
+    createdAt: '2026-01-20T08:00:00Z',
+    updatedAt: '2026-01-20T08:00:00Z',
+  };
+
   const engagement1: EngagementV4 = {
     id: 'ENG-2026-01',
     tenantId: 'TENANT-001',
@@ -495,7 +513,7 @@ function createInitialState(): FinovaV4State {
         createdAt: '2026-01-16T09:00:00Z',
       },
     ],
-    engagements: [engagement1],
+    engagements: [engagement1, engagementEmpty],
     fileVersions: [file1],
     importJobs: [],
     datasetVersions: [dsv1],
