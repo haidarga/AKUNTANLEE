@@ -184,7 +184,7 @@ export default function FilesPage() {
         });
       }
 
-      setTimeout(() => {
+      setTimeout(async () => {
         const user = state.users.find((u) => u.role === 'senior') || state.users[0];
         const newFv: FileVersion = {
           id: `FV-00${fileVersions.length + 1}`,
@@ -285,18 +285,24 @@ export default function FilesPage() {
             mappingDecisions: autoDecisions,
           });
 
-          fetch('/api/v1/engagements/' + engagement.id + '/files', {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('sha256Checksum', sha256);
+
+          const serverRes = await fetch('/api/v1/engagements/' + engagement.id + '/files', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              fileName: file.name,
-              fileSize: file.size,
-              sha256Checksum: sha256,
-              sheetNames: sheetNames,
-              accounts: extractedAccounts,
-              storageBucket: 'audit-vault',
-            }),
-          }).catch((err) => console.warn('Supabase file save error:', err));
+            body: formData,
+          });
+
+          if (!serverRes.ok) {
+            const errData = await serverRes.json();
+            throw new Error(errData.message || 'Gagal menyimpan dan memverifikasi berkas di server.');
+          }
+
+          const serverData = await serverRes.json();
+          if (serverData.signedDownloadUrl) {
+            newFv.downloadUrl = serverData.signedDownloadUrl;
+          }
 
           try {
             localStorage.setItem('finova_accounts_' + engagement.id, JSON.stringify(extractedAccounts));

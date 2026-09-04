@@ -111,6 +111,7 @@ export interface FileVersion {
   scanNotes?: string;
   sheetCount: number;
   sheetNames: string[];
+  downloadUrl?: string;
   createdAt: string;
 }
 

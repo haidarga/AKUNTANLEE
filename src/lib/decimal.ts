@@ -5,7 +5,11 @@ export class DecimalMoney {
   // Stored as integer Rupiah (or integer units)
   private readonly value: bigint;
 
-  constructor(val: number | string | bigint) {
+  constructor(val?: number | string | bigint | null) {
+    if (val === undefined || val === null) {
+      this.value = 0n;
+      return;
+    }
     if (typeof val === 'bigint') {
       this.value = val;
     } else if (typeof val === 'number') {
@@ -27,7 +31,7 @@ export class DecimalMoney {
     }
   }
 
-  static from(val: number | string | bigint): DecimalMoney {
+  static from(val?: number | string | bigint | null): DecimalMoney {
     return new DecimalMoney(val);
   }
 

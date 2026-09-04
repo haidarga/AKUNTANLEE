@@ -6,6 +6,7 @@ import {
   fetchEngagementByIdFromSupabase,
   updateEngagementInSupabase,
 } from '@/lib/supabase/service';
+import { getServerSession } from '@/lib/auth/session';
 
 function parseCustomEngagementsCookie(request: Request) {
   try {
@@ -26,6 +27,8 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
+  const session = await getServerSession(request);
+  const firmId = session?.firmId || 'FIRM-001';
   const state = repo.getState();
 
   // 1. Check in-memory state
@@ -52,7 +55,7 @@ export async function GET(
     if (found) {
       engagement = {
         id: found.id,
-        tenantId: 'TENANT-001',
+        tenantId: found.tenantId || firmId,
         clientId: found.clientId,
         name: found.name,
         periodStart: found.periodStart,
@@ -65,61 +68,69 @@ export async function GET(
         managerId: 'USR-MANAGER-01',
         seniorId: 'USR-SENIOR-01',
         preparerId: 'USR-PREPARER-01',
-        createdAt: found.createdAt,
-        updatedAt: found.updatedAt,
+        createdAt: found.createdAt || new Date().toISOString(),
+        updatedAt: found.updatedAt || new Date().toISOString(),
       };
       client = {
-        id: found.clientId,
-        tenantId: 'TENANT-001',
-        legalName: found.clientName,
-        code: found.clientCode,
+        id: found.clientId || 'CLI-002',
+        tenantId: found.tenantId || firmId,
+        legalName: found.clientName || 'PT Klien Audit',
+        code: found.clientCode || 'KLN',
         industry: found.industry || 'Manufaktur & Fabrikasi',
         taxIdNpwp: found.taxIdNpwp || '01.234.567.8-012.000',
         status: 'active',
-        createdAt: found.createdAt,
+        createdAt: new Date().toISOString(),
       };
     }
   }
 
-  // 4. Fallback synthesis for any valid ENG-* ID so it NEVER 404s
   if (!engagement) {
-    if (id.startsWith('ENG-')) {
-      const isMandiri = id === 'ENG-MANDIRI-2026';
-      engagement = {
-        id,
-        tenantId: 'TENANT-001',
-        clientId: 'CLI-' + id,
-        name: isMandiri ? 'Kertas Kerja Audit Mandiri FY 2026' : `Perikatan Audit (${id})`,
-        periodStart: '2026-01-01',
-        periodEnd: '2026-12-31',
-        currency: 'IDR',
-        materialityIdr: 250000000,
-        status: 'preparing',
-        accountingStandard: 'SAK_INDONESIA',
-        leadPartnerId: 'USR-PARTNER-01',
-        managerId: 'USR-MANAGER-01',
-        seniorId: 'USR-SENIOR-01',
-        preparerId: 'USR-PREPARER-01',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      client = {
-        id: engagement.clientId,
-        tenantId: 'TENANT-001',
-        legalName: isMandiri ? 'PT Klien Mandiri (Klien Anda)' : 'PT Klien Audit Baru',
-        code: isMandiri ? 'MNDR' : 'KLN',
-        industry: 'Manufaktur & Fabrikasi',
-        taxIdNpwp: '01.234.567.8-012.000',
-        status: 'active',
-        createdAt: new Date().toISOString(),
-      };
-    } else {
-      return NextResponse.json({ error: 'Engagement not found' }, { status: 404 });
-    }
+    return NextResponse.json(
+      {
+        code: 'ENGAGEMENT_NOT_FOUND',
+        message: 'Perikatan audit tidak ditemukan.',
+        request_id: 'req-' + Date.now(),
+        retryable: false,
+      },
+      { status: 404 }
+    );
   }
 
-  return NextResponse.json({ data: { engagement, client } });
+  // Strict Tenant Isolation: Firm A cannot access Firm B's engagements
+  if (engagement.tenantId && session && engagement.tenantId !== session.firmId && session.role !== 'admin') {
+    return NextResponse.json(
+      {
+        code: 'FORBIDDEN_TENANT_ACCESS',
+        message: 'Pelanggaran Batas Tenant: Pengguna dari KAP lain dilarang mengakses perikatan ini.',
+        request_id: 'req-' + Date.now(),
+        retryable: false,
+      },
+      { status: 403 }
+    );
+  }
+
+  const finalClient = client || {
+    id: engagement.clientId,
+    tenantId: engagement.tenantId,
+    legalName: "PT Klien Audit",
+    code: "KLN",
+    industry: "Manufaktur & Fabrikasi",
+    taxIdNpwp: "01.234.567.8-012.000",
+    status: "active",
+    createdAt: new Date().toISOString(),
+  };
+
+  return NextResponse.json({
+    data: {
+      engagement,
+      client: finalClient,
+    },
+    engagement,
+    client: finalClient,
+    request_id: "req-" + Date.now(),
+  });
 }
+
 
 export async function PATCH(
   request: Request,
@@ -127,105 +138,97 @@ export async function PATCH(
 ) {
   try {
     const { id } = await context.params;
+    const session = await getServerSession(request);
+    const firmId = session?.firmId || 'FIRM-001';
     const body = await request.json();
-    const {
-      clientName,
-      clientCode,
-      taxIdNpwp,
-      industry,
-      name,
-      materialityIdr,
-      accountingStandard,
-      periodYear,
-      periodStart,
-      periodEnd,
-    } = body;
-
     const state = repo.getState();
+
     let engagement = state.engagements.find((e) => e.id === id);
 
-    if (!engagement) {
-      const clientId = 'CLI-' + Date.now().toString(36).toUpperCase();
-      const newClient = {
-        id: clientId,
-        tenantId: 'TENANT-001',
-        legalName: clientName || 'PT Klien Baru',
-        code: (clientCode || 'KLN').toUpperCase(),
-        industry: industry || 'Manufaktur & Fabrikasi',
-        taxIdNpwp: taxIdNpwp || '01.234.567.8-012.000',
-        status: 'active' as const,
-        createdAt: new Date().toISOString(),
-      };
-      state.clients.push(newClient);
-
-      engagement = {
-        id,
-        tenantId: 'TENANT-001',
-        clientId: newClient.id,
-        name: name || (id === 'ENG-MANDIRI-2026' ? 'Kertas Kerja Audit Mandiri FY 2026' : 'Perikatan Audit Mandiri ' + id),
-        periodStart: periodStart || '2026-01-01',
-        periodEnd: periodEnd || '2026-12-31',
-        currency: 'IDR' as const,
-        materialityIdr: materialityIdr ? Number(materialityIdr) : 250000000,
-        accountingStandard: accountingStandard || 'SAK_INDONESIA',
-        status: 'preparing' as const,
-        leadPartnerId: 'USR-PARTNER-01',
-        managerId: 'USR-MANAGER-01',
-        seniorId: 'USR-SENIOR-01',
-        preparerId: 'USR-PREPARER-01',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      state.engagements.push(engagement);
-    } else {
-      if (name) engagement.name = name;
-      if (materialityIdr !== undefined) engagement.materialityIdr = Number(materialityIdr);
-      if (accountingStandard) engagement.accountingStandard = accountingStandard;
-      if (periodStart) engagement.periodStart = periodStart;
-      if (periodEnd) engagement.periodEnd = periodEnd;
-      engagement.updatedAt = new Date().toISOString();
-
-      let client = state.clients.find((c) => c.id === engagement?.clientId);
-      if (!client) {
-        client = {
-          id: engagement.clientId || 'CLI-' + Date.now().toString(36).toUpperCase(),
-          tenantId: engagement.tenantId,
-          legalName: clientName || 'PT Klien Baru',
-          code: (clientCode || 'KLN').toUpperCase(),
-          industry: industry || 'Manufaktur & Fabrikasi',
-          taxIdNpwp: taxIdNpwp || '01.234.567.8-012.000',
-          status: 'active' as const,
-          createdAt: new Date().toISOString(),
-        };
-        state.clients.push(client);
-        engagement.clientId = client.id;
-      } else {
-        if (clientName) client.legalName = clientName;
-        if (clientCode) client.code = clientCode.toUpperCase();
-        if (industry) client.industry = industry;
-        if (taxIdNpwp) client.taxIdNpwp = taxIdNpwp;
+    if (!engagement && isSupabaseConfigured()) {
+      const sbRecord = await fetchEngagementByIdFromSupabase(id);
+      if (sbRecord) {
+        engagement = sbRecord.engagement;
       }
     }
 
-    const client = state.clients.find((c) => c.id === engagement.clientId);
+    if (!engagement) {
+      return NextResponse.json(
+        {
+          code: 'ENGAGEMENT_NOT_FOUND',
+          message: 'Perikatan audit tidak ditemukan untuk diperbarui.',
+          request_id: 'req-' + Date.now(),
+          retryable: false,
+        },
+        { status: 404 }
+      );
+    }
 
-    // 1. Update in Supabase if configured
+    // Strict Tenant Isolation
+    if (engagement.tenantId && session && engagement.tenantId !== session.firmId && session.role !== 'admin') {
+      return NextResponse.json(
+        {
+          code: 'FORBIDDEN_TENANT_ACCESS',
+          message: 'Pelanggaran Batas Tenant: Anda tidak berhak mengubah perikatan milik KAP lain.',
+          request_id: 'req-' + Date.now(),
+          retryable: false,
+        },
+        { status: 403 }
+      );
+    }
+
+    const {
+      name,
+      materialityIdr,
+      accountingStandard,
+      periodStart,
+      periodEnd,
+      status,
+      clientName,
+      clientCode,
+      industry,
+      taxIdNpwp,
+    } = body;
+
+    if (name !== undefined) engagement.name = name;
+    if (materialityIdr !== undefined) engagement.materialityIdr = Number(materialityIdr);
+    if (accountingStandard !== undefined) engagement.accountingStandard = accountingStandard;
+    if (periodStart !== undefined) engagement.periodStart = periodStart;
+    if (periodEnd !== undefined) engagement.periodEnd = periodEnd;
+    if (status !== undefined) engagement.status = status;
+    engagement.updatedAt = new Date().toISOString();
+
+    let client = state.clients.find((c) => c.id === engagement?.clientId);
+    if (client) {
+      if (clientName !== undefined) client.legalName = clientName;
+      if (clientCode !== undefined) client.code = clientCode;
+      if (industry !== undefined) client.industry = industry;
+      if (taxIdNpwp !== undefined) client.taxIdNpwp = taxIdNpwp;
+    }
+
+    // 1. FAIL-FAST Update in Supabase
     if (isSupabaseConfigured()) {
-      try {
-        await updateEngagementInSupabase(
-          id,
-          engagement,
-          client
-            ? {
-                legalName: client.legalName,
-                code: client.code,
-                industry: client.industry,
-                taxIdNpwp: client.taxIdNpwp,
-              }
-            : undefined
+      const updatedOk = await updateEngagementInSupabase(
+        id,
+        engagement,
+        client
+          ? {
+              legalName: client.legalName,
+              code: client.code,
+              industry: client.industry,
+              taxIdNpwp: client.taxIdNpwp,
+            }
+          : undefined
+      );
+      if (!updatedOk) {
+        return NextResponse.json(
+          {
+            code: 'DATABASE_UPDATE_FAILED',
+            message: 'Gagal memperbarui perikatan di Supabase Postgres produksi.',
+            retryable: false,
+          },
+          { status: 500 }
         );
-      } catch (sbErr) {
-        console.error('Error updating in Supabase:', sbErr);
       }
     }
 
@@ -236,61 +239,27 @@ export async function PATCH(
       console.error('Failed to save state to SQLite:', dbErr);
     }
 
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const storePath = path.join(process.cwd(), 'data', 'finova_store.json');
-      fs.writeFileSync(storePath, JSON.stringify(state, null, 2), 'utf-8');
-    } catch (fsErr) {
-      console.error('Failed to save state to JSON store:', fsErr);
-    }
-
-    // 3. Sync cookie
-    const currentCookieEngs = parseCustomEngagementsCookie(request);
-    const customRecord = {
-      id: engagement.id,
-      clientId: client?.id || engagement.clientId,
-      name: engagement.name,
-      clientName: client?.legalName || clientName || 'PT Klien Baru',
-      clientCode: client?.code || clientCode || 'KLN',
-      taxIdNpwp: client?.taxIdNpwp || taxIdNpwp,
-      industry: client?.industry || industry,
-      periodStart: engagement.periodStart,
-      periodEnd: engagement.periodEnd,
-      periodYear: periodYear || '2026',
-      materialityIdr: engagement.materialityIdr,
-      status: engagement.status,
-      accountingStandard: engagement.accountingStandard || 'SAK_INDONESIA',
-      createdAt: engagement.createdAt,
-      updatedAt: engagement.updatedAt,
-    };
-
-    const updatedCookieList = [
-      customRecord,
-      ...currentCookieEngs.filter((e: any) => e.id !== engagement.id),
-    ].slice(0, 10);
-    const cookieString = encodeURIComponent(JSON.stringify(updatedCookieList));
-
     const response = NextResponse.json({
       success: true,
-      data: { engagement, client },
-      message: 'Data PT & Perikatan berhasil diperbarui.',
-      request_id: 'req-' + Date.now(),
-    });
-
-    response.cookies.set({
-      name: 'finova_custom_engagements',
-      value: cookieString,
-      path: '/',
-      maxAge: 31536000,
-      sameSite: 'lax',
+      data: {
+        engagement,
+        client,
+      },
+      engagement,
+      client,
+      request_id: "req-" + Date.now(),
     });
 
     return response;
-  } catch (err: any) {
-    console.error('Error updating engagement:', err);
+  } catch (error: any) {
+    console.error('Error updating engagement:', error);
     return NextResponse.json(
-      { error: err.message || 'Internal server error' },
+      {
+        code: 'ENGAGEMENT_UPDATE_FAILED',
+        message: error.message || 'Gagal memperbarui perikatan audit.',
+        request_id: 'req-' + Date.now(),
+        retryable: false,
+      },
       { status: 500 }
     );
   }

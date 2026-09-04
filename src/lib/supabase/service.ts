@@ -416,6 +416,65 @@ export async function updateEngagementInSupabase(
 // -----------------------------------------------------------------------------
 // FILE STORAGE & FILE SOURCES
 // -----------------------------------------------------------------------------
+export async function uploadBinaryToSupabaseStorage(
+  buffer: Buffer | Uint8Array,
+  path: string,
+  bucket: 'audit-vault' | 'demo-vault' = 'audit-vault',
+  contentType: string = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+): Promise<{ signedUrl?: string; path: string } | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
+  try {
+    const { data, error } = await supabase.storage.from(bucket).upload(path, buffer, {
+      contentType,
+      upsert: true,
+    });
+
+    if (error || !data) {
+      console.error('uploadBinaryToSupabaseStorage error:', error);
+      return null;
+    }
+
+    let signedUrl: string | undefined;
+    if (bucket === 'audit-vault') {
+      signedUrl = (await createSignedFileUrl(path, bucket, 900)) || undefined;
+    } else {
+      const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
+      signedUrl = urlData?.publicUrl || undefined;
+    }
+
+    return {
+      signedUrl,
+      path: data.path,
+    };
+  } catch (err) {
+    console.error('Error in uploadBinaryToSupabaseStorage:', err);
+    return null;
+  }
+}
+
+export async function createSignedFileUrl(
+  path: string,
+  bucket: string = 'audit-vault',
+  expiresInSeconds: number = 900
+): Promise<string | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
+  try {
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresInSeconds);
+    if (error || !data?.signedUrl) {
+      console.warn('createSignedFileUrl error:', error);
+      return null;
+    }
+    return data.signedUrl;
+  } catch (err) {
+    console.warn('Error in createSignedFileUrl:', err);
+    return null;
+  }
+}
+
 export async function uploadFileToSupabaseStorage(
   file: File | Blob,
   path: string,

@@ -8,6 +8,7 @@ import {
 } from '@/lib/supabase/service';
 import { ClientV4, EngagementV4, UserRoleV4 } from '@/types/domain-v4';
 import { DEMO_CLIENT, DEMO_ENGAGEMENT } from '@/lib/demo/fixtures';
+import { getServerSession } from '@/lib/auth/session';
 
 function parseCustomEngagementsCookie(request: Request) {
   try {
@@ -25,7 +26,8 @@ function parseCustomEngagementsCookie(request: Request) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const tenantId = searchParams.get('tenantId') || 'TENANT-001';
+  const session = await getServerSession(request);
+  const firmId = session?.firmId || searchParams.get('tenantId') || 'FIRM-001';
   const isDemo = searchParams.get('demo') === '1';
 
   const mergedMap = new Map<string, any>();
@@ -39,10 +41,10 @@ export async function GET(request: Request) {
     });
   }
 
-  // 2. Query from Supabase if configured (Source of Truth)
+  // 2. Query from Supabase if configured (Strictly filtered by firm_id)
   if (isSupabaseConfigured()) {
     try {
-      const sbResult = await fetchEngagementsFromSupabase(tenantId);
+      const sbResult = await fetchEngagementsFromSupabase(firmId);
       if (sbResult && sbResult.engagements.length > 0) {
         for (const sbEng of sbResult.engagements) {
           mergedMap.set(sbEng.id, sbEng);
@@ -56,10 +58,11 @@ export async function GET(request: Request) {
   // 3. Custom engagements from cookie (cross-lambda serverless persistence)
   const cookieEngs = parseCustomEngagementsCookie(request);
   for (const eng of cookieEngs) {
-    // Never leak demo id into custom list
     if (eng.id !== 'ENG-2026-01' && eng.id !== 'ENG-DEMO-2026') {
-      const existing = mergedMap.get(eng.id) || {};
-      mergedMap.set(eng.id, { ...existing, ...eng });
+      if (!eng.tenantId || eng.tenantId === firmId) {
+        const existing = mergedMap.get(eng.id) || {};
+        mergedMap.set(eng.id, { ...existing, ...eng });
+      }
     }
   }
 
@@ -67,7 +70,7 @@ export async function GET(request: Request) {
   const state = repo.getState();
   for (const eng of state.engagements) {
     if (eng.id !== 'ENG-2026-01' && eng.id !== 'ENG-DEMO-2026') {
-      if (!mergedMap.has(eng.id)) {
+      if (eng.tenantId === firmId && !mergedMap.has(eng.id)) {
         mergedMap.set(eng.id, eng);
       }
     }
@@ -83,6 +86,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(request);
+    const firmId = session?.firmId || 'FIRM-001';
+
     const body = await request.json();
     const {
       name,
@@ -97,24 +103,10 @@ export async function POST(request: Request) {
       materialityIdr,
       accountingStandard,
       userRole,
-      tenantId,
     } = body;
 
     const state = repo.getState();
     const user = state.users.find((u) => u.role === (userRole as UserRoleV4)) || state.users[0];
-
-    // Tenant check
-    if (tenantId && tenantId !== user.tenantId) {
-      return NextResponse.json(
-        {
-          code: 'FORBIDDEN_TENANT_ACCESS',
-          message: 'Pelanggaran Batas Tenant: Pengguna dilarang mengakses tenant lain.',
-          request_id: 'req-' + Date.now(),
-          retryable: false,
-        },
-        { status: 403 }
-      );
-    }
 
     let finalClientId = incomingClientId;
     let createdClient: ClientV4 | any = null;
@@ -134,7 +126,7 @@ export async function POST(request: Request) {
         legalName: effectiveClientName,
         code: effectiveClientCode || 'KLN',
         industry: industry || 'Manufaktur & Fabrikasi',
-        tenantId: user.tenantId,
+        tenantId: firmId,
       });
       if (taxIdNpwp) {
         createdClient.taxIdNpwp = taxIdNpwp;
@@ -145,7 +137,7 @@ export async function POST(request: Request) {
         legalName: effectiveClientName,
         code: effectiveClientCode || 'KLN',
         industry: industry || 'Manufaktur & Fabrikasi',
-        tenantId: user.tenantId,
+        tenantId: firmId,
       });
       finalClientId = createdClient.id;
     } else {
@@ -157,15 +149,15 @@ export async function POST(request: Request) {
 
     const eng = repo.createEngagement(
       {
-        tenantId: user.tenantId,
+        tenantId: firmId,
         clientId: finalClientId,
         name: name || ('Audit Laporan Keuangan FY ' + (periodYear || '2026')),
         periodStart: periodStart || '2026-01-01',
         periodEnd: periodEnd || '2026-12-31',
         currency: 'IDR',
-        materialityIdr: materialityIdr ? Number(materialityIdr) : 250_000_000,
+        materialityIdr: materialityIdr ? Number(materialityIdr) : 150_000_000,
         status: 'preparing',
-        leadPartnerId: 'USR-PARTNER-01',
+        leadPartnerId: session?.userId || 'USR-PARTNER-01',
         managerId: 'USR-MANAGER-01',
         seniorId: 'USR-SENIOR-01',
         preparerId: 'USR-PREPARER-01',
@@ -181,37 +173,9 @@ export async function POST(request: Request) {
       eng.accountingStandard = accountingStandard;
     }
 
-    // Ensure empty initial workpaper exists for this new engagement
-    const wpExists = state.workpaperVersions.some((w) => w.engagementId === eng.id);
-    if (!wpExists) {
-      const emptyWp: any = {
-        id: 'WPV-' + Date.now().toString(36).toUpperCase(),
-        engagementId: eng.id,
-        datasetVersionId: 'DSV-' + eng.id,
-        mappingSetId: 'MAPSET-' + eng.id,
-        versionNumber: 1,
-        status: 'draft',
-        isStale: false,
-        unmappedCount: 0,
-        checksum: 'sha256:0000000000000000000000000000000000000000000000000000000000000000',
-        generatedAt: new Date().toISOString(),
-        generatedBy: user.id,
-        summary: {
-          totalAssets: 0,
-          totalLiabilities: 0,
-          totalEquity: 0,
-          totalRevenue: 0,
-          totalExpenses: 0,
-          netIncome: 0,
-          isBalanced: true,
-        },
-      };
-      state.workpaperVersions.unshift(emptyWp);
-    }
-
     const clientObj = createdClient || {
       id: eng.clientId,
-      tenantId: eng.tenantId,
+      tenantId: firmId,
       legalName: effectiveClientName,
       code: effectiveClientCode,
       industry: industry || 'Manufaktur & Fabrikasi',
@@ -220,12 +184,18 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    // 1. Persist to Supabase if configured
+    // 1. FAIL-FAST: Persist to Supabase if configured
     if (isSupabaseConfigured()) {
-      try {
-        await saveEngagementToSupabase(eng, clientObj);
-      } catch (sbErr) {
-        console.error('Error persisting to Supabase:', sbErr);
+      const savedSuccess = await saveEngagementToSupabase(eng, clientObj, firmId);
+      if (!savedSuccess) {
+        return NextResponse.json(
+          {
+            code: 'DATABASE_PERSISTENCE_FAILED',
+            message: 'Gagal menyimpan perikatan ke Supabase Postgres produksi. Operasi dibatalkan.',
+            retryable: false,
+          },
+          { status: 500 }
+        );
       }
     }
 
@@ -241,14 +211,13 @@ export async function POST(request: Request) {
       const path = require('path');
       const storePath = path.join(process.cwd(), 'data', 'finova_store.json');
       fs.writeFileSync(storePath, JSON.stringify(state, null, 2), 'utf-8');
-    } catch (e) {
-      console.error('Failed saving to JSON store:', e);
-    }
+    } catch (e) {}
 
     // 3. Prepare cross-lambda persistent cookie
     const currentCookieEngs = parseCustomEngagementsCookie(request);
     const customRecord = {
       id: eng.id,
+      tenantId: firmId,
       clientId: clientObj.id,
       name: eng.name,
       clientName: clientObj.legalName,
@@ -273,6 +242,7 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json(
       {
+        success: true,
         data: eng,
         client: clientObj,
         request_id: 'req-' + Date.now(),
@@ -280,18 +250,9 @@ export async function POST(request: Request) {
       { status: 201 }
     );
 
-    // Set cookie on response so browser and API clients keep state
     response.cookies.set({
       name: 'finova_custom_engagements',
       value: cookieString,
-      path: '/',
-      maxAge: 31536000,
-      sameSite: 'lax',
-    });
-
-    response.cookies.set({
-      name: 'finova_last_created_engagement',
-      value: encodeURIComponent(JSON.stringify(customRecord)),
       path: '/',
       maxAge: 31536000,
       sameSite: 'lax',

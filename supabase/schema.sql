@@ -293,7 +293,26 @@ ALTER TABLE audit_adjustments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE review_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 
--- Dynamic Policy Generator
+-- Dynamic Policy Generator — STRICT MULTI-TENANT ISOLATION
+-- Helper Function: Mengekstrak firm_id dari Session JWT atau Context Setting
+CREATE OR REPLACE FUNCTION current_firm_id() 
+RETURNS TEXT AS $$
+BEGIN
+    RETURN COALESCE(
+        current_setting('app.current_firm_id', true),
+        (current_setting('request.jwt.claims', true)::jsonb ->> 'firm_id'),
+        (current_setting('request.jwt.claims', true)::jsonb -> 'user_metadata' ->> 'firm_id'),
+        (current_setting('request.jwt.claims', true)::jsonb -> 'app_metadata' ->> 'firm_id'),
+        (auth.jwt() ->> 'firm_id'),
+        (auth.jwt() -> 'user_metadata' ->> 'firm_id'),
+        (auth.jwt() -> 'app_metadata' ->> 'firm_id')
+    );
+EXCEPTION WHEN OTHERS THEN
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
+
+-- 1. Bersihkan policy lama
 DO $$
 DECLARE
     tbl text;
@@ -307,16 +326,57 @@ BEGIN
         ])
     LOOP
         EXECUTE format('DROP POLICY IF EXISTS "allow_all_select_%s" ON %I;', tbl, tbl);
-        EXECUTE format('CREATE POLICY "allow_all_select_%s" ON %I FOR SELECT USING (true);', tbl, tbl);
-
         EXECUTE format('DROP POLICY IF EXISTS "allow_all_insert_%s" ON %I;', tbl, tbl);
-        EXECUTE format('CREATE POLICY "allow_all_insert_%s" ON %I FOR INSERT WITH CHECK (true);', tbl, tbl);
-
         EXECUTE format('DROP POLICY IF EXISTS "allow_all_update_%s" ON %I;', tbl, tbl);
-        EXECUTE format('CREATE POLICY "allow_all_update_%s" ON %I FOR UPDATE USING (true);', tbl, tbl);
-
         EXECUTE format('DROP POLICY IF EXISTS "allow_all_delete_%s" ON %I;', tbl, tbl);
-        EXECUTE format('CREATE POLICY "allow_all_delete_%s" ON %I FOR DELETE USING (true);', tbl, tbl);
+        EXECUTE format('DROP POLICY IF EXISTS "tenant_isolation_select_%s" ON %I;', tbl, tbl);
+        EXECUTE format('DROP POLICY IF EXISTS "tenant_isolation_insert_%s" ON %I;', tbl, tbl);
+        EXECUTE format('DROP POLICY IF EXISTS "tenant_isolation_update_%s" ON %I;', tbl, tbl);
+        EXECUTE format('DROP POLICY IF EXISTS "tenant_isolation_delete_%s" ON %I;', tbl, tbl);
+    END LOOP;
+END $$;
+
+-- 2. Kebijakan Isolasi Tabel FIRMS (KAP hanya dapat membaca profil miliknya sendiri)
+DROP POLICY IF EXISTS "firms_tenant_isolation_select" ON firms;
+CREATE POLICY "firms_tenant_isolation_select" ON firms 
+    FOR SELECT 
+    USING (id = current_firm_id() OR auth.role() = 'service_role');
+
+DROP POLICY IF EXISTS "firms_tenant_isolation_update" ON firms;
+CREATE POLICY "firms_tenant_isolation_update" ON firms 
+    FOR UPDATE 
+    USING (id = current_firm_id() OR auth.role() = 'service_role')
+    WITH CHECK (id = current_firm_id() OR auth.role() = 'service_role');
+
+-- 3. Kebijakan Isolasi Multi-Tenant untuk 11 Tabel Anak Berbasis firm_id
+DO $$
+DECLARE
+    tbl text;
+BEGIN
+    FOR tbl IN 
+        SELECT unnest(ARRAY[
+            'firm_memberships', 'clients', 'engagements',
+            'file_sources', 'dataset_versions', 'trial_balance_accounts',
+            'workpaper_versions', 'workpaper_lines', 'audit_adjustments',
+            'review_notes', 'audit_logs'
+        ])
+    LOOP
+        EXECUTE format(
+            'CREATE POLICY "tenant_isolation_select_%s" ON %I FOR SELECT USING (firm_id = current_firm_id() OR auth.role() = ''service_role'');', 
+            tbl, tbl
+        );
+        EXECUTE format(
+            'CREATE POLICY "tenant_isolation_insert_%s" ON %I FOR INSERT WITH CHECK (firm_id = current_firm_id() OR auth.role() = ''service_role'');', 
+            tbl, tbl
+        );
+        EXECUTE format(
+            'CREATE POLICY "tenant_isolation_update_%s" ON %I FOR UPDATE USING (firm_id = current_firm_id() OR auth.role() = ''service_role'') WITH CHECK (firm_id = current_firm_id() OR auth.role() = ''service_role'');', 
+            tbl, tbl
+        );
+        EXECUTE format(
+            'CREATE POLICY "tenant_isolation_delete_%s" ON %I FOR DELETE USING (firm_id = current_firm_id() OR auth.role() = ''service_role'');', 
+            tbl, tbl
+        );
     END LOOP;
 END $$;
 
