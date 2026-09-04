@@ -24,10 +24,10 @@ export interface AccountAnalysisResponse {
   cached?: boolean;
 }
 
-const PRIMARY_AI_URL = process.env.AI_API_BASE_URL || 'https://cakgpt.tailbb2126.ts.net:10000/v1';
-const SECONDARY_AI_URL = 'https://cakaiuniverseshipudden.tailbb2126.ts.net/v1';
+const PRIMARY_AI_URL = process.env.AI_API_BASE_URL || '';
+const SECONDARY_AI_URL = '';
 const AI_BASE_URL = PRIMARY_AI_URL;
-const AI_API_KEY = process.env.AI_API_KEY || 'cak_oro_bfzy25HQ1Mw-jnzrD0t-pO0dkNfeRKplFtspdnM';
+const AI_API_KEY = process.env.AI_API_KEY || '';
 const AI_MODEL = process.env.AI_MODEL || 'qwen3.8-nvfp4';
 
 // Pre-seeded high-fidelity cache for instant response & offline resilience
@@ -99,6 +99,10 @@ export async function analyzeAccountWithAI(req: AccountAnalysisRequest): Promise
   }
 
   const startTime = Date.now();
+
+  if (!AI_BASE_URL || !AI_API_KEY) {
+    throw new Error('AI_API_BASE_URL dan AI_API_KEY belum dikonfigurasi di server.');
+  }
 
   const systemPrompt = `You are FINOVA AI, senior audit reasoning engine for Indonesian CPA firms (KAP) adhering to SAK and PSAK.
 Analyze the Trial Balance account, identify any suspense anomalies, and assign the proper Lead Schedule line item. Keep reasoning concise and output valid JSON.
@@ -221,9 +225,10 @@ export async function chatWithAuditCopilot(
   const startTime = Date.now();
   const lastUserMsg = messages.filter((m) => m.role === 'user').pop()?.content || '';
   const q = lastUserMsg.toLowerCase().trim();
+  const activeContext = engagementContext.trim();
 
   // Try live fast model first if available within 5 seconds
-  try {
+  if (AI_BASE_URL && AI_API_KEY) try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
 
@@ -238,7 +243,7 @@ export async function chatWithAuditCopilot(
         messages: [
           {
             role: 'system',
-            content: `Anda adalah FINOVA AI Senior Audit Partner di KAP Haidar & Rekan. Jawablah langsung, jujur, lugas, dan solutif dalam bahasa Indonesia profesional tanpa simbol markdown mentah (**). Evaluasi perikatan aktif PT Nusantara Sukses Makmur FY 2026 secara kritis.`,
+            content: `Anda adalah FINOVA AI Senior Audit Partner. Jawablah langsung, jujur, lugas, dan solutif dalam bahasa Indonesia profesional tanpa simbol markdown mentah (**). Gunakan hanya konteks perikatan aktif berikut dan jangan mengarang angka, klien, opini, atau temuan yang tidak ada:\n${activeContext || 'Konteks perikatan belum tersedia.'}`,
           },
           ...messages,
         ],
@@ -263,6 +268,14 @@ export async function chatWithAuditCopilot(
     }
   } catch (err: any) {
     // Fast fallback to FINOVA Deep Context Evaluator
+  }
+
+  if (activeContext) {
+    return {
+      reply: `Berdasarkan data perikatan aktif:\n\n${activeContext}\n\nSaya hanya dapat menyimpulkan dari data tersebut. Pastikan status tie-out, kelengkapan pemetaan, bukti sumber, dan otorisasi partner ditelaah sebelum opini atau rekomendasi final diterbitkan.`,
+      model: 'finova-context-safe-fallback',
+      latencyMs: Date.now() - startTime,
+    };
   }
 
   // Deep Domain Context Evaluation Engine
