@@ -3,9 +3,13 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { getUserByEmail, getUserById, DbUser } from '@/lib/db/sqlite';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || 'finova_enterprise_jwt_secret_key_2026_audit_security_super_secure'
-);
+function getJwtSecret(): Uint8Array {
+  const configured = process.env.AUTH_SECRET;
+  if (process.env.NODE_ENV === 'production' && !configured) {
+    throw new Error('AUTH_SECRET wajib dikonfigurasi di production.');
+  }
+  return new TextEncoder().encode(configured || 'finova-local-development-only-secret-change-me');
+}
 
 export const AUTH_COOKIE_NAME = 'finova_session';
 
@@ -39,7 +43,7 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 /**
@@ -47,7 +51,7 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
  */
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     return {
       userId: payload.userId as string,
       email: payload.email as string,

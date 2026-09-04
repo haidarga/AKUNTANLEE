@@ -83,6 +83,10 @@ export const VALID_ACCESS_KEYS: Record<string, AccessKeyConfig> = {
 };
 
 export async function POST(req: NextRequest) {
+  if (process.env.FINOVA_DEMO_MODE !== 'true') {
+    return NextResponse.json({ error: 'Not found.' }, { status: 404 });
+  }
+
   try {
     const body = await req.json();
     const rawKey = (body.key || '').trim().toUpperCase();
@@ -94,32 +98,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Lookup config or fallback to custom key
-    let config = VALID_ACCESS_KEYS[rawKey];
+    const config = VALID_ACCESS_KEYS[rawKey];
 
     if (!config) {
-      // Allow any key starting with DEMO or VIP or 4+ chars as instant guest partner
-      if (rawKey.startsWith('DEMO') || rawKey.startsWith('VIP') || rawKey.length >= 4) {
-        config = {
-          key: rawKey,
-          name: `Tamu VIP (${rawKey})`,
-          email: `${rawKey.toLowerCase()}@finova-demo.id`,
-          role: 'partner',
-          title: 'Guest Audit Partner Evaluator',
-          cpaLicense: 'DEMO.999',
-          variant: 'variant_master',
-          targetPath: '/engagements/ENG-2026-01/overview',
-          description: 'Akses Evaluasi Cepat',
-        };
-      } else {
-        return NextResponse.json(
-          {
-            error: 'Access Key tidak valid. Gunakan FINOVA-RINA-CFO, FINOVA-BUNDA-TAX, atau FINOVA-MASTER-2026.',
-            availableKeys: ['FINOVA-RINA-CFO', 'FINOVA-BUNDA-TAX', 'FINOVA-MASTER-2026'],
-          },
-          { status: 401 }
-        );
-      }
+      return NextResponse.json({ error: 'Access Key tidak valid.' }, { status: 401 });
     }
 
     // Generate JWT token
@@ -182,6 +164,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  if (process.env.FINOVA_DEMO_MODE !== 'true') {
+    return NextResponse.json({ error: 'Not found.' }, { status: 404 });
+  }
+
   return NextResponse.json({
     keys: Object.values(VALID_ACCESS_KEYS).map((k) => ({
       key: k.key,

@@ -1,16 +1,35 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { jwtVerify, SignJWT } from 'jose';
 
+const configuredAuthSecret = process.env.AUTH_SECRET;
+const isProduction = process.env.NODE_ENV === 'production';
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || 'finova_enterprise_jwt_secret_key_2026_audit_security_super_secure'
+  configuredAuthSecret || 'finova-local-development-only-secret-change-me',
 );
 
 const AUTH_COOKIE_NAME = 'finova_session';
 
 const PROTECTED_PREFIXES = ['/engagements', '/settings', '/admin'];
+const PUBLIC_API_PATHS = new Set([
+  '/api/v1/auth/login',
+  '/api/v1/auth/logout',
+  '/api/v1/auth/me',
+  '/api/v1/auth/access-key',
+]);
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const isProtectedPage = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  const isProtectedApi = pathname.startsWith('/api/v1/') && !PUBLIC_API_PATHS.has(pathname);
+  const isProtected = isProtectedPage || isProtectedApi;
+
+  if (isProtected && isProduction && !configuredAuthSecret) {
+    return NextResponse.json(
+      { code: 'AUTH_NOT_CONFIGURED', message: 'Konfigurasi autentikasi production belum lengkap.' },
+      { status: 503 },
+    );
+  }
+
   const token = req.cookies.get(AUTH_COOKIE_NAME)?.value;
 
   let isValidSession = false;
@@ -30,10 +49,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(newUrl);
   }
 
-  const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-
-  // Seamless Mode for Evaluators: Auto-mint session if accessing protected routes without login
-  if (isProtected && !isValidSession) {
+  // Evaluator auto-login is isolated behind an explicit demo-only flag.
+  if (isProtectedPage && !isValidSession && process.env.FINOVA_DEMO_MODE === 'true') {
     const isAdvisory = pathname.includes('/advisory');
     const isTax = pathname.includes('/tax');
 
@@ -102,6 +119,21 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
+  if (isProtectedApi && !isValidSession) {
+    return NextResponse.json(
+      { code: 'UNAUTHENTICATED', message: 'Sesi login diperlukan.' },
+      { status: 401 },
+    );
+  }
+
+  if (isProtectedPage && !isValidSession) {
+    const loginUrl = req.nextUrl.clone();
+    loginUrl.pathname = '/login';
+    loginUrl.search = '';
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
   return NextResponse.next();
 }
 
@@ -110,6 +142,7 @@ export const config = {
     '/engagements/:path*',
     '/settings/:path*',
     '/admin/:path*',
+    '/api/v1/:path*',
     '/login',
   ],
 };
