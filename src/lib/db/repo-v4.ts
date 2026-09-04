@@ -381,6 +381,7 @@ function createInitialState(): FinovaV4State {
     accounts,
     mappingDecisions: decisions,
     template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
+    includeComparativeDefaults: true,
     versionNumber: 1,
     adjustments: initialAdjustments,
   });
@@ -891,6 +892,7 @@ class FinovaV4Repository {
       mappingDecisions: this.state.mappingDecisions,
       adjustments: adjs,
       template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
+      includeComparativeDefaults: engagementId === 'ENG-2026-01',
       versionNumber: this.state.workpaperVersions.length + 1,
     });
 
@@ -1188,6 +1190,7 @@ class FinovaV4Repository {
       accounts: this.state.accounts,
       mappingDecisions: this.state.mappingDecisions,
       template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
+      includeComparativeDefaults: engagementId === 'ENG-2026-01',
       versionNumber: this.state.workpaperVersions.length + 1,
     });
 

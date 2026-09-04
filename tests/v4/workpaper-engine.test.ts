@@ -13,6 +13,7 @@ describe('R05, R06 / PRD §44, §45: Workpaper Population & Evidence Lineage', (
       accounts: state.accounts,
       mappingDecisions: state.mappingDecisions,
       template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
+      includeComparativeDefaults: true,
     });
 
     // Verify Tie-out check 1: TB Balance
@@ -49,6 +50,7 @@ describe('R05, R06 / PRD §44, §45: Workpaper Population & Evidence Lineage', (
       accounts: state.accounts,
       mappingDecisions: state.mappingDecisions,
       template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
+      includeComparativeDefaults: true,
     });
 
     // WP-A.3: Cadangan ECL

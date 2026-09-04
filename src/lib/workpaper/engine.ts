@@ -77,6 +77,7 @@ export function calculateWorkpaperVersion(params: {
   mappingDecisions: MappingDecision[];
   adjustments?: AuditAdjustmentEntry[];
   template?: WorkpaperTemplateDef;
+  includeComparativeDefaults?: boolean;
   versionNumber?: number;
 }): {
   workpaperVersion: WorkpaperVersion;
@@ -145,8 +146,8 @@ export function calculateWorkpaperVersion(params: {
     }
     const netAdj = lineDef.signPolicy === 'credit_positive' ? (adjCredit - adjDebit) : (adjDebit - adjCredit);
     const currentVal = unadjustedVal + netAdj;
-    const compVal = lineDef.comparativeDefaultIdr;
-    const variance = calculateVariance(currentVal, compVal);
+    const compVal = params.includeComparativeDefaults ? lineDef.comparativeDefaultIdr : undefined;
+    const variance = compVal === undefined ? undefined : calculateVariance(currentVal, compVal);
 
     // Primary evidence link from largest contributing account
     let primaryEvId: string | undefined;
@@ -191,8 +192,8 @@ export function calculateWorkpaperVersion(params: {
       adjustmentNetIdr: netAdj,
       currentPeriodIdr: currentVal,
       comparativePeriodIdr: compVal,
-      varianceAmountIdr: variance.amount,
-      variancePercent: variance.percentage ?? undefined,
+      varianceAmountIdr: variance?.amount,
+      variancePercent: variance?.percentage ?? undefined,
       validationState: bucket.accounts.length > 0 ? 'valid' : 'unmapped',
       commentCount: lineDef.lineId === 'WP-A.2' ? 1 : 0,
       primaryEvidenceLinkId: primaryEvId,
