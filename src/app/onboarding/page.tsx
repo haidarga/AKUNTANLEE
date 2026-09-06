@@ -19,7 +19,12 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { FirmProfile, TeamMemberProfile, UserRoleV4 } from '@/types/domain-v4';
-import { completeOnboarding } from '@/lib/onboarding/complete';
+import {
+  completeOnboarding,
+  OnboardingAuthenticationRequiredError,
+} from '@/lib/onboarding/complete';
+
+const ONBOARDING_DRAFT_KEY = 'finova_onboarding_draft';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -75,7 +80,9 @@ export default function OnboardingPage() {
   // Load existing profile if available
   useEffect(() => {
     try {
-      const cached = localStorage.getItem('finova_firm_profile');
+      // A session may be required before the server accepts the profile. Keep the
+      // in-progress wizard data locally so returning from login never loses it.
+      const cached = localStorage.getItem(ONBOARDING_DRAFT_KEY) || localStorage.getItem('finova_firm_profile');
       if (cached) {
         const f: FirmProfile = JSON.parse(cached);
         if (f.name) setName(f.name);
@@ -139,32 +146,38 @@ export default function OnboardingPage() {
 
   const handleFinishOnboarding = async () => {
     setIsSubmitting(true);
-    try {
-      const payload: Partial<FirmProfile> = {
-        name,
-        shortName,
-        licenseNumber,
-        managingPartnerName,
-        managingPartnerApNumber,
-        address,
-        city,
-        email,
-        phone,
-        defaultAccountingStandard,
-        defaultMaterialityIdr,
-        teamMembers,
-      };
+    const payload: Partial<FirmProfile> = {
+      name,
+      shortName,
+      licenseNumber,
+      managingPartnerName,
+      managingPartnerApNumber,
+      address,
+      city,
+      email,
+      phone,
+      defaultAccountingStandard,
+      defaultMaterialityIdr,
+      teamMembers,
+    };
 
+    try {
       await completeOnboarding(payload, {
         request: fetch,
         persistProfile: (savedProfile) => {
           localStorage.setItem('finova_firm_profile', JSON.stringify(savedProfile));
+          localStorage.removeItem(ONBOARDING_DRAFT_KEY);
           document.cookie = "finova_firm_profile=" + encodeURIComponent(JSON.stringify(savedProfile)) + "; path=/; max-age=31536000; SameSite=Lax";
           window.dispatchEvent(new CustomEvent('finova_firm_updated', { detail: savedProfile }));
         },
         navigate: (destination) => router.replace(destination),
       });
     } catch (e: any) {
+      if (e instanceof OnboardingAuthenticationRequiredError) {
+        localStorage.setItem(ONBOARDING_DRAFT_KEY, JSON.stringify(payload));
+        router.replace('/login?redirect=/onboarding');
+        return;
+      }
       alert('Terjadi kesalahan jaringan: ' + e.message);
     } finally {
       setIsSubmitting(false);

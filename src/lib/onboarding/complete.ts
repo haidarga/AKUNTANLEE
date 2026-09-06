@@ -4,13 +4,26 @@ type FirmProfileResponse = {
   success: boolean;
   data?: Partial<FirmProfile>;
   error?: string;
+  code?: string;
+  message?: string;
 };
 
 type CompleteOnboardingDependencies = {
-  request: (input: RequestInfo | URL, init?: RequestInit) => Promise<{ json: () => Promise<FirmProfileResponse> }>;
+  request: (input: RequestInfo | URL, init?: RequestInit) => Promise<{
+    status?: number;
+    json: () => Promise<FirmProfileResponse>;
+  }>;
   persistProfile: (profile: Partial<FirmProfile>) => void;
   navigate: (destination: string) => void;
 };
+
+/** Raised when the firm API correctly requires a session before saving onboarding. */
+export class OnboardingAuthenticationRequiredError extends Error {
+  constructor() {
+    super('Sesi login diperlukan untuk menyimpan profil KAP.');
+    this.name = 'OnboardingAuthenticationRequiredError';
+  }
+}
 
 /** Saves the KAP profile before entering the protected engagement workspace. */
 export async function completeOnboarding(
@@ -24,8 +37,12 @@ export async function completeOnboarding(
   });
   const data = await response.json();
 
+  if (response.status === 401 || data.code === 'UNAUTHENTICATED') {
+    throw new OnboardingAuthenticationRequiredError();
+  }
+
   if (!data.success) {
-    throw new Error(data.error || 'Gagal menyimpan profil KAP');
+    throw new Error(data.error || data.message || 'Gagal menyimpan profil KAP');
   }
 
   const savedProfile = data.data || profile;
