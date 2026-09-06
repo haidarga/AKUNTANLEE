@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { FirmProfile } from '@/types/domain-v4';
-import { completeOnboarding } from '@/lib/onboarding/complete';
+import {
+  completeOnboarding,
+  OnboardingAuthenticationRequiredError,
+} from '@/lib/onboarding/complete';
 
 const profile: Partial<FirmProfile> = {
   name: 'KAP Cakrawala Audit Nusantara',
@@ -28,6 +31,21 @@ describe('onboarding completion', () => {
     const request = vi.fn().mockResolvedValue({ json: async () => ({ success: false, error: 'Rejected' }) });
 
     await expect(completeOnboarding(profile, { request, persistProfile, navigate })).rejects.toThrow('Rejected');
+    expect(persistProfile).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('requires login instead of misreporting a protected onboarding save as a network failure', async () => {
+    const navigate = vi.fn();
+    const persistProfile = vi.fn();
+    const request = vi.fn().mockResolvedValue({
+      status: 401,
+      json: async () => ({ code: 'UNAUTHENTICATED', message: 'Sesi login diperlukan.' }),
+    });
+
+    await expect(completeOnboarding(profile, { request, persistProfile, navigate }))
+      .rejects.toBeInstanceOf(OnboardingAuthenticationRequiredError);
+
     expect(persistProfile).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
   });
