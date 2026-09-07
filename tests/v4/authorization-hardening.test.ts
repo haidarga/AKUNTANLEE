@@ -7,6 +7,9 @@ import { POST as createAdjustment } from '@/app/api/v1/engagements/[id]/adjustme
 import { PATCH as resolveNote } from '@/app/api/v1/engagements/[id]/notes/route';
 import { POST as updateMappings } from '@/app/api/v1/mapping-sets/[id]/decisions/route';
 import { POST as rollForward } from '@/app/api/v1/engagements/[id]/roll-forward/route';
+import { POST as createEngagement } from '@/app/api/v1/engagements/route';
+import { PUT as updateFirm } from '@/app/api/v1/firm/route';
+import { POST as analyzeAccount } from '@/app/api/v1/ai/analyze/route';
 import { AUTH_COOKIE_NAME, createSessionToken } from '@/lib/auth/session';
 
 describe('production authorization hardening', () => {
@@ -111,5 +114,30 @@ describe('production authorization hardening', () => {
     const response = await rollForward(request, { params: Promise.resolve({ id: 'ENG-2026-01' }) });
     expect(response.status).toBe(403);
     expect((await response.json()).code).toBe('FORBIDDEN_ROLE');
+  });
+
+  it('blocks a senior from creating an engagement by spoofing partner', async () => {
+    const request = await sessionRequest('senior', 'http://localhost/api/v1/engagements', {
+      userRole: 'partner', clientName: 'PT Unauthorized', clientCode: 'NOPE', periodYear: '2026',
+    });
+    const response = await createEngagement(request);
+    expect(response.status).toBe(403);
+    expect((await response.json()).code).toBe('FORBIDDEN_ROLE');
+  });
+
+  it('blocks non-partners from changing the firm identity', async () => {
+    const request = await sessionRequest('manager', 'http://localhost/api/v1/firm', {
+      name: 'KAP Unauthorized Rename',
+    });
+    const response = await updateFirm(request);
+    expect(response.status).toBe(403);
+    expect((await response.json()).code).toBe('FORBIDDEN_ROLE');
+  });
+
+  it('rejects unauthenticated AI requests before spending provider capacity', async () => {
+    const response = await analyzeAccount(new NextRequest('http://localhost/api/v1/ai/analyze', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
+    }));
+    expect(response.status).toBe(401);
   });
 });
