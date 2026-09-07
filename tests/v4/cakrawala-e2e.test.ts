@@ -4,13 +4,18 @@ import { generateWorkpaperXlsx } from '@/lib/exporter/xlsx-builder';
 import { AccountRow, MappingDecision, WorkpaperVersion } from '@/types/domain-v4';
 import { POST as postEngagement } from '@/app/api/v1/engagements/route';
 import { GET as getEngagementDetail } from '@/app/api/v1/engagements/[id]/route';
+import { AUTH_COOKIE_NAME, createSessionToken } from '@/lib/auth/session';
 
 describe('Cakrawala End-to-End Audit Trail (ChatGPT Scenario)', () => {
   it('should successfully process PT Cakrawala Konsultan Indonesia from creation to workpaper & export', async () => {
+    const token = await createSessionToken({
+      userId: 'USR-PARTNER-TEST', firmId: 'TENANT-001', email: 'partner@example.test',
+      role: 'partner', name: 'Partner Test', title: 'Managing Partner',
+    });
     // 1. Create Engagement
     const createReq = new Request('http://localhost:3000/api/v1/engagements', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', cookie: `${AUTH_COOKIE_NAME}=${token}` },
       body: JSON.stringify({
         clientName: 'PT Cakrawala Konsultan Indonesia',
         clientCode: 'CKI',

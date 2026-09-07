@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
     let firmId = 'FIRM-001';
     let role = 'partner';
-    let title = 'Managing Engagement Partner';
+    const title = 'Managing Engagement Partner';
 
     // Cek apakah user sudah terikat dengan firm di PostgreSQL
     if (admin && email) {

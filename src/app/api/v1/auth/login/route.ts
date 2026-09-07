@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
           let firmId = 'FIRM-001';
           let role = (authUser.user_metadata?.role as string) || 'partner';
           let name = (authUser.user_metadata?.full_name as string) || trimmedEmail.split('@')[0];
-          let title = (authUser.user_metadata?.title as string) || 'Managing Engagement Partner';
+          const title = (authUser.user_metadata?.title as string) || 'Managing Engagement Partner';
           let cpaLicense = (authUser.user_metadata?.license_number as string) || null;
           let firmName = (authUser.user_metadata?.firm_name as string) || 'Kantor Akuntan Publik';
 

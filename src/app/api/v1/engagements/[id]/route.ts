@@ -198,7 +198,7 @@ export async function PATCH(
     if (status !== undefined) engagement.status = status;
     engagement.updatedAt = new Date().toISOString();
 
-    let client = state.clients.find((c) => c.id === engagement?.clientId);
+    const client = state.clients.find((c) => c.id === engagement?.clientId);
     if (client) {
       if (clientName !== undefined) client.legalName = clientName;
       if (clientCode !== undefined) client.code = clientCode;

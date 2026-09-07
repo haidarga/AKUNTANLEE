@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
         : 'Audit Associate';
 
     let userId = 'USR-' + crypto.randomUUID().substring(0, 8);
-    let firmId = 'FIRM-' + crypto.randomUUID().substring(0, 8);
+    const firmId = 'FIRM-' + crypto.randomUUID().substring(0, 8);
 
     // 2. Registrasi ke Supabase Auth & PostgreSQL (Jika Terkonfigurasi)
     if (isSupabaseConfigured()) {

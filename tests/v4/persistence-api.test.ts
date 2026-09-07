@@ -1,9 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { GET as getEngagements, POST as postEngagement } from '@/app/api/v1/engagements/route';
 import { GET as getEngagementDetail, PATCH as patchEngagementDetail } from '@/app/api/v1/engagements/[id]/route';
+import { AUTH_COOKIE_NAME, createSessionToken } from '@/lib/auth/session';
 
 describe('Engagement Persistence & Dynamic Client API', () => {
   it('should atomically create custom client and engagement with custom PT parameters', async () => {
+    const token = await createSessionToken({
+      userId: 'USR-PARTNER-TEST', firmId: 'TENANT-001', email: 'partner@example.test',
+      role: 'partner', name: 'Partner Test', title: 'Managing Partner',
+    });
     const payload = {
       clientName: 'PT Orbit Audit Digital',
       clientCode: 'OAD26',
@@ -17,7 +22,7 @@ describe('Engagement Persistence & Dynamic Client API', () => {
 
     const postReq = new Request('http://localhost:3000/api/v1/engagements', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', cookie: `${AUTH_COOKIE_NAME}=${token}` },
       body: JSON.stringify(payload),
     });
 
@@ -70,7 +75,9 @@ describe('Engagement Persistence & Dynamic Client API', () => {
     expect(patchJson.data.engagement.materialityIdr).toBe(1200000000);
 
     // Test GET list endpoint
-    const listReq = new Request('http://localhost:3000/api/v1/engagements');
+    const listReq = new Request('http://localhost:3000/api/v1/engagements', {
+      headers: { cookie: `${AUTH_COOKIE_NAME}=${token}` },
+    });
     const listRes = await getEngagements(listReq);
     expect(listRes.status).toBe(200);
     const listJson = await listRes.json();
