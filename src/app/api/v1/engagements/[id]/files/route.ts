@@ -17,6 +17,35 @@ import { calculateWorkpaperVersion, APPROVED_LEAD_SCHEDULE_TEMPLATE } from '@/li
 import { getServerSession } from '@/lib/auth/session';
 import { saveStateToDb } from '@/lib/db/sqlite';
 import { getEngagementServerData } from '@/lib/server/engagement-data';
+import {
+  assertTenantAccess,
+  authorizationErrorResponse,
+  requireSessionActor,
+} from '@/lib/auth/authorization';
+
+const MAX_FILE_BYTES = 100 * 1024 * 1024;
+const MAX_SHEETS = 25;
+const MAX_ACCOUNT_ROWS = 100_000;
+const SUPPORTED_FILE_EXTENSION = /\.(csv|xlsx)$/i;
+
+class UploadInputError extends Error {
+  constructor(
+    public readonly status: 400 | 413 | 415,
+    public readonly code: 'FILE_TOO_LARGE' | 'UNSUPPORTED_FILE_TYPE' | 'NO_ACCOUNT_ROWS' | 'UPLOAD_LIMIT_EXCEEDED' | 'INVALID_ACCOUNT_ROW',
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+function validateFileBoundary(fileName: string, fileSize: number) {
+  if (!SUPPORTED_FILE_EXTENSION.test(fileName)) {
+    throw new UploadInputError(415, 'UNSUPPORTED_FILE_TYPE', 'Hanya berkas .csv dan .xlsx yang didukung.');
+  }
+  if (!Number.isFinite(fileSize) || fileSize < 0 || fileSize > MAX_FILE_BYTES) {
+    throw new UploadInputError(413, 'FILE_TOO_LARGE', 'Ukuran berkas melebihi batas 100 MB.');
+  }
+}
 
 export async function GET(
   request: NextRequest,
@@ -185,8 +214,8 @@ export async function POST(
 ) {
   try {
     const { id: engagementId } = await context.params;
-    const session = await getServerSession(request);
-    const firmId = session?.firmId || 'FIRM-001';
+    const actor = await requireSessionActor(request);
+    const firmId = actor.tenantId;
 
     // Verify Engagement exists and check Tenant Isolation
     const state = repo.getState();
@@ -209,17 +238,10 @@ export async function POST(
       }
     }
 
-    if (eng && eng.tenantId && session && eng.tenantId !== session.firmId && session.role !== 'admin') {
-      return NextResponse.json(
-        {
-          code: 'FORBIDDEN_TENANT_ACCESS',
-          message: 'Pelanggaran Batas Tenant: Pengguna dari KAP lain dilarang mengunggah berkas ke perikatan ini.',
-          request_id: 'req-' + Date.now(),
-          retryable: false,
-        },
-        { status: 403 }
-      );
+    if (!eng) {
+      return NextResponse.json({ code: 'ENGAGEMENT_NOT_FOUND', message: 'Perikatan tidak ditemukan.' }, { status: 404 });
     }
+    assertTenantAccess(actor, eng.tenantId);
 
     const contentType = request.headers.get('content-type') || '';
     let fileBuffer: Buffer | null = null;
@@ -243,6 +265,7 @@ export async function POST(
       fileName = file.name;
       fileSize = file.size;
       clientChecksum = (formData.get('sha256Checksum') as string) || '';
+      validateFileBoundary(fileName, fileSize);
 
       const arrayBuffer = await file.arrayBuffer();
       fileBuffer = Buffer.from(arrayBuffer);
@@ -312,7 +335,18 @@ export async function POST(
       clientChecksum = body.sha256Checksum || '';
       parsedAccounts = body.accounts || [];
       sheetNames = body.sheetNames || ['Sheet1'];
+      validateFileBoundary(fileName, Number(fileSize));
       fileBuffer = Buffer.from(JSON.stringify(parsedAccounts));
+    }
+
+    if (!Array.isArray(sheetNames) || sheetNames.length === 0 || sheetNames.length > MAX_SHEETS) {
+      throw new UploadInputError(400, 'UPLOAD_LIMIT_EXCEEDED', `Berkas harus memiliki 1-${MAX_SHEETS} sheet.`);
+    }
+    if (!Array.isArray(parsedAccounts) || parsedAccounts.length === 0) {
+      throw new UploadInputError(400, 'NO_ACCOUNT_ROWS', 'Tidak ada baris akun yang dapat diproses.');
+    }
+    if (parsedAccounts.length > MAX_ACCOUNT_ROWS) {
+      throw new UploadInputError(400, 'UPLOAD_LIMIT_EXCEEDED', `Jumlah akun melebihi batas ${MAX_ACCOUNT_ROWS.toLocaleString('id-ID')} baris.`);
     }
 
     // Normalize every ingestion path to the AccountRow contract before any
@@ -332,11 +366,16 @@ export async function POST(
       if (debitIdr < 0 || creditIdr < 0) {
         throw new Error(`Debit dan kredit tidak boleh negatif pada baris akun ${index + 1}.`);
       }
+      const accountCode = String(account.accountCode || '').trim();
+      const accountName = String(account.accountName || '').trim();
+      if (!accountCode || !accountName) {
+        throw new UploadInputError(400, 'INVALID_ACCOUNT_ROW', `Kode dan nama akun wajib diisi pada baris ${index + 1}.`);
+      }
       return {
         ...account,
         id: account.id || `ACC-${index + 1}`,
-        accountCode: String(account.accountCode || '').trim(),
-        accountName: String(account.accountName || '').trim(),
+        accountCode,
+        accountName,
         debitIdr,
         creditIdr,
         closingBalanceIdr,
@@ -434,7 +473,7 @@ export async function POST(
         storagePath: uploadResult?.path || storagePath,
         fileSize,
         sha256Checksum: serverSha256,
-        uploadedBy: session?.name || 'Auditor',
+        uploadedBy: actor.name || 'Auditor',
       });
       if (!savedFile) {
         throw new Error('Gagal menyimpan metadata berkas ke tabel file_sources Supabase.');
@@ -479,7 +518,7 @@ export async function POST(
       mediaType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       sizeBytes: fileSize,
       status: 'ready' as const,
-      uploadedByUserId: session?.userId || 'USR-SENIOR-01',
+      uploadedByUserId: actor.id,
       scanStatus: 'clean' as const,
       sheetCount: sheetNames.length,
       sheetNames,
@@ -510,6 +549,11 @@ export async function POST(
       request_id: `req-${Date.now()}`,
     });
   } catch (error: any) {
+    const authResponse = authorizationErrorResponse(error);
+    if (authResponse) return authResponse;
+    if (error instanceof UploadInputError) {
+      return NextResponse.json({ code: error.code, message: error.message, retryable: false }, { status: error.status });
+    }
     console.error('Error in POST /api/v1/engagements/[id]/files:', error);
     return NextResponse.json(
       { code: 'FILE_PROCESSING_FAILED', message: error.message },
