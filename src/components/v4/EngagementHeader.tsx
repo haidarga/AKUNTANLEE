@@ -431,11 +431,7 @@ export function EngagementHeader({
                 </div>
 
                 {isActive && (
-                  <motion.div
-                    layoutId="activeTabUnderline"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0F8F7A]"
-                    transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-                  />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0F8F7A] rounded-full transition-all duration-150" />
                 )}
               </Link>
             );

@@ -135,23 +135,23 @@ export default function WorkpaperClient({
 
     // The server is the only calculation authority for an active engagement.
     // Browser caches and the demo repository must never replace these figures.
-    const refreshCanonicalWorkpaper = () => fetch(`/api/v1/engagements/${engagementId}/files`, { credentials: 'include' })
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.data?.lines && json.data.lines.length > 0) {
-          setLines(json.data.lines);
-        } else if (engagementId !== 'ENG-2026-01') {
-          setLines([]);
-        }
-        if (json.data?.workpaper) {
-          setWpVersion(json.data.workpaper);
-        }
-        if (json.data?.checks) {
-          setChecks(json.data.checks);
-        }
-      })
-      .catch((err) => console.warn('Error fetching live workpaper data:', err));
-    refreshCanonicalWorkpaper();
+    // Only fetch from API if initialLines is empty to avoid double-render lag
+    if (startingLines.length === 0) {
+      fetch(`/api/v1/engagements/${engagementId}/files`, { credentials: 'include' })
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.data?.lines && json.data.lines.length > 0) {
+            setLines(json.data.lines);
+          }
+          if (json.data?.workpaper) {
+            setWpVersion(json.data.workpaper);
+          }
+          if (json.data?.checks && json.data.checks.length > 0) {
+            setChecks(json.data.checks);
+          }
+        })
+        .catch((err) => console.warn('Error fetching live workpaper data:', err));
+    }
     fetch(`/api/v1/engagements/${engagementId}/adjustments`, { credentials: 'include' })
       .then((res) => res.json())
       .then((json) => {
@@ -267,37 +267,39 @@ export default function WorkpaperClient({
         </div>
       )}
 
-      {/* Visual Balance Scale Gauge */}
-      <BalanceScaleIllustration
-        isBalanced={wpVersion.totals.balanceSheetDiffIdr === 0 && lines.length > 0}
-        diff={Math.abs(wpVersion.totals.balanceSheetDiffIdr)}
-        assets={wpVersion.totals.totalAssetsIdr}
-        liabilities={wpVersion.totals.totalLiabilitiesIdr}
-        equity={wpVersion.totals.totalEquityIdr}
-      />
-
-      {/* Visual Financial Waterfall Bridge Chart */}
-      {(() => {
-        const revLine = lines.find((l) => l.lineId === "WP-F.1");
-        const cogsLine = lines.find((l) => l.lineId === "WP-F.2");
-        const opexLine = lines.find((l) => l.lineId === "WP-F.3");
-        const currentRev = Math.abs(revLine?.currentPeriodIdr || 0);
-        const currentCogs = Math.abs(cogsLine?.currentPeriodIdr || 0);
-        const currentOpex = Math.abs(opexLine?.currentPeriodIdr || 0);
-        const currentNet = currentRev - currentCogs - currentOpex;
-
-        return (
-          <FinancialWaterfallChart
-            revenue={currentRev}
-            cogs={currentCogs}
-            opex={currentOpex}
-            netIncome={currentNet}
+      {lines.length > 0 && (
+        <>
+          {/* Visual Balance Scale Gauge */}
+          <BalanceScaleIllustration
+            isBalanced={wpVersion.totals.balanceSheetDiffIdr === 0 && lines.length > 0}
+            diff={Math.abs(wpVersion.totals.balanceSheetDiffIdr)}
+            assets={wpVersion.totals.totalAssetsIdr}
+            liabilities={wpVersion.totals.totalLiabilitiesIdr}
+            equity={wpVersion.totals.totalEquityIdr}
           />
-        );
-      })()}
 
-      {/* Tie-Out Validation Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-[#DDE4E2] shadow-2xs space-y-3 text-xs">
+          {/* Visual Financial Waterfall Bridge Chart */}
+          {(() => {
+            const revLine = lines.find((l) => l.lineId === "WP-F.1");
+            const cogsLine = lines.find((l) => l.lineId === "WP-F.2");
+            const opexLine = lines.find((l) => l.lineId === "WP-F.3");
+            const currentRev = Math.abs(revLine?.currentPeriodIdr || 0);
+            const currentCogs = Math.abs(cogsLine?.currentPeriodIdr || 0);
+            const currentOpex = Math.abs(opexLine?.currentPeriodIdr || 0);
+            const currentNet = currentRev - currentCogs - currentOpex;
+
+            return (
+              <FinancialWaterfallChart
+                revenue={currentRev}
+                cogs={currentCogs}
+                opex={currentOpex}
+                netIncome={currentNet}
+              />
+            );
+          })()}
+
+          {/* Tie-Out Validation Bar */}
+          <div className="bg-white p-4 rounded-2xl border border-[#DDE4E2] shadow-2xs space-y-3 text-xs">
         <div className="flex items-center justify-between">
           <div className="font-bold text-[#102A32] flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#0F8F7A]" />
@@ -335,6 +337,8 @@ export default function WorkpaperClient({
           ))}
         </div>
       </div>
+        </>
+      )}
 
       {/* Interactive Audit Spreadsheet with Keyboard Navigation & Formula Bar */}
       <div className="space-y-3">

@@ -149,38 +149,50 @@ export function BalanceScaleIllustration({
   liabilities?: number;
   equity?: number;
 } = {}) {
+  const isZeroState = assets === 0 && liabilities === 0 && equity === 0;
+
   return (
-    <div className="flex items-center justify-between p-3.5 rounded-xl bg-white border border-[#DDE4E2] shadow-sm">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-white border border-[#DDE4E2] shadow-sm">
       <div className="flex items-center gap-3">
         <div
-          className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm ${
-            isBalanced
+          className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 ${
+            isZeroState
+              ? 'bg-[#F1F4F3] text-[#52636A] border border-[#DDE4E2]'
+              : isBalanced
               ? 'bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]'
               : 'bg-[#FDECEF] text-[#C83E4D] border border-[#F8B4BD]'
           }`}
         >
-          {isBalanced ? '=' : '≠'}
+          {isZeroState ? '~' : isBalanced ? '=' : '≠'}
         </div>
         <div>
           <div className="font-bold text-xs text-[#102A32]">
             Persamaan Fundamental Akuntansi (Accounting Balance Equation)
           </div>
           <div className="text-[11px] text-[#52636A] font-mono">
-            Aset (Rp {assets.toLocaleString('id-ID')}) = Liabilitas (Rp {liabilities.toLocaleString('id-ID')}) + Ekuitas (Rp {equity.toLocaleString('id-ID')})
+            {isZeroState
+              ? 'Menunggu Data Neraca Saldo Diunggah (Aset = Liabilitas + Ekuitas)'
+              : `Aset (Rp ${assets.toLocaleString('id-ID')}) = Liabilitas (Rp ${liabilities.toLocaleString('id-ID')}) + Ekuitas (Rp ${equity.toLocaleString('id-ID')})`}
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <span
           className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${
-            isBalanced
+            isZeroState
+              ? 'bg-[#F1F4F3] text-[#52636A] border-[#DDE4E2]'
+              : isBalanced
               ? 'bg-[#E8F5F1] text-[#0F8F7A] border-[#B2DFD6]'
               : 'bg-[#FDECEF] text-[#C83E4D] border-[#F8B4BD]'
           }`}
         >
-          <span className={`w-2 h-2 rounded-full ${isBalanced ? 'bg-[#0F8F7A] animate-pulse' : 'bg-[#C83E4D]'}`} />
-          {isBalanced ? 'SEIMBANG SEMPURNA (PASS)' : `SELISIH: Rp ${diff.toLocaleString('id-ID')}`}
+          <span className={`w-2 h-2 rounded-full ${isZeroState ? 'bg-[#7A8C93]' : isBalanced ? 'bg-[#0F8F7A] animate-pulse' : 'bg-[#C83E4D]'}`} />
+          {isZeroState
+            ? 'MENUNGGU DATA (Rp 0)'
+            : isBalanced
+            ? 'SEIMBANG SEMPURNA (PASS)'
+            : `SELISIH: Rp ${diff.toLocaleString('id-ID')}`}
         </span>
       </div>
     </div>

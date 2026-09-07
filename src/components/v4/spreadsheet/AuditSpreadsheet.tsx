@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Table,
   Search,
@@ -39,58 +39,65 @@ export function AuditSpreadsheet({ lines, onOpenEvidence, onOpenComment }: Audit
     { key: 'actions', label: 'Jejak Bukti', width: 'w-28' },
   ];
 
-  // Filter & Sort
-  const filteredLines = lines
-    .filter(
-      (l) =>
-        l.label.toLowerCase().includes(search.toLowerCase()) ||
-        l.lineId.toLowerCase().includes(search.toLowerCase())
-    )
-    .sort((a, b) => {
-      let valA: any = a[sortField];
-      let valB: any = b[sortField];
-      if (valA === undefined) valA = 0;
-      if (valB === undefined) valB = 0;
-      if (typeof valA === 'string') {
-        return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-      }
-      return sortAsc ? valA - valB : valB - valA;
-    });
+  // Optimized Filter & Sort with useMemo to prevent unneeded recalculation
+  const filteredLines = useMemo(() => {
+    const q = search.toLowerCase();
+    return lines
+      .filter((l) => l.label.toLowerCase().includes(q) || l.lineId.toLowerCase().includes(q))
+      .sort((a, b) => {
+        let valA: any = a[sortField];
+        let valB: any = b[sortField];
+        if (valA === undefined) valA = 0;
+        if (valB === undefined) valB = 0;
+        if (typeof valA === 'string') {
+          return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return sortAsc ? valA - valB : valB - valA;
+      });
+  }, [lines, search, sortField, sortAsc]);
 
   const activeLine = filteredLines[activeRowIdx] || filteredLines[0];
 
-  // Keyboard navigation handler (Arrow keys, Enter, Tab)
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
-        return;
-      }
+  // Stable references for keyboard listener to avoid re-binding on every render
+  const filteredLinesRef = useRef(filteredLines);
+  filteredLinesRef.current = filteredLines;
+  const activeColIdxRef = useRef(activeColIdx);
+  activeColIdxRef.current = activeColIdx;
+  const activeLineRef = useRef(activeLine);
+  activeLineRef.current = activeLine;
 
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setActiveRowIdx((prev) => Math.min(filteredLines.length - 1, prev + 1));
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setActiveRowIdx((prev) => Math.max(0, prev - 1));
-      } else if (e.key === 'ArrowRight' || e.key === 'Tab') {
-        e.preventDefault();
-        setActiveColIdx((prev) => Math.min(columns.length - 1, prev + 1));
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        setActiveColIdx((prev) => Math.max(0, prev - 1));
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (activeLine) {
-          if (activeColIdx === 6) {
-            onOpenComment(activeLine);
-          } else {
-            onOpenEvidence(activeLine);
-          }
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
+      return;
+    }
+
+    const currentFiltered = filteredLinesRef.current;
+    const currentCol = activeColIdxRef.current;
+    const currentLine = activeLineRef.current;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveRowIdx((prev) => Math.min(currentFiltered.length - 1, prev + 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveRowIdx((prev) => Math.max(0, prev - 1));
+    } else if (e.key === 'ArrowRight' || e.key === 'Tab') {
+      e.preventDefault();
+      setActiveColIdx((prev) => Math.min(columns.length - 1, prev + 1));
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setActiveColIdx((prev) => Math.max(0, prev - 1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (currentLine) {
+        if (currentCol === 6) {
+          onOpenComment(currentLine);
+        } else {
+          onOpenEvidence(currentLine);
         }
       }
-    },
-    [filteredLines, columns.length, activeLine, activeColIdx, onOpenComment, onOpenEvidence]
-  );
+    }
+  }, [columns.length, onOpenComment, onOpenEvidence]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

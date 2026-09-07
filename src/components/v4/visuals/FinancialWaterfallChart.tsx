@@ -33,6 +33,25 @@ export function FinancialWaterfallChart({
   const grossMargin = revenue > 0 ? ((grossProfit / revenue) * 100).toFixed(1) : "0.0";
   const netMargin = revenue > 0 ? ((finalNetIncome / revenue) * 100).toFixed(1) : "0.0";
 
+  // Graceful empty state when no P&L figures exist yet
+  if (revenue === 0 && cogs === 0 && opex === 0 && Math.abs(finalNetIncome) === 0) {
+    return (
+      <div className="finova-bezel-outer">
+        <div className="finova-bezel-inner p-5 bg-[#F6F7F5]/60 border border-dashed border-[#DDE4E2] rounded-2xl text-center space-y-2">
+          <div className="w-10 h-10 rounded-xl bg-white border border-[#DDE4E2] text-[#52636A] flex items-center justify-center mx-auto shadow-2xs">
+            <BarChart3 className="w-5 h-5 text-[#0F8F7A]" />
+          </div>
+          <div>
+            <div className="font-bold text-xs text-[#102A32]">Jembatan Visual Laba Bersih (Waterfall Chart)</div>
+            <p className="text-[11px] text-[#52636A] max-w-md mx-auto mt-0.5 leading-relaxed">
+              Grafik dekomposisi pergerakan laba akan muncul otomatis setelah akun Pendapatan (WP-F.1) atau Beban (WP-F.2 / WP-F.3) terisi pada kertas kerja.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const steps: WaterfallStep[] = [
     {
       label: 'Pendapatan Usaha',
