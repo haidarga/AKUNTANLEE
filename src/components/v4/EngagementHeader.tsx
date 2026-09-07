@@ -215,11 +215,6 @@ export function EngagementHeader({
       setUserName(decodeURIComponent(storedName));
     }
 
-    try {
-      const storedFirm = localStorage.getItem('finova_firm_profile');
-      const firm = storedFirm ? JSON.parse(storedFirm) : null;
-      if (firm?.managingPartnerName) setUserName(firm.managingPartnerName);
-    } catch {}
   }, []);
 
   const switchVariant = (newVariant: 'variant_b_advisory' | 'variant_a_compliance') => {

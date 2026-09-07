@@ -1,7 +1,5 @@
 'use client';
 
-import { repo } from '@/lib/db/repo-v4';
-
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -28,30 +26,8 @@ interface ShellProps {
 export function V4Shell({ children }: ShellProps) {
   const pathname = usePathname();
   const [role, setRole] = useState<UserRoleV4>('partner');
-  const [firmName, setFirmName] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('finova_firm_profile');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed?.name) return parsed.name;
-        }
-      } catch (e) {}
-    }
-    return repo.getFirmProfile()?.name || "KAP Haidar & Rekan";
-  });
-  const [managingPartnerName, setManagingPartnerName] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('finova_firm_profile');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed?.managingPartnerName) return parsed.managingPartnerName;
-        }
-      } catch (e) {}
-    }
-    return repo.getFirmProfile()?.managingPartnerName || "Partner Akuntan Publik";
-  });
+  const [firmName, setFirmName] = useState<string>('Kantor Akuntan Publik');
+  const [managingPartnerName, setManagingPartnerName] = useState<string>('');
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
 
@@ -78,30 +54,11 @@ export function V4Shell({ children }: ShellProps) {
     };
     checkAuth();
 
-    const syncFirm = () => {
-      try {
-        const savedFirm = localStorage.getItem('finova_firm_profile');
-        if (savedFirm) {
-          const parsed = JSON.parse(savedFirm);
-          if (parsed?.name) {
-            setFirmName(parsed.name);
-            if (parsed.managingPartnerName) setManagingPartnerName(parsed.managingPartnerName);
-            repo.updateFirmProfile(parsed);
-          }
-        }
-      } catch (e) {}
-    };
-    syncFirm();
-    window.addEventListener('finova_firm_updated', syncFirm);
-    window.addEventListener('storage', syncFirm);
-
     const saved = localStorage.getItem('finova_v4_role');
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setRole(saved as UserRoleV4);
     }
     return () => {
-      window.removeEventListener('finova_firm_updated', syncFirm);
-      window.removeEventListener('storage', syncFirm);
     };
   }, [pathname, isPublicRoute]);
 
