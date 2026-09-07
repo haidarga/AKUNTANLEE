@@ -31,6 +31,7 @@ export default function OverviewClient({
   initialAccounts = [],
   initialDecisions = [],
   initialWorkpaper = null,
+  initialChecks = [],
 }: {
   engagementId: string;
   initialEngagement?: any;
@@ -39,6 +40,7 @@ export default function OverviewClient({
   initialAccounts?: any[];
   initialDecisions?: any[];
   initialWorkpaper?: any;
+  initialChecks?: any[];
 }) {
   const state = repo.getState();
   const engagement = initialEngagement || state.engagements.find((e) => e.id === engagementId) || {
@@ -81,6 +83,7 @@ export default function OverviewClient({
   const [customDecisions, setCustomDecisions] = useState<any[]>(decisions);
   const [activeClient, setActiveClient] = useState<any>(client);
   const [activeWpVersion, setActiveWpVersion] = useState<any>(wp);
+  const [activeChecks, setActiveChecks] = useState<any[]>(initialChecks);
 
   useEffect(() => {
     // Fetch live engagement and client info
@@ -102,6 +105,7 @@ export default function OverviewClient({
         const decsList = json.data?.decisions || json.decisions;
         if (Array.isArray(decsList)) setCustomDecisions(decsList);
         if (json.data?.workpaper) setActiveWpVersion(json.data.workpaper);
+        if (Array.isArray(json.data?.checks)) setActiveChecks(json.data.checks);
       })
       .catch(() => {});
   }, [engagementId]);
@@ -110,8 +114,11 @@ export default function OverviewClient({
   const activeDecisions = customDecisions.length > 0 ? customDecisions : (engagement.id === "ENG-2026-01" ? decisions : []);
   const activeNeedsReview = activeDecisions.filter((d: any) => d.status === "needs_review");
   const isCustomAllMapped = activeDecisions.length > 0 && activeNeedsReview.length === 0;
+  const hasBlockingFailure = activeChecks.some((check: any) => check.status === 'fail' && check.severity === 'blocking');
+  const tbCheck = activeChecks.find((check: any) => check.ruleId === 'RULE-TB-BALANCE');
+  const balanceSheetCheck = activeChecks.find((check: any) => check.ruleId === 'RULE-BALANCE-SHEET-EQUATION');
   const hasFiles = activeFiles.length > 0;
-  const isAllMapped = isCustomAllMapped;
+  const isAllMapped = isCustomAllMapped && !hasBlockingFailure;
 
   const checks = state.validationChecks;
   const auditEvents = state.auditEvents.slice(0, 4);
@@ -146,6 +153,17 @@ export default function OverviewClient({
                 <ArrowRight className="w-3.5 h-3.5 text-white" />
               </div>
             </Link>
+          </div>
+        </div>
+      ) : hasBlockingFailure ? (
+        <div className="finova-bezel-outer bg-[#FEF2F2] border-[#FECACA]">
+          <div className="finova-bezel-inner p-5 sm:p-6 border-2 border-[#DC2626]/30 bg-white flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+            <div className="space-y-2 max-w-2xl">
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA] inline-flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5" /> Finalisasi Diblokir</span>
+              <h2 className="text-lg font-bold text-[#102A32] tracking-tight">Pemetaan selesai, tetapi uji tie-out masih gagal</h2>
+              <p className="text-xs text-[#52636A] leading-relaxed">Perbaiki selisih neraca saldo atau persamaan neraca di Kertas Kerja sebelum membuat ekspor resmi.</p>
+            </div>
+            <Link href={`/engagements/${engagement.id}/workpaper`} className="finova-pill-cta bg-[#B91C1C] hover:bg-[#991B1B] text-white text-xs shadow-md shrink-0"><span>Tinjau Selisih Tie-Out</span><div className="icon-circle"><ArrowRight className="w-3.5 h-3.5 text-white" /></div></Link>
           </div>
         </div>
       ) : isAllMapped ? (
@@ -281,7 +299,7 @@ export default function OverviewClient({
               <Table className="w-4 h-4 text-[#0F8F7A]" />
               4. Kertas Kerja
             </div>
-            <div className="text-[11px] text-[#52636A] mt-1 font-medium">Tie-Out Seimbang</div>
+            <div className="text-[11px] text-[#52636A] mt-1 font-medium">{hasBlockingFailure ? 'Tie-Out Gagal — Perbaikan Diperlukan' : 'Tie-Out Seimbang'}</div>
           </Link>
 
           {/* Step 5 */}
@@ -293,7 +311,7 @@ export default function OverviewClient({
               <Download className="w-4 h-4 text-[#7A8C93]" />
               5. Ekspor XLSX
             </div>
-            <div className="text-[11px] text-[#52636A] mt-1 font-medium">Siap dengan Manifest</div>
+            <div className="text-[11px] text-[#52636A] mt-1 font-medium">{hasBlockingFailure ? 'Diblokir sampai tie-out lolos' : 'Siap dengan Manifest'}</div>
           </Link>
         </div>
       </div>
@@ -354,16 +372,14 @@ export default function OverviewClient({
                     <CheckCircle2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-bold text-[#102A32]">
-                      Antrean Pengecualian Bersih (0 Akun Tertunda)
-                    </div>
+                  <div className="font-bold text-[#102A32]">{hasBlockingFailure ? 'Pengecualian Tie-Out Memerlukan Perbaikan' : 'Antrean Pengecualian Bersih (0 Akun Tertunda)'}</div>
                     <div className="text-[11px] text-[#52636A]">
-                      Seluruh {activeDecisions.length} akun telah berhasil dipetakan ke Pos SAK dan disetujui (Siap Finalisasi & Ekspor).
+                      {hasBlockingFailure ? 'Ekspor resmi ditahan sampai seluruh uji blocking berstatus PASS.' : `Seluruh ${activeDecisions.length} akun telah berhasil dipetakan ke Pos SAK dan disetujui (Siap Finalisasi & Ekspor).`}
                     </div>
                   </div>
                 </div>
                 <span className="text-[11px] font-bold font-mono px-2.5 py-1 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]">
-                  RESOLVED
+                  {hasBlockingFailure ? 'BLOCKED' : 'RESOLVED'}
                 </span>
               </div>
             )}
@@ -379,12 +395,12 @@ export default function OverviewClient({
                     Keseimbangan Neraca Saldo (TB Debit = Credit)
                   </div>
                   <div className="text-[11px] text-[#52636A] font-mono">
-                    Total Debit Rp 87.550.000.000 = Total Kredit Rp 87.550.000.000 (Selisih Rp 0)
+                    {tbCheck ? `Total Debit ${formatIdrNumber(tbCheck.inputs?.totalDebitIdr || 0)} = Total Kredit ${formatIdrNumber(tbCheck.inputs?.totalCreditIdr || 0)} (Selisih ${formatIdrNumber(Math.abs(tbCheck.difference || 0))})` : 'Belum ada hasil uji neraca saldo'}
                   </div>
                 </div>
               </div>
               <span className="text-[11px] font-bold font-mono px-2.5 py-1 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]">
-                PASS
+                {tbCheck?.status === 'pass' ? 'PASS' : 'FAIL'}
               </span>
             </div>
 
@@ -399,12 +415,12 @@ export default function OverviewClient({
                     Persamaan Neraca (Aset = Liabilitas + Ekuitas)
                   </div>
                   <div className="text-[11px] text-[#52636A] font-mono">
-                    Total Aset = Total Liabilitas + Total Ekuitas (Selisih Rp 0)
+                    {balanceSheetCheck ? `Total Aset ${formatIdrNumber(balanceSheetCheck.inputs?.totalAssetsIdr || 0)} = Liabilitas + Ekuitas ${formatIdrNumber((balanceSheetCheck.inputs?.totalLiabilitiesIdr || 0) + (balanceSheetCheck.inputs?.totalEquityIdr || 0))} (Selisih ${formatIdrNumber(Math.abs(balanceSheetCheck.difference || 0))})` : 'Belum ada hasil uji persamaan neraca'}
                   </div>
                 </div>
               </div>
               <span className="text-[11px] font-bold font-mono px-2.5 py-1 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6]">
-                PASS
+                {balanceSheetCheck?.status === 'pass' ? 'PASS' : 'FAIL'}
               </span>
             </div>
           </div>

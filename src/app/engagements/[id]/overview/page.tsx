@@ -19,6 +19,7 @@ export default async function EngagementV4OverviewPage({
       initialAccounts={data.accounts}
       initialDecisions={data.decisions}
       initialWorkpaper={data.workpaper}
+      initialChecks={data.checks}
     />
   );
 }
