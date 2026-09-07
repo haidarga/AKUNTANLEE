@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'motion/react';
@@ -32,9 +32,12 @@ export function V4Shell({ children }: ShellProps) {
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
 
   const isPublicRoute = pathname === '/' || pathname === '/onboarding' || pathname === '/login';
+  const hasCheckedAuth = useRef(false);
 
   useEffect(() => {
-    if (isPublicRoute) return;
+    if (isPublicRoute || hasCheckedAuth.current) return;
+    hasCheckedAuth.current = true;
+
     const checkAuth = async () => {
       try {
         const res = await fetch('/api/v1/auth/me');
@@ -58,9 +61,7 @@ export function V4Shell({ children }: ShellProps) {
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setRole(saved as UserRoleV4);
     }
-    return () => {
-    };
-  }, [pathname, isPublicRoute]);
+  }, [isPublicRoute]);
 
   if (isPublicRoute) {
     return <>{children}</>;
