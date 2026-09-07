@@ -74,7 +74,7 @@ describe('production authorization hardening', () => {
     expect((await response.json()).code).toBe('FORBIDDEN_ROLE');
   });
 
-  it('attributes an adjustment to the authenticated preparer and keeps it proposed', async () => {
+  it('attributes an adjustment to the authenticated preparer and keeps it in draft', async () => {
     const request = await sessionRequest('preparer', 'http://localhost/api/v1/engagements/ENG-2026-01/adjustments', {
       userRole: 'partner', description: 'Accrual correction', debitLineId: 'WP-F.3', debitAmountIdr: 1000,
       creditLineId: 'WP-C.3', creditAmountIdr: 1000,
@@ -83,7 +83,7 @@ describe('production authorization hardening', () => {
     const body = await response.json();
     expect(response.status).toBe(201);
     expect(body.data.preparedByUserId).toBe('USR-PREPARER-TEST');
-    expect(body.data.status).toBe('proposed');
+    expect(body.data.status).toBe('draft');
   });
 
   it('blocks a preparer from resolving a reviewer note by spoofing partner', async () => {

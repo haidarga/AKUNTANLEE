@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { repo } from '@/lib/db/repo-v4';
-import { UserRoleV4 } from '@/types/domain-v4';
+import { authorizationErrorResponse, requireSessionActor } from '@/lib/auth/authorization';
 
 export async function POST(
   request: Request,
@@ -8,15 +8,8 @@ export async function POST(
 ) {
   try {
     const body = await request.json();
-    const { decisions, action, userRole, tenantId } = body;
-    const user = repo.getState().users.find((u) => u.role === (userRole as UserRoleV4)) || repo.getState().users[0];
-
-    if (tenantId && tenantId !== user.tenantId) {
-      return NextResponse.json(
-        { code: 'FORBIDDEN_TENANT', message: 'Akses ditolak: Tenant mismatch', request_id: `req-${Date.now()}` },
-        { status: 403 }
-      );
-    }
+    const { decisions, action } = body;
+    const user = await requireSessionActor(request, ['senior', 'manager', 'partner']);
 
     if (action === 'bulk_approve') {
       const count = repo.bulkApproveMappings(decisions, user);
@@ -37,6 +30,8 @@ export async function POST(
 
     return NextResponse.json({ error: 'Unsupported action' }, { status: 400 });
   } catch (err: any) {
+    const authResponse = authorizationErrorResponse(err);
+    if (authResponse) return authResponse;
     return NextResponse.json(
       { code: 'MAPPING_ERROR', message: err.message, request_id: `req-${Date.now()}`, retryable: false },
       { status: 422 }
