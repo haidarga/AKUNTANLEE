@@ -21,6 +21,7 @@ import { DatasetType, AccountRow, FileVersion, MappingDecision } from '@/types/d
 import { formatIdrNumber } from '@/lib/decimal';
 import { calculateWorkpaperVersion } from '@/lib/workpaper/engine';
 import { inferLeadScheduleTarget } from '@/lib/workpaper/infer-target';
+import { guessTrialBalanceSheetNameFromList } from '@/lib/importer/sheet-detection';
 
 export default function ImportSetupPage() {
   const router = useRouter();
@@ -79,7 +80,7 @@ export default function ImportSetupPage() {
           loadedFile = parsedFiles[0];
           setFileVersion(loadedFile);
           if (loadedFile.sheetNames && loadedFile.sheetNames.length > 0) {
-            setSelectedSheet(loadedFile.sheetNames[0]);
+            setSelectedSheet(guessTrialBalanceSheetNameFromList(loadedFile.sheetNames));
           }
         }
       } else if (savedJob) {

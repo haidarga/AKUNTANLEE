@@ -21,6 +21,7 @@ import { FileVersion } from '@/types/domain-v4';
 import { calculateWorkpaperVersion } from '@/lib/workpaper/engine';
 import { FileScannerIllustration } from '@/components/v4/visuals/WorkflowIllustrations';
 import { inferLeadScheduleTarget } from '@/lib/workpaper/infer-target';
+import { guessTrialBalanceSheetName } from '@/lib/importer/sheet-detection';
 
 export default function FilesClient({
   engagementId,
@@ -131,8 +132,10 @@ export default function FilesClient({
       setUploadProgress(100);
       setUploadStatusText('Pemeriksaan selesai!');
 
-      // Parse real worksheets rows with SheetJS
-      const firstSheetName = sheetNames[0];
+      // Parse real worksheets rows with SheetJS. Real workbooks often lead
+      // with a cover/instructions sheet, so guess the trial balance sheet
+      // by name/header pattern instead of blindly using sheetNames[0].
+      const firstSheetName = guessTrialBalanceSheetName(workbook);
       const worksheet = workbook.Sheets[firstSheetName];
       const rawRows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 

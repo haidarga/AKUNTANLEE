@@ -12,6 +12,7 @@ import {
   ImportErrorDetail,
 } from '@/types/domain-v4';
 import { DecimalMoney } from '@/lib/decimal';
+import { guessTrialBalanceSheetName } from './sheet-detection';
 
 export interface SheetPreviewData {
   sheetNames: string[];
@@ -93,7 +94,7 @@ export function previewSheet(
   sheetName?: string,
   maxPreviewRows = 15
 ): SheetPreviewData {
-  const targetSheetName = sheetName || workbook.SheetNames[0];
+  const targetSheetName = sheetName || guessTrialBalanceSheetName(workbook);
   const sheet = workbook.Sheets[targetSheetName];
 
   if (!sheet) {
