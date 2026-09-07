@@ -16,21 +16,26 @@ import {
   Sparkles,
   Calculator,
   UserCheck,
+  UserPlus,
 } from 'lucide-react';
 import { repo } from '@/lib/db/repo-v4';
+import { getSupabaseAnon, isSupabaseConfigured } from '@/lib/supabase/client';
 
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const firmProfile = repo.getFirmProfile();
 
-  const [activeTab, setActiveTab] = useState<'access_key' | 'credentials'>('access_key');
+  // Standard enterprise default is credentials (Email & Password)
+  const [activeTab, setActiveTab] = useState<'credentials' | 'access_key'>('credentials');
   const [accessKey, setAccessKey] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [googleNotice, setGoogleNotice] = useState<string | null>(null);
 
   const autoAttemptRef = useRef(false);
 
@@ -39,10 +44,62 @@ function LoginFormContent() {
     const keyFromUrl = searchParams.get('key');
     if (keyFromUrl && !autoAttemptRef.current) {
       autoAttemptRef.current = true;
+      setActiveTab('access_key');
       setAccessKey(keyFromUrl);
       handleAccessKeyLogin(keyFromUrl);
     }
   }, [searchParams]);
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    setErrorMessage(null);
+    setGoogleNotice(null);
+
+    try {
+      if (!isSupabaseConfigured()) {
+        setErrorMessage('Supabase Auth belum terkonfigurasi.');
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      const client = getSupabaseAnon();
+      if (!client) {
+        setErrorMessage('Client autentikasi tidak tersedia.');
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      const redirectUrl = `${window.location.origin}/api/v1/auth/callback`;
+      const { data, error } = await client.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
+
+      if (error) {
+        if (
+          error.message?.includes('not enabled') ||
+          (error as any).code === 'validation_failed'
+        ) {
+          setGoogleNotice(
+            'Google OAuth belum diaktifkan di Dashboard Supabase. Anda dapat langsung masuk dengan Email & Password atau membuat akun baru.'
+          );
+        } else {
+          setErrorMessage(error.message || 'Gagal memulai autentikasi Google.');
+        }
+        setIsGoogleLoading(false);
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err: any) {
+      setErrorMessage('Terjadi kesalahan saat menghubungkan ke akun Google.');
+      setIsGoogleLoading(false);
+    }
+  };
 
   const handleAccessKeyLogin = async (keyToUse?: string) => {
     const finalKey = (keyToUse || accessKey).trim().toUpperCase();
@@ -64,7 +121,13 @@ function LoginFormContent() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrorMessage(data.error || 'Access Key tidak valid.');
+        if (res.status === 404) {
+          setErrorMessage(
+            'VIP Access Key hanya tersedia dalam mode demonstrasi internal. Silakan gunakan tab Email & Password untuk masuk ke sistem produksi.'
+          );
+        } else {
+          setErrorMessage(data.error || 'Access Key tidak valid.');
+        }
         setIsLoading(false);
         return;
       }
@@ -109,8 +172,11 @@ function LoginFormContent() {
         localStorage.setItem('finova_v4_role', data.user.role);
         localStorage.setItem('finova_user_name', data.user.name);
       }
+      if (data.user?.firmId) {
+        localStorage.setItem('finova_firm_id', data.user.firmId);
+      }
 
-      const redirectPath = searchParams.get('redirect') || '/engagements/ENG-2026-01/overview';
+      const redirectPath = searchParams.get('redirect') || '/engagements';
       router.push(redirectPath);
     } catch (err: any) {
       setErrorMessage('Terjadi kesalahan jaringan saat autentikasi.');
@@ -158,7 +224,7 @@ function LoginFormContent() {
           FINOVA AI Enterprise Portal
         </h1>
         <p className="text-xs text-[#52636A]">
-          Gerbang Evaluasi A/B Testing &bull; Kantor Akuntan Publik Resmi
+          Platform Manajemen Audit & Kepatuhan Kantor Akuntan Publik
         </p>
       </div>
 
@@ -167,9 +233,9 @@ function LoginFormContent() {
           <div className="finova-bezel-inner p-5 sm:p-6 space-y-4 bg-white">
             <div className="border-b border-[#DDE4E2] pb-3 flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-sm text-[#102A32]">Akses Masuk Sistem</h3>
+                <h3 className="font-bold text-sm text-[#102A32]">Masuk ke Workspace</h3>
                 <p className="text-[11px] text-[#52636A] mt-0.5">
-                  Tenant: <strong className="text-[#102A32]">{firmProfile?.name || 'KAP Haidar & Rekan'}</strong>
+                  Tenant: <strong className="text-[#102A32]">{firmProfile?.name || 'KAP Terdaftar'}</strong>
                 </p>
               </div>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6] flex items-center gap-1">
@@ -178,20 +244,8 @@ function LoginFormContent() {
               </span>
             </div>
 
-            {/* Switch Tabs between Access Key and Traditional Login */}
+            {/* Switch Tabs between Email & Password and Access Key */}
             <div className="flex rounded-xl bg-[#F6F7F5] p-1 border border-[#DDE4E2] text-xs">
-              <button
-                type="button"
-                onClick={() => { setActiveTab('access_key'); setErrorMessage(null); }}
-                className={`flex-1 py-1.5 rounded-lg font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  activeTab === 'access_key'
-                    ? 'bg-white text-[#0F8F7A] shadow-xs'
-                    : 'text-[#52636A] hover:text-[#102A32]'
-                }`}
-              >
-                <KeyRound className="w-3.5 h-3.5" />
-                <span>VIP Access Key</span>
-              </button>
               <button
                 type="button"
                 onClick={() => { setActiveTab('credentials'); setErrorMessage(null); }}
@@ -204,22 +258,158 @@ function LoginFormContent() {
                 <Lock className="w-3.5 h-3.5" />
                 <span>Email & Password</span>
               </button>
+              <button
+                type="button"
+                onClick={() => { setActiveTab('access_key'); setErrorMessage(null); }}
+                className={`flex-1 py-1.5 rounded-lg font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  activeTab === 'access_key'
+                    ? 'bg-white text-[#0F8F7A] shadow-xs'
+                    : 'text-[#52636A] hover:text-[#102A32]'
+                }`}
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>VIP Access Key</span>
+              </button>
             </div>
 
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-[#FFF5F5] border border-[#FCDAD7] text-xs text-[#C83E4D] flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
+              <div className="p-3 rounded-xl bg-[#FFF5F5] border border-[#FCDAD7] text-xs text-[#C83E4D] flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
-            {/* TAB 1: VIP ACCESS KEY (RECOMMENDED FOR TANTE RINA & BUNDA) */}
+            {googleNotice && (
+              <div className="p-3 rounded-xl bg-[#FFFBF0] border border-[#FEEBC8] text-xs text-[#B7791F] flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#DD6B20]" />
+                <span>{googleNotice}</span>
+              </div>
+            )}
+
+            {/* TAB 1: EMAIL & PASSWORD (DEFAULT) */}
+            {activeTab === 'credentials' && (
+              <div className="space-y-3.5 text-xs">
+                {/* Google Sign-in Button */}
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={isGoogleLoading || isLoading}
+                  className="w-full py-2.5 px-4 rounded-xl border border-[#DDE4E2] hover:border-[#CBD5E0] bg-[#F6F7F5] hover:bg-[#EEF2F0] text-xs font-bold text-[#102A32] flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-xs"
+                >
+                  {isGoogleLoading ? (
+                    <RefreshCw className="w-4 h-4 animate-spin text-[#52636A]" />
+                  ) : (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                      />
+                    </svg>
+                  )}
+                  <span>{isGoogleLoading ? 'Menghubungkan ke Google...' : 'Masuk dengan Google'}</span>
+                </button>
+
+                <div className="relative flex py-0.5 items-center">
+                  <div className="flex-grow border-t border-[#DDE4E2]" />
+                  <span className="shrink-0 mx-2 text-[10px] font-bold text-[#7A8C93] uppercase tracking-wider">
+                    atau email & sandi
+                  </span>
+                  <div className="flex-grow border-t border-[#DDE4E2]" />
+                </div>
+
+                <form onSubmit={(e) => handleCredentialsLogin(e)} className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="font-bold text-[#102A32] block">Email Auditor</label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-[#7A8C93] absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="partner@kapanda.co.id"
+                        className="w-full pl-9 pr-3 py-2 bg-[#F6F7F5] border border-[#DDE4E2] rounded-xl text-xs font-medium text-[#102A32] focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-[#102A32]">Kata Sandi</label>
+                      <span className="text-[10px] text-[#7A8C93]">256-bit Encrypted</span>
+                    </div>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-[#7A8C93] absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full pl-9 pr-10 py-2 bg-[#F6F7F5] border border-[#DDE4E2] rounded-xl text-xs font-medium text-[#102A32] focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7A8C93] hover:text-[#102A32]"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full finova-pill-cta justify-center bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs shadow-md cursor-pointer py-2.5 mt-2"
+                  >
+                    <span>{isLoading ? 'Memverifikasi Sesi Kredensial...' : 'Masuk ke Workspace Audit'}</span>
+                    <div className="icon-circle">
+                      {isLoading ? (
+                        <RefreshCw className="w-3.5 h-3.5 text-white animate-spin" />
+                      ) : (
+                        <ArrowRight className="w-3.5 h-3.5 text-white" />
+                      )}
+                    </div>
+                  </button>
+                </form>
+
+                {/* Banner Daftar Akun Baru */}
+                <div className="mt-3 p-3 rounded-xl bg-[#E8F5F1] border border-[#B2DFD6] flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-[#0F8F7A] block">Belum punya akun KAP?</span>
+                    <p className="text-[11px] text-[#52636A]">Daftarkan Kantor Akuntan Publik Anda gratis</p>
+                  </div>
+                  <Link
+                    href="/register"
+                    className="px-3 py-1.5 rounded-lg bg-[#0F8F7A] hover:bg-[#0C7564] text-white font-bold text-[11px] flex items-center gap-1 shadow-xs shrink-0"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>Daftar</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: VIP ACCESS KEY (UNTUK PENGUJIAN/DEMO EVALUATOR) */}
             {activeTab === 'access_key' && (
               <div className="space-y-4 text-xs">
                 <div className="space-y-1.5">
                   <label className="font-bold text-[#102A32] block flex items-center justify-between">
                     <span>Masukkan Access Key</span>
-                    <span className="text-[10px] text-[#0F8F7A] font-semibold">1-Click Direct Unlock</span>
+                    <span className="text-[10px] text-[#0F8F7A] font-semibold">Evaluasi Instan</span>
                   </label>
                   <div className="relative">
                     <KeyRound className="w-4 h-4 text-[#7A8C93] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -253,7 +443,7 @@ function LoginFormContent() {
                 {/* 1-Click Preset Access Keys */}
                 <div className="pt-2 border-t border-[#DDE4E2] space-y-2">
                   <span className="text-[10.5px] font-bold text-[#52636A] uppercase tracking-wider block">
-                    Pilih Access Key Pengujian (1-Click Masuk):
+                    Pilih Access Key Persona Evaluator:
                   </span>
 
                   <div className="space-y-2">
@@ -302,70 +492,13 @@ function LoginFormContent() {
               </div>
             )}
 
-            {/* TAB 2: EMAIL & PASSWORD (STANDARD ENTERPRISE) */}
-            {activeTab === 'credentials' && (
-              <form onSubmit={(e) => handleCredentialsLogin(e)} className="space-y-3.5 text-xs">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-[#102A32] block">Email Auditor</label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-[#7A8C93] absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="haidar@kaphaidar.co.id"
-                      className="w-full pl-9 pr-3 py-2 bg-[#F6F7F5] border border-[#DDE4E2] rounded-xl text-xs font-medium text-[#102A32] focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="font-bold text-[#102A32]">Kata Sandi</label>
-                    <span className="text-[10px] text-[#7A8C93]">Bcrypt Salt-10</span>
-                  </div>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-[#7A8C93] absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••••••"
-                      className="w-full pl-9 pr-10 py-2 bg-[#F6F7F5] border border-[#DDE4E2] rounded-xl text-xs font-medium text-[#102A32] focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7A8C93] hover:text-[#102A32]"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full finova-pill-cta justify-center bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs shadow-md cursor-pointer py-2.5"
-                >
-                  <span>{isLoading ? 'Memverifikasi Sesi Kredensial...' : 'Masuk ke Workspace Audit'}</span>
-                  <div className="icon-circle">
-                    {isLoading ? (
-                      <RefreshCw className="w-3.5 h-3.5 text-white animate-spin" />
-                    ) : (
-                      <ArrowRight className="w-3.5 h-3.5 text-white" />
-                    )}
-                  </div>
-                </button>
-              </form>
-            )}
-
-            <div className="pt-2 text-center text-xs text-[#52636A] flex items-center justify-center gap-2">
-              <span>Ingin kembali ke beranda?</span>
-              <Link href="/" className="text-[#0F8F7A] font-bold underline hover:text-[#0C7564]">
-                Landing Page &rarr;
+            <div className="pt-2 text-center text-xs text-[#52636A] flex items-center justify-center gap-3">
+              <Link href="/" className="text-[#52636A] hover:text-[#102A32] transition-colors">
+                &larr; Landing Page
+              </Link>
+              <span>&bull;</span>
+              <Link href="/register" className="text-[#0F8F7A] font-bold hover:underline">
+                Daftar Akun KAP Baru
               </Link>
             </div>
           </div>

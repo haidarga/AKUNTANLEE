@@ -17,6 +17,8 @@ export function isSupabaseConfigured(): boolean {
 }
 
 let supabaseInstance: SupabaseClient | null = null;
+let supabaseAdminInstance: SupabaseClient | null = null;
+let supabaseAnonInstance: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient | null {
   if (!isSupabaseConfigured()) {
@@ -32,3 +34,36 @@ export function getSupabase(): SupabaseClient | null {
   }
   return supabaseInstance;
 }
+
+export function getSupabaseAdmin(): SupabaseClient | null {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) {
+    return getSupabase();
+  }
+  if (!supabaseAdminInstance) {
+    supabaseAdminInstance = createClient(supabaseUrl, serviceKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+  }
+  return supabaseAdminInstance;
+}
+
+export function getSupabaseAnon(): SupabaseClient | null {
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
+    return getSupabase();
+  }
+  if (!supabaseAnonInstance) {
+    supabaseAnonInstance = createClient(supabaseUrl, anonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+  }
+  return supabaseAnonInstance;
+}
+

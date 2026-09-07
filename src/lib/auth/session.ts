@@ -106,7 +106,19 @@ export async function getCurrentUser(): Promise<DbUser | null> {
     const payload = await verifySessionToken(token);
     if (!payload || !payload.userId) return null;
 
-    return getUserById(payload.userId);
+    const sqliteUser = getUserById(payload.userId);
+    if (sqliteUser) return sqliteUser;
+
+    return {
+      id: payload.userId,
+      email: payload.email,
+      password_hash: '',
+      name: payload.name,
+      role: payload.role,
+      title: payload.title,
+      cpa_license: null,
+      created_at: new Date().toISOString(),
+    };
   } catch (e) {
     return null;
   }

@@ -15,6 +15,8 @@ const PUBLIC_API_PATHS = new Set([
   '/api/v1/auth/logout',
   '/api/v1/auth/me',
   '/api/v1/auth/access-key',
+  '/api/v1/auth/register',
+  '/api/v1/auth/callback',
 ]);
 
 export async function middleware(req: NextRequest) {
