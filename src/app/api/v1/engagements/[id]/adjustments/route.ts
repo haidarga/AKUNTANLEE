@@ -54,7 +54,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         creditAmountIdr,
         preparedByUserId: user.id,
         preparedByName: user.name,
-        status: 'draft' as const,
+        // There is no separate maker-checker approval endpoint or UI
+        // anywhere in the product — a 'draft' entry never affects the
+        // workpaper (calculateWorkpaperVersion only applies 'approved'
+        // entries), so it would be permanently stranded. A preparer
+        // (junior-most role) still requires review, matching the existing
+        // segregation-of-duties rule — but senior/manager/partner posting
+        // via this modal ("Posting Jurnal & Rekalkulasi Kertas Kerja")
+        // promises immediate effect, so treat that as self-approval.
+        ...(user.role === 'preparer'
+          ? { status: 'draft' as const }
+          : { approvedByUserId: user.id, status: 'approved' as const }),
     };
     if (!isSupabaseConfigured() && !process.env.VITEST) {
       return NextResponse.json({ success: false, error: 'Database production belum dikonfigurasi; jurnal audit tidak boleh menggunakan penyimpanan sementara.' }, { status: 503 });
