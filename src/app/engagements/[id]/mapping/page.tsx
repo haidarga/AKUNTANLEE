@@ -52,9 +52,11 @@ export default function AccountMappingPage() {
   };
   const mapSets = state.mappingSets.filter((ms) => ms.engagementId === engagement.id);
   const mapSetIds = new Set(mapSets.map((ms) => ms.id));
-  const initialDecisions = state.mappingDecisions.filter(
-    (d) => mapSetIds.has(d.mappingSetId) || (engagement.id === 'ENG-2026-01' && d.mappingSetId === 'MAPSET-001')
-  );
+  const initialDecisions = engagementId === 'ENG-2026-01'
+    ? state.mappingDecisions.filter(
+        (d) => mapSetIds.has(d.mappingSetId) || d.mappingSetId === 'MAPSET-001'
+      )
+    : [];
   const [decisions, setDecisions] = useState<MappingDecision[]>(initialDecisions);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'needs_review' | 'mapped' | 'excluded' | 'material'>('all');
   const [search, setSearch] = useState('');

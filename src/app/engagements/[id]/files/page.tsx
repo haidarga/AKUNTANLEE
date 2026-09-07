@@ -45,7 +45,9 @@ export default function FilesPage() {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  const activeFiles = state.fileVersions.filter((f) => f.engagementId === engagement.id);
+  const activeFiles = engagementId === 'ENG-2026-01'
+    ? state.fileVersions.filter((f) => f.engagementId === engagement.id)
+    : [];
   const [fileVersions, setFileVersions] = useState<FileVersion[]>(activeFiles);
   const [extractedCount, setExtractedCount] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -57,14 +59,16 @@ export default function FilesPage() {
     fetch('/api/v1/engagements/' + engagement.id + '/files')
       .then((res) => res.json())
       .then((json) => {
-        if (json.data?.files && json.data.files.length > 0) {
-          setFileVersions(json.data.files);
+        const filesList = json.data?.files || json.files;
+        if (Array.isArray(filesList)) {
+          setFileVersions(filesList);
         }
-        if (json.data?.accounts && json.data.accounts.length > 0) {
-          setExtractedCount(json.data.accounts.length);
+        const accsList = json.data?.accounts || json.accounts;
+        if (Array.isArray(accsList) && accsList.length > 0) {
+          setExtractedCount(accsList.length);
         }
       })
-      .catch(() => {});
+      .catch((err) => console.warn('Error loading files:', err));
 
     try {
       const storedFiles = localStorage.getItem('finova_files_' + engagement.id);

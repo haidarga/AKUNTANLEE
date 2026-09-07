@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { chatWithAuditCopilot } from '@/lib/ai/client';
 import { repo } from '@/lib/db/repo-v4';
 import { formatIdrNumber } from '@/lib/decimal';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
+import { fetchEngagementByIdFromSupabase, fetchAccountsFromSupabase } from '@/lib/supabase/service';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,24 +18,59 @@ export async function POST(req: NextRequest) {
     }
 
     const state = repo.getState();
-    const engagement = state.engagements.find((e) => e.id === engagementId) || state.engagements[0];
-    const client = state.clients.find((c) => c.id === engagement?.clientId) || state.clients[0];
-    const wp = state.workpaperVersions[0];
-    const decisions = state.mappingDecisions;
+    let engagement = state.engagements.find((e) => e.id === engagementId);
+    let client = engagement ? state.clients.find((c) => c.id === engagement?.clientId) : null;
+
+    if ((!engagement || !client) && isSupabaseConfigured() && engagementId) {
+      try {
+        const sb = await fetchEngagementByIdFromSupabase(engagementId);
+        if (sb) {
+          engagement = sb.engagement;
+          client = sb.client;
+        }
+      } catch (e) {
+        console.warn('Supabase lookup in ai/chat failed:', e);
+      }
+    }
+
+    // Default engagement fallback only if not found and is demo
+    if (!engagement && engagementId === 'ENG-2026-01') {
+      engagement = state.engagements[0];
+      client = state.clients[0];
+    }
+
+    const clientName = client?.legalName || engagement?.name || 'Entitas Klien Audit';
+    const engagementName = engagement?.name || `Perikatan Audit ${engagementId || ''}`;
+    const periodStart = engagement?.periodStart || '2026-01-01';
+    const periodEnd = engagement?.periodEnd || '2026-12-31';
+
+    let wp = state.workpaperVersions.find((w) => w.engagementId === engagementId);
+    if (!wp && engagementId === 'ENG-2026-01') {
+      wp = state.workpaperVersions[0];
+    }
+
+    let accountsCount = 0;
+    if (engagementId === 'ENG-2026-01') {
+      accountsCount = state.accounts.length;
+    } else if (isSupabaseConfigured() && engagementId) {
+      try {
+        const sbAccs = await fetchAccountsFromSupabase(engagementId);
+        accountsCount = sbAccs.length;
+      } catch (e) {}
+    }
 
     const context = `
-KLIEN: ${client?.legalName || 'PT Nusantara Sukses Makmur'}
-NAMA PERIKATAN: ${engagement?.name || 'Financial Review & Lead Schedule FY 2026'}
-PERIODE: Tahun Fiskal 2026 (${engagement?.periodStart} s.d. ${engagement?.periodEnd})
-KAP: ${repo.getFirmProfile()?.name || "Kantor Akuntan Publik Terdaftar"}
-MATERIALITAS AUDIT: Rp ${engagement?.materialityIdr ? engagement.materialityIdr.toLocaleString('id-ID') : '250.000.000'}
+KLIEN: ${clientName}
+NAMA PERIKATAN: ${engagementName}
+PERIODE: Tahun Fiskal (${periodStart} s.d. ${periodEnd})
+KAP: ${repo.getFirmProfile()?.name || 'Kantor Akuntan Publik Terdaftar'}
+MATERIALITAS AUDIT: Rp ${engagement?.materialityIdr ? engagement.materialityIdr.toLocaleString('id-ID') : '150.000.000'}
 TOTAL ASET: ${formatIdrNumber(wp?.totals?.totalAssetsIdr || 0)}
 TOTAL LIABILITAS: ${formatIdrNumber(wp?.totals?.totalLiabilitiesIdr || 0)}
 TOTAL EKUITAS: ${formatIdrNumber(wp?.totals?.totalEquityIdr || 0)}
 LABA BERSIH: ${formatIdrNumber(wp?.totals?.netIncomeIdr || 0)}
-STATUS TIE-OUT: Neraca Saldo Seimbang (PASS), Persamaan Neraca Terpenuhi (PASS)
-JUMLAH AKUN: ${decisions.length} akun terdaftar
-AKUN PERLU REVIEW: ${decisions.filter((d) => d.status === 'needs_review').map((d) => `${d.sourceAccountCode} ${d.sourceAccountName} (Rp ${d.amountIdr.toLocaleString('id-ID')})`).join(', ') || 'Semua akun telah dipetakan'}
+STATUS TIE-OUT: ${wp ? 'Neraca Saldo Seimbang (PASS)' : 'Menunggu Berkas Neraca Saldo'}
+JUMLAH AKUN: ${accountsCount} akun terdaftar
 `;
 
     const result = await chatWithAuditCopilot(messages, context);

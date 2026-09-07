@@ -88,7 +88,7 @@ export default function TaxCompliancePage() {
   const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
   const isCustomEngagement = engagementId !== 'ENG-2026-01';
   const [activeSubTab, setActiveSubTab] = useState<'pph21' | 'ppn' | 'badan'>('pph21');
-  const [data, setData] = useState<any>(DEFAULT_TAX_DATA);
+  const [data, setData] = useState<any>(isCustomEngagement ? null : DEFAULT_TAX_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [showImporter, setShowImporter] = useState(false);
   const [importNotice, setImportNotice] = useState<string | null>(null);
@@ -96,37 +96,137 @@ export default function TaxCompliancePage() {
   const [hasPayroll, setHasPayroll] = useState<boolean>(!isCustomEngagement);
 
   useEffect(() => {
-    if (isCustomEngagement) {
-      try {
-        const storedPayroll = localStorage.getItem('finova_payroll_' + engagementId);
-        if (storedPayroll) {
-          setHasPayroll(true);
-        } else {
+    if (!isCustomEngagement) {
+      setData(DEFAULT_TAX_DATA);
+      setHasPayroll(true);
+      return;
+    }
+
+    setIsLoading(true);
+    fetch('/api/v1/engagements/' + engagementId + '/files')
+      .then((res) => res.json())
+      .then((json) => {
+        const lines = json.data?.lines || [];
+        const wp = json.data?.workpaper || null;
+
+        if (lines.length === 0 && !wp) {
+          setData(null);
           setHasPayroll(false);
           setIsLoading(false);
           return;
         }
-      } catch (e) {}
-    }
 
-    const loadTaxData = async () => {
-      try {
-        const res = await fetch('/api/v1/tax/calculate');
-        if (res.ok) {
-          const json = await res.json();
-          setData(json.data);
-        }
-      } catch (e) {
-        console.error('Failed to load tax data:', e);
-      } finally {
+        const revLine = lines.find((l: any) => l.lineId === 'WP-F.1');
+        const turnover = Math.abs(revLine?.currentPeriodIdr || 0);
+        const netProfit = wp?.totals?.netIncomeIdr || 0;
+
+        let monthlyList: any[] = [];
+        let annualList: any[] = [];
+        let foundPayroll = false;
+
+        try {
+          const storedPayroll = localStorage.getItem('finova_payroll_' + engagementId);
+          if (storedPayroll) {
+            const employees = JSON.parse(storedPayroll);
+            if (Array.isArray(employees) && employees.length > 0) {
+              foundPayroll = true;
+              monthlyList = employees.map((emp: any) => calculateMonthlyPph21(emp));
+              annualList = employees.map((emp: any) => {
+                const annualGross = (emp.monthlyGrossSalaryIdr + emp.monthlyAllowanceIdr) * 12;
+                const biayaJabatan = Math.min(6_000_000, annualGross * 0.05);
+                const net = annualGross - biayaJabatan;
+                const ptkp = getPtkpAnnualAmount(emp.ptkpStatus);
+                const pkp = Math.max(0, net - ptkp);
+                const annualTax = calculateAnnualPph21Pasal17(pkp);
+                const janToNovTer = (monthlyList.find((m) => m.employeeId === emp.id)?.monthlyPph21Idr || 0) * 11;
+                const decTax = Math.max(0, annualTax - janToNovTer);
+                return {
+                  employeeId: emp.id,
+                  employeeName: emp.name,
+                  annualGrossIncomeIdr: annualGross,
+                  biayaJabatanIdr: biayaJabatan,
+                  netIncomeIdr: net,
+                  ptkpAmountIdr: ptkp,
+                  taxableIncomeIdr: pkp,
+                  annualPph21TarifPasal17Idr: annualTax,
+                  totalPph21TerJanToNovIdr: janToNovTer,
+                  decemberPph21Idr: decTax,
+                };
+              });
+            }
+          }
+        } catch (e) {}
+
+        setHasPayroll(foundPayroll);
+        const ppnFilings = generateDefaultPpnFilings(turnover);
+        const ppnEqualization = calculatePpnEqualization(turnover, ppnFilings);
+        const corporateFiscal = calculateCorporateFiscalReconciliation(netProfit, turnover);
+
+        setData({
+          turnoverIdr: turnover,
+          netProfitIdr: netProfit,
+          pph21: {
+            monthlyList,
+            totalMonthlyWithholdingIdr: monthlyList.reduce((s: number, c: any) => s + c.monthlyPph21Idr, 0),
+            annualReconciliationList: annualList,
+            totalAnnualWithholdingIdr: annualList.reduce((s: number, a: any) => s + a.annualPph21TarifPasal17Idr, 0),
+          },
+          ppn: {
+            filings: ppnFilings,
+            equalization: ppnEqualization,
+          },
+          corporateTax: corporateFiscal,
+        });
         setIsLoading(false);
-      }
-    };
-    loadTaxData();
+      })
+      .catch((err) => {
+        console.warn('Error fetching engagement files for tax:', err);
+        setIsLoading(false);
+      });
   }, [engagementId, isCustomEngagement]);
 
   // Zero loading flash: tax data is pre-populated synchronously
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="space-y-6 text-[#102A32] animate-finova-in">
+        <div className="bg-white p-5 rounded-2xl border border-[#DDE4E2] shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#0F8F7A]/15 text-[#0F8F7A] border border-[#0F8F7A]/30">
+                MODUL KEPATUHAN & REKONSILIASI PERPAJAKAN
+              </span>
+              <span className="text-[10px] text-[#52636A]">Regulasi: PP 58/2023, PMK 168/2023 & UU HPP</span>
+            </div>
+            <h2 className="text-base font-bold text-[#102A32]">
+              Pusat Kepatuhan Pajak & Rekonsiliasi Fiskal
+            </h2>
+            <p className="text-xs text-[#52636A] mt-0.5">
+              Otomasi perhitungan PPh 21 tarif efektif (TER), ekualisasi omset SPT Masa PPN 1111, dan koreksi fiskal SPT 1771.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-[#DDE4E2] p-12 text-center space-y-4 shadow-2xs">
+          <div className="w-16 h-16 rounded-2xl bg-[#E8F5F1] border border-[#B2DFD6] flex items-center justify-center mx-auto text-[#0F8F7A]">
+            <Calculator className="w-8 h-8" />
+          </div>
+          <div className="space-y-1 max-w-md mx-auto">
+            <h3 className="text-base font-bold text-[#102A32]">Belum Ada Data Finansial untuk Perhitungan Pajak</h3>
+            <p className="text-xs text-[#52636A] leading-relaxed">
+              Otomasi rekonsiliasi fiskal badan SPT 1771 dan ekualisasi omset PPN 1111 memerlukan data neraca saldo klien. Silakan unggah berkas neraca saldo pada menu Berkas terlebih dahulu.
+            </p>
+          </div>
+          <Link
+            href={"/engagements/" + engagementId + "/files"}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs font-bold shadow-xs cursor-pointer"
+          >
+            <UploadCloud className="w-4 h-4" />
+            <span>Unggah Neraca Saldo Klien</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const { pph21, ppn, corporateTax } = data;
 

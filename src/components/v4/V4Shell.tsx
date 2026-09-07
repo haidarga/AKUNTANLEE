@@ -50,7 +50,7 @@ export function V4Shell({ children }: ShellProps) {
         }
       } catch (e) {}
     }
-    return repo.getFirmProfile()?.managingPartnerName || "Lee Jonathan, CPA";
+    return repo.getFirmProfile()?.managingPartnerName || "Partner Akuntan Publik";
   });
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
@@ -68,6 +68,8 @@ export function V4Shell({ children }: ShellProps) {
             setSessionUser(data.user);
             setRole(data.user.role as UserRoleV4);
             localStorage.setItem('finova_v4_role', data.user.role);
+            if (data.user.name) setManagingPartnerName(data.user.name);
+            if (data.user.firmName) setFirmName(data.user.firmName);
           }
         }
       } catch (e) {
@@ -131,8 +133,8 @@ export function V4Shell({ children }: ShellProps) {
   const roleMeta: Record<UserRoleV4, { label: string; name: string; avatar: string; color: string }> = {
     partner: {
       label: 'Managing Partner',
-      name: managingPartnerName || 'Lee Jonathan, CPA',
-      avatar: getInitials(managingPartnerName || 'Lee Jonathan'),
+      name: managingPartnerName || 'Partner Akuntan Publik',
+      avatar: getInitials(managingPartnerName || 'Partner Akuntan Publik'),
       color: 'bg-[#102A32] text-white'
     },
     manager: { label: 'Engagement Manager', name: 'Siti Rahmawati, S.E., M.Ak., CA', avatar: 'SR', color: 'bg-[#0F8F7A] text-white' },

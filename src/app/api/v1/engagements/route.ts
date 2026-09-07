@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { repo } from '@/lib/db/repo-v4';
 import { saveStateToDb } from '@/lib/db/sqlite';
@@ -144,8 +145,8 @@ export async function POST(request: Request) {
       createdClient = state.clients.find((c) => c.id === finalClientId);
     }
 
-    const nextIdNumber = String(state.engagements.length + 1).padStart(2, '0');
-    const newEngId = `ENG-${periodYear || new Date().getFullYear()}-${nextIdNumber}`;
+    const uniqueSuffix = `${Date.now().toString().slice(-6)}${Math.floor(100 + Math.random() * 900)}`;
+    const newEngId = `ENG-${periodYear || new Date().getFullYear()}-${uniqueSuffix}`;
 
     const eng = repo.createEngagement(
       {

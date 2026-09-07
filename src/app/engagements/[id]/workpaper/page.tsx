@@ -116,6 +116,24 @@ export default function WorkpaperPage() {
       setActiveRole(saved as UserRoleV4);
     }
 
+    // Fetch live workpaper lines and totals from API single source of truth
+    fetch(`/api/v1/engagements/${engagementId}/files`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.data?.lines && json.data.lines.length > 0) {
+          setLines(json.data.lines);
+        } else if (engagementId !== 'ENG-2026-01') {
+          setLines([]);
+        }
+        if (json.data?.workpaper) {
+          setWpVersion(json.data.workpaper);
+        }
+        if (json.data?.checks) {
+          setChecks(json.data.checks);
+        }
+      })
+      .catch((err) => console.warn('Error fetching live workpaper data:', err));
+
     try {
       const customAccountsRaw = localStorage.getItem('finova_accounts_' + engagementId);
       const customMappingRaw = localStorage.getItem('finova_mapping_' + engagementId);
@@ -309,6 +327,12 @@ export default function WorkpaperPage() {
         setLines(wpCalc.lines);
         if (wpCalc.checks) setChecks(wpCalc.checks);
         localStorage.setItem('finova_wp_' + engagementId, JSON.stringify(wpCalc));
+      } else if (isCustomEngagement) {
+        const res = await fetch('/api/v1/engagements/' + engagementId + '/files');
+        const json = await res.json();
+        if (json.data?.workpaper) setWpVersion(json.data.workpaper);
+        if (json.data?.lines) setLines(json.data.lines);
+        if (json.data?.checks) setChecks(json.data.checks);
       } else {
         const user = state.users.find((u) => u.role === activeRole) || state.users[0];
         const newWp = repo.recalculateWorkpaper(engagement.id, user);
@@ -332,8 +356,8 @@ export default function WorkpaperPage() {
       targetLineId: line.lineId,
       targetAmountIdr: line.currentPeriodIdr,
       sourceFileVersionId: 'FV-001',
-      sourceFileName: 'TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx',
-      sourceChecksumSha256: '9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92',
+      sourceFileName: isCustomEngagement ? (state.fileVersions.find(f => f.engagementId === engagement.id)?.originalName || 'Trial_Balance_Klien.xlsx') : 'TB_PT_Nusantara_Sukses_Makmur_FY2026.xlsx',
+      sourceChecksumSha256: isCustomEngagement ? (state.fileVersions.find(f => f.engagementId === engagement.id)?.checksumSha256 || '0000000000000000000000000000000000000000000000000000000000000000') : '9f83a48e71c9b204683bc48b3017fa489110756e4c7717bc2d043444fb9a7b92',
       sheetName: 'Trial Balance',
       cellRange: 'Trial Balance!A2:F23',
       sourceRowNumber: 14,

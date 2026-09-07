@@ -14,7 +14,7 @@ export interface IsometricWorkbookPreviewProps {
 }
 
 export function IsometricWorkbookPreview({
-  signerName = 'Lee Jonathan, CPA',
+  signerName = 'Partner Akuntan Publik',
   checksumSha256 = '568c968de29717f115b3d4dfb716e0b7cea3dd60ec90fd091997d679c75a1e91',
   cashAmountIdr = 0,
   receivableAmountIdr = 0,

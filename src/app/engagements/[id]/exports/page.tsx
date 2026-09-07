@@ -22,6 +22,20 @@ import {
 import { repo } from '@/lib/db/repo-v4';
 import { ExportArtifact, UserRoleV4, WorkpaperVersion, ValidationCheckResult, MappingDecision, FileVersion } from '@/types/domain-v4';
 
+function deriveClientCode(legalName?: string, fallbackCode?: string): string {
+  if (fallbackCode && !['EXP', 'MNDR', 'MANDIRI', 'CKI', 'CLI-002', 'CLIENT'].includes(fallbackCode.toUpperCase())) {
+    return fallbackCode.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 24);
+  }
+  if (!legalName) return 'KLN';
+  const clean = legalName.replace(/^(PT|CV|UD|KAP|FA|PERUM|PERUMDA|YAYASAN)\.?\s+/i, '').trim();
+  const words = clean.split(/[\s\-_]+/).filter(Boolean);
+  if (words.length > 1) {
+    const acronym = words.map((w) => w[0]).join('').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (acronym.length >= 2) return acronym.slice(0, 24);
+  }
+  return clean.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || 'KLN';
+}
+
 export default function ExportsPage() {
   const routeParams = useParams();
   const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
@@ -49,9 +63,11 @@ export default function ExportsPage() {
   const defaultWp = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
   const [wpVersion, setWpVersion] = useState<WorkpaperVersion>(defaultWp);
   const [checks, setChecks] = useState<ValidationCheckResult[]>(state.validationChecks);
-  const [lines, setLines] = useState<any[]>(state.workpaperLines);
-  const [mappingDecisions, setMappingDecisions] = useState<MappingDecision[]>(state.mappingDecisions);
-  const [fileVersions, setFileVersions] = useState<FileVersion[]>(state.fileVersions);
+  const [lines, setLines] = useState<any[]>(isCustomEngagement ? [] : state.workpaperLines);
+  const [mappingDecisions, setMappingDecisions] = useState<MappingDecision[]>(isCustomEngagement ? [] : state.mappingDecisions);
+  const [fileVersions, setFileVersions] = useState<FileVersion[]>(isCustomEngagement ? [] : state.fileVersions);
+  const [activeClient, setActiveClient] = useState<any>(state.clients.find((c) => c.id === engagement.clientId) || null);
+  const [activeEngagement, setActiveEngagement] = useState<any>(engagement);
 
   const initialArtifacts = isCustomEngagement
     ? state.exportArtifacts.filter((a) => a.engagementId === engagement.id)
@@ -63,7 +79,7 @@ export default function ExportsPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeRole, setActiveRole] = useState<UserRoleV4>('partner');
   const [mounted, setMounted] = useState(false);
-  const [activeSigner, setActiveSigner] = useState<string>("Lee Jonathan, CPA");
+  const [activeSigner, setActiveSigner] = useState<string>("Partner Akuntan Publik");
 
   useEffect(() => {
     setMounted(true);
@@ -71,6 +87,32 @@ export default function ExportsPage() {
     if (saved && ['preparer', 'senior', 'manager', 'partner'].includes(saved)) {
       setActiveRole(saved as UserRoleV4);
     }
+
+    fetch('/api/v1/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user?.name) setActiveSigner(data.user.name);
+      })
+      .catch(() => {});
+
+    fetch('/api/v1/engagements/' + engagementId)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.client) setActiveClient(data.client);
+        if (data.engagement) setActiveEngagement(data.engagement);
+      })
+      .catch(() => {});
+
+    fetch('/api/v1/engagements/' + engagementId + '/files')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.data?.files && data.data.files.length > 0) setFileVersions(data.data.files);
+        if (data.data?.lines && data.data.lines.length > 0) setLines(data.data.lines);
+        if (data.data?.workpaper) setWpVersion(data.data.workpaper);
+        if (data.data?.checks) setChecks(data.data.checks);
+        if (data.data?.decisions) setMappingDecisions(data.data.decisions);
+      })
+      .catch(() => {});
 
     try {
       const savedFirm = localStorage.getItem("finova_firm_profile");
@@ -164,20 +206,7 @@ export default function ExportsPage() {
           userRole: activeRole,
           userId: user.id,
           operatorName: activeSigner || user.name,
-          clientCode: (() => {
-            if (!isCustomEngagement) {
-              return state.clients.find((client) => client.id === engagement.clientId)?.code || 'EXP';
-            }
-
-            const sourceName = fileVersions[0]?.originalName || '';
-            const candidate = sourceName
-              .replace(/\.[^.]+$/, '')
-              .split(/[^a-zA-Z0-9]+/)
-              .filter(Boolean)
-              .find((part) => !/^(trial|balance|tb|pt|cv|fy|20\d{2}|final|uji)$/i.test(part));
-
-            return (candidate || 'MANDIRI').toUpperCase().slice(0, 24);
-          })(),
+          clientCode: deriveClientCode(activeClient?.legalName || activeEngagement?.name, activeClient?.code),
           customWp: isCustomEngagement ? wpVersion : undefined,
           customLines: isCustomEngagement && lines.length > 0 ? lines : undefined,
           sourceChecksum: isCustomEngagement && fileVersions[0] ? fileVersions[0].checksumSha256 : undefined,
@@ -272,7 +301,7 @@ export default function ExportsPage() {
         const recVal = Math.abs(recLine?.currentPeriodIdr || 0);
         const totalAssetsVal = wpVersion.totals.totalAssetsIdr || 0;
         const activeSha = fileVersions[0]?.checksumSha256 || "568c968de29717f115b3d4dfb716e0b7cea3dd60ec90fd091997d679c75a1e91";
-        const clientCode = (engagement.clientId && engagement.clientId !== "CLI-002") ? engagement.clientId : (engagement.id === "ENG-MANDIRI-2026" ? "MANDIRI" : "CKI");
+        const clientCode = deriveClientCode(activeClient?.legalName || activeEngagement?.name, activeClient?.code);
 
         return (
           <IsometricWorkbookPreview

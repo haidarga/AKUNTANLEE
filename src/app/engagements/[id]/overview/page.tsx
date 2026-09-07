@@ -60,29 +60,43 @@ export default function EngagementOverviewPage() {
     (d) => mapSetIds.has(d.mappingSetId) || (engagement.id === 'ENG-2026-01' && d.mappingSetId === 'MAPSET-001')
   );
   const needsReviewDecisions = decisions.filter((d) => d.status === 'needs_review');
-  const isAllMapped = decisions.length > 0 && needsReviewDecisions.length === 0;
-  const hasFiles = files.length > 0;
-  const [customFiles, setCustomFiles] = useState<any[]>(files);
+  const isCustomEngagement = engagementId !== 'ENG-2026-01';
+  const [customFiles, setCustomFiles] = useState<any[]>(isCustomEngagement ? [] : files);
   const [customAccounts, setCustomAccounts] = useState<any[]>([]);
-  const [customDecisions, setCustomDecisions] = useState<any[]>(decisions);
+  const [customDecisions, setCustomDecisions] = useState<any[]>(isCustomEngagement ? [] : decisions);
+  const [activeClient, setActiveClient] = useState<any>(client);
+  const [activeWpVersion, setActiveWpVersion] = useState<any>(isCustomEngagement ? null : wp);
 
   useEffect(() => {
-    try {
-      const savedFiles = localStorage.getItem('finova_files_' + engagementId);
-      if (savedFiles) setCustomFiles(JSON.parse(savedFiles));
+    // Fetch live engagement and client info
+    fetch(`/api/v1/engagements/${engagementId}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.client) setActiveClient(json.client);
+      })
+      .catch(() => {});
 
-      const savedAcc = localStorage.getItem('finova_accounts_' + engagementId);
-      if (savedAcc) setCustomAccounts(JSON.parse(savedAcc));
-
-      const savedMap = localStorage.getItem('finova_mapping_' + engagementId);
-      if (savedMap) setCustomDecisions(JSON.parse(savedMap));
-    } catch (e) {}
+    // Fetch live files, accounts, and workpaper totals
+    fetch(`/api/v1/engagements/${engagementId}/files`)
+      .then((res) => res.json())
+      .then((json) => {
+        const filesList = json.data?.files || json.files;
+        if (Array.isArray(filesList)) setCustomFiles(filesList);
+        const accsList = json.data?.accounts || json.accounts;
+        if (Array.isArray(accsList)) setCustomAccounts(accsList);
+        const decsList = json.data?.decisions || json.decisions;
+        if (Array.isArray(decsList)) setCustomDecisions(decsList);
+        if (json.data?.workpaper) setActiveWpVersion(json.data.workpaper);
+      })
+      .catch(() => {});
   }, [engagementId]);
 
   const activeFiles = customFiles.length > 0 ? customFiles : files;
   const activeDecisions = customDecisions.length > 0 ? customDecisions : (engagement.id === "ENG-2026-01" ? decisions : []);
   const activeNeedsReview = activeDecisions.filter((d: any) => d.status === "needs_review");
   const isCustomAllMapped = activeDecisions.length > 0 && activeNeedsReview.length === 0;
+  const hasFiles = activeFiles.length > 0;
+  const isAllMapped = isCustomAllMapped;
 
   const checks = state.validationChecks;
   const auditEvents = state.auditEvents.slice(0, 4);
@@ -136,7 +150,7 @@ export default function EngagementOverviewPage() {
                 Pemetaan SAK Selesai & Uji Keseimbangan Neraca Lolos Mutlak
               </h2>
               <p className="text-xs text-[#52636A] leading-relaxed">
-                Semua {decisions.length} akun telah berhasil dipetakan ke Pos SAK Indonesia. Persamaan matematis Aset = Liabilitas + Ekuitas terpenuhi mutlak (Selisih Rp 0). Anda dapat meninjau Kertas Kerja atau langsung menghasilkan Berkas Ekspor Resmi.
+                Semua {activeDecisions.length} akun telah berhasil dipetakan ke Pos SAK Indonesia. Persamaan matematis Aset = Liabilitas + Ekuitas terpenuhi mutlak (Selisih Rp 0). Anda dapat meninjau Kertas Kerja atau langsung menghasilkan Berkas Ekspor Resmi.
               </p>
             </div>
             <Link
@@ -160,14 +174,14 @@ export default function EngagementOverviewPage() {
                   Tindakan Penentu (Next Required Action)
                 </span>
                 <span className="text-xs text-[#52636A] font-medium">
-                  {needsReviewDecisions.length} Akun Ambigu Membutuhkan Keputusan Anda
+                  {activeNeedsReview.length} Akun Ambigu Membutuhkan Keputusan Anda
                 </span>
               </div>
               <h2 className="text-lg font-bold text-[#102A32] tracking-tight">
-                Selesaikan Pemetaan: {needsReviewDecisions[0]?.sourceAccountCode} {needsReviewDecisions[0]?.sourceAccountName}
+                Selesaikan Pemetaan: {activeNeedsReview[0]?.sourceAccountCode} {activeNeedsReview[0]?.sourceAccountName}
               </h2>
               <p className="text-xs text-[#52636A] leading-relaxed">
-                Sistem mendeteksi saldo penampungan sebesar <strong className="text-[#102A32] font-mono">Rp {Math.abs(needsReviewDecisions[0]?.amountIdr || 0).toLocaleString('id-ID')}</strong> dengan tingkat keyakinan rendah ({((needsReviewDecisions[0]?.confidenceScore || 0) * 100).toFixed(0)}%). Tinjau alokasi target kertas kerja atau berikan alasan profesional sebelum finalisasi.
+                Sistem mendeteksi saldo penampungan sebesar <strong className="text-[#102A32] font-mono">Rp {Math.abs(activeNeedsReview[0]?.amountIdr || 0).toLocaleString('id-ID')}</strong> dengan tingkat keyakinan rendah ({((activeNeedsReview[0]?.confidenceScore || 0) * 100).toFixed(0)}%). Tinjau alokasi target kertas kerja atau berikan alasan profesional sebelum finalisasi.
               </p>
             </div>
             <Link
@@ -271,10 +285,10 @@ export default function EngagementOverviewPage() {
 
       {/* 3. Visual Accounting Balance Equation Scale */}
       <BalanceScaleIllustration
-        isBalanced={true}
-        assets={wp?.totals.totalAssetsIdr || 34_550_000_000}
-        liabilities={wp?.totals.totalLiabilitiesIdr || 12_050_000_000}
-        equity={wp?.totals.totalEquityIdr || 22_500_000_000}
+        isBalanced={activeWpVersion ? Math.abs(activeWpVersion.totals?.balanceSheetDiffIdr || 0) === 0 : true}
+        assets={activeWpVersion?.totals?.totalAssetsIdr || 0}
+        liabilities={activeWpVersion?.totals?.totalLiabilitiesIdr || 0}
+        equity={activeWpVersion?.totals?.totalEquityIdr || 0}
       />
 
       {/* 4. Two-Column Layout: Exception Queue & Recent Versions/Activity */}
@@ -292,8 +306,8 @@ export default function EngagementOverviewPage() {
 
           <div className="bg-white rounded-2xl border border-[#DDE4E2] divide-y divide-[#DDE4E2] text-xs shadow-2xs overflow-hidden">
             {/* Dynamic Exception Queue: Rendered only if there are pending review items */}
-            {needsReviewDecisions.length > 0 ? (
-              needsReviewDecisions.map((dec) => (
+            {activeNeedsReview.length > 0 ? (
+              activeNeedsReview.map((dec: any) => (
                 <div key={dec.id} className="p-4 flex items-start justify-between gap-3 hover:bg-[#FFF7E8]/20 transition-colors">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">

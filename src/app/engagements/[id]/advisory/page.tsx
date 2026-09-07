@@ -50,12 +50,12 @@ const DEFAULT_ADVISORY_DATA = {
 export default function AdvisoryAnalyticsPage() {
   const routeParams = useParams();
   const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
+  const isCustomEngagement = engagementId !== 'ENG-2026-01';
   const state = repo.getState();
   const engagement = state.engagements.find((e: any) => e.id === engagementId);
   const client = state.clients.find((c: any) => c.id === engagement?.clientId);
-  const [data, setData] = useState<any>(DEFAULT_ADVISORY_DATA);
+  const [data, setData] = useState<any>(isCustomEngagement ? null : DEFAULT_ADVISORY_DATA);
   const [isLoading, setIsLoading] = useState(false);
-  const isCustomEngagement = engagementId !== 'ENG-2026-01';
   const [activeTab, setActiveTab] = useState<'cost' | 'ratios' | 'manufacturing' | 'whatif' | 'memo'>(
     isCustomEngagement ? 'ratios' : 'cost',
   );
@@ -66,60 +66,60 @@ export default function AdvisoryAnalyticsPage() {
   const [hasData, setHasData] = useState<boolean>(!isCustomEngagement);
 
   useEffect(() => {
-    if (isCustomEngagement) {
-      try {
-        const storedWp = localStorage.getItem('finova_wp_' + engagementId);
-        const storedAcc = localStorage.getItem('finova_accounts_' + engagementId);
-        if (storedWp || storedAcc) {
-          setHasData(true);
-          if (storedWp) {
-            const parsedWp = JSON.parse(storedWp);
-            const workpaperVersion = parsedWp.workpaperVersion;
-            const customLines = Array.isArray(parsedWp.lines) ? parsedWp.lines : [];
-            if (!workpaperVersion?.totals || customLines.length === 0) {
-              setHasData(false);
-              setIsLoading(false);
-              return;
-            }
-            const ratioInputs = extractFinancialInputs(customLines, workpaperVersion.totals);
-            const customRatios = calculateFinancialRatios({
-              ...ratioInputs,
-              clientName: client?.legalName,
-              industry: client?.industry,
-            });
-            setData({
-              ratios: customRatios,
-              costAdvisory: DEFAULT_ADVISORY_DATA.costAdvisory,
-              manufacturing: DEFAULT_ADVISORY_DATA.manufacturing,
-            });
-            setIsLoading(false);
-            return;
-          }
-        } else {
+    if (!isCustomEngagement) {
+      setData(DEFAULT_ADVISORY_DATA);
+      setHasData(true);
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Fetch live files & workpaper totals for active engagement
+    fetch('/api/v1/engagements/' + engagementId + '/files')
+      .then((res) => res.json())
+      .then((json) => {
+        const customLines = json.data?.lines || [];
+        const wp = json.data?.workpaper || null;
+
+        if (customLines.length === 0 && !wp?.totals) {
           setHasData(false);
+          setData(null);
           setIsLoading(false);
           return;
         }
-      } catch (e) {
-        console.warn('Error loading custom advisory data:', e);
-      }
-    }
 
-    const loadAdvisoryData = async () => {
-      try {
-        const res = await fetch('/api/v1/advisory/diagnosis');
-        if (res.ok) {
-          const json = await res.json();
-          setData(json.data);
-        }
-      } catch (e) {
-        console.error('Failed to load advisory data:', e);
-      } finally {
+        setHasData(true);
+        const ratioInputs = extractFinancialInputs(customLines, wp.totals);
+        const clientLegalName = client?.legalName || engagement?.name || 'Entitas Klien';
+        const customRatios = calculateFinancialRatios({
+          ...ratioInputs,
+          clientName: clientLegalName,
+          industry: client?.industry || 'Manufaktur & Perdagangan',
+        });
+        const dynamicCostAdvisory = analyzeCostAnomaliesAndAdvise({
+          annualRevenueIdr: ratioInputs.revenueIdr || 10_000_000_000,
+          clientName: clientLegalName,
+        });
+        const cogsLine = customLines.find((l: any) => l.lineId === 'WP-F.2');
+        const cogsAmount = Math.abs(cogsLine?.currentPeriodIdr || 0) || 5_000_000_000;
+        const dynamicManufacturing = calculateManufacturingBreakdown({
+          targetCogsIdr: cogsAmount,
+        });
+
+        setData({
+          ratios: customRatios,
+          costAdvisory: dynamicCostAdvisory,
+          manufacturing: dynamicManufacturing,
+        });
         setIsLoading(false);
-      }
-    };
-    loadAdvisoryData();
-  }, [client?.industry, client?.legalName, engagementId, isCustomEngagement]);
+      })
+      .catch((err) => {
+        console.warn('Error fetching custom advisory data from files API:', err);
+        setHasData(false);
+        setData(null);
+        setIsLoading(false);
+      });
+  }, [client?.industry, client?.legalName, engagement?.name, engagementId, isCustomEngagement]);
 
   useEffect(() => {
     const fetchSimulation = async () => {
@@ -145,7 +145,49 @@ export default function AdvisoryAnalyticsPage() {
   }, [umrHike, rawMatShock, logisticsEff]);
 
   // Zero loading flash: data is pre-populated synchronously
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="space-y-6 text-[#102A32] animate-finova-in">
+        <div className="bg-white p-5 rounded-2xl border border-[#DDE4E2] shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#B7791F]/15 text-[#B7791F] border border-[#B7791F]/30">
+                ANALISIS STRATEGIS & KONSULTASI BISNIS
+              </span>
+              <span className="text-[10px] text-[#52636A]">
+                Analisis Finansial Entitas Klien
+              </span>
+            </div>
+            <h2 className="text-base font-bold text-[#102A32]">
+              Analisis Kinerja Keuangan & Diagnosa Konsultan (Advisory Hub)
+            </h2>
+            <p className="text-xs text-[#52636A] mt-0.5">
+              Kalkulasi rasio likuiditas, solvabilitas, profitabilitas, serta deteksi efisiensi operasional berbasis data riil klien.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-[#DDE4E2] p-12 text-center space-y-4 shadow-2xs">
+          <div className="w-16 h-16 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center mx-auto text-[#B45309]">
+            <BarChart3 className="w-8 h-8" />
+          </div>
+          <div className="space-y-1 max-w-md mx-auto">
+            <h3 className="text-base font-bold text-[#102A32]">Belum Ada Data Finansial untuk Diagnosis Rasio</h3>
+            <p className="text-xs text-[#52636A] leading-relaxed">
+              Modul konsultasi bisnis FINOVA AI menghitung rasio dan evaluasi kesehatan finansial langsung dari neraca saldo klien. Silakan unggah berkas neraca saldo pada menu Berkas terlebih dahulu.
+            </p>
+          </div>
+          <Link
+            href={"/engagements/" + engagementId + "/files"}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs font-bold shadow-xs cursor-pointer"
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Unggah Neraca Saldo Klien</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const { ratios, costAdvisory, manufacturing } = data;
 

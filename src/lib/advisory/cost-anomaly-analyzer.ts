@@ -38,8 +38,9 @@ export interface AdvisoryExecutiveSummary {
 
 export function analyzeCostAnomaliesAndAdvise(params: {
   annualRevenueIdr: number;
+  clientName?: string;
 }): AdvisoryExecutiveSummary {
-  const { annualRevenueIdr } = params;
+  const { annualRevenueIdr, clientName = 'Entitas Klien' } = params;
 
   const anomalies: CostAnomalyItem[] = [
     {
@@ -104,7 +105,7 @@ export function analyzeCostAnomaliesAndAdvise(params: {
     anomalies,
     consultantExecutiveMemo: {
       headline: 'Rekomendasi Strategis Pengendalian Biaya & Restrukturisasi Operasional FY 2026',
-      executiveSummary: `Berdasarkan telaah mendalam tim konsultan FINOVA AI terhadap akun beban operasional PT Nusantara Sukses Makmur, terdeteksi pembengkakan biaya pada 2 pos utama senilai total Rp ${totalLeakage.toLocaleString('id-ID')} (+41.2% year-on-year). Kenaikan ini didorong oleh inefisiensi logistik antarpulau dan tingginya lembur darurat akibat kendala mesin pabrik.`,
+      executiveSummary: `Berdasarkan telaah mendalam tim konsultan FINOVA AI terhadap akun beban operasional ${clientName}, terdeteksi pembengkakan biaya pada 2 pos utama senilai total Rp ${totalLeakage.toLocaleString('id-ID')} (+41.2% year-on-year). Kenaikan ini didorong oleh inefisiensi logistik antarpulau dan tingginya lembur darurat akibat kendala mesin pabrik.`,
       keyTakeaways: [
         'Beban Logistik melonjak 44.5% (Rp 1.85 Miliar vs Rp 1.28 Miliar tahun lalu), melebihi ambang batas toleransi pendapatan (7.7%).',
         'Biaya Lembur Pabrik naik 35.3% akibat downtime mesin, menyumbang pembengkakan HPP senilai Rp 240 Juta.',

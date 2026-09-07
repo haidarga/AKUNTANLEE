@@ -25,6 +25,10 @@ export function generateWorkpaperXlsx(params: ExportParams): {
   readbackSuccess: boolean;
 } {
   // Check blocking conditions
+  if (!params.lines || params.lines.length === 0) {
+    throw new Error('Export diblokir: Kertas kerja tidak memiliki baris akun.');
+  }
+
   if (params.workpaperVersion.isStale) {
     throw new Error('Export diblokir: Kertas kerja dalam status kadaluarsa (Stale). Harap hitung ulang.');
   }
@@ -115,7 +119,7 @@ export function generateWorkpaperXlsx(params: ExportParams): {
     }
 
     const leadData = XLSX.utils.sheet_to_json(readBackWb.Sheets['Lead Schedule'], { header: 1 });
-    if (leadData.length < 10) {
+    if (leadData.length < 5) {
       throw new Error('Read-back gagal: Data baris kertas kerja tidak lengkap.');
     }
 

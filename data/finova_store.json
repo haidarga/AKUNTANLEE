@@ -100,14 +100,13 @@
       "createdAt": "2026-01-16T09:00:00Z"
     },
     {
-      "id": "CLI-MTMO954C",
-      "tenantId": "TENANT-001",
-      "legalName": "PT Orbit Audit Digital Perkasa",
-      "code": "OAD26",
-      "industry": "Teknologi Informasi & SaaS",
+      "id": "CLI-MTQPSYDA",
+      "tenantId": "FIRM-001",
+      "legalName": "PT Langit Biru Sistem Nusantara",
+      "code": "LBSN",
+      "industry": "Teknologi & Sistem Informasi",
       "status": "active",
-      "createdAt": "2026-09-04T08:08:11.052Z",
-      "taxIdNpwp": "01.999.888.7-011.000"
+      "createdAt": "2026-09-07T04:02:39.742Z"
     }
   ],
   "engagements": [
@@ -146,25 +145,44 @@
       "updatedAt": "2026-01-20T08:00:00Z"
     },
     {
-      "tenantId": "TENANT-001",
-      "clientId": "CLI-MTMO954C",
-      "name": "Audit Kertas Kerja Tahunan OAD FY 2026",
+      "tenantId": "FIRM-001",
+      "clientId": "CLI-MTQPSYDA",
+      "name": "Audit Laporan Keuangan Tahunan PT LBSN FY 2026",
       "periodStart": "2026-01-01",
       "periodEnd": "2026-12-31",
       "currency": "IDR",
-      "materialityIdr": 1200000000,
+      "materialityIdr": 180000000,
       "status": "preparing",
       "leadPartnerId": "USR-PARTNER-01",
       "managerId": "USR-MANAGER-01",
       "seniorId": "USR-SENIOR-01",
       "preparerId": "USR-PREPARER-01",
-      "id": "ENG-2026-03",
-      "createdAt": "2026-09-04T08:08:11.052Z",
-      "updatedAt": "2026-09-04T08:08:11.062Z",
-      "accountingStandard": "SAK_INDONESIA"
+      "id": "ENG-2026-759742903",
+      "createdAt": "2026-09-07T04:02:39.742Z",
+      "updatedAt": "2026-09-07T04:02:39.742Z"
     }
   ],
   "fileVersions": [
+    {
+      "id": "FS-MTQPSYDY",
+      "assetId": "FA-FS-MTQPSYDY",
+      "tenantId": "FIRM-001",
+      "engagementId": "ENG-2026-759742903",
+      "versionNumber": 1,
+      "originalName": "TB_PT_LBSN_FY2026.xlsx",
+      "storageKey": "firms/FIRM-001/engagements/ENG-2026-759742903/TB_PT_LBSN_FY2026.xlsx",
+      "checksumSha256": "a17674fbbe3c0bcf89fdaae2034795e1ec471dba60b2658be87dcac1f1a1c4eb",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "sizeBytes": 18450,
+      "status": "ready",
+      "uploadedByUserId": "USR-SENIOR-01",
+      "scanStatus": "clean",
+      "sheetCount": 1,
+      "sheetNames": [
+        "Sheet1"
+      ],
+      "createdAt": "2026-09-07T04:02:39.766Z"
+    },
     {
       "id": "FV-001",
       "assetId": "FA-TB-2026-NSM",
@@ -207,6 +225,150 @@
     }
   ],
   "accounts": [
+    {
+      "accountCode": "1001",
+      "accountName": "Kas Kecil Kantor",
+      "debitIdr": 25000000,
+      "creditIdr": 0,
+      "balanceIdr": 25000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "1002",
+      "accountName": "Bank BCA Operasional",
+      "debitIdr": 450000000,
+      "creditIdr": 0,
+      "balanceIdr": 450000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "1101",
+      "accountName": "Piutang Usaha Proyek",
+      "debitIdr": 320000000,
+      "creditIdr": 0,
+      "balanceIdr": 320000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "1201",
+      "accountName": "Persediaan Perangkat Keras",
+      "debitIdr": 180000000,
+      "creditIdr": 0,
+      "balanceIdr": 180000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "1301",
+      "accountName": "Sewa Kantor Dibayar Dimuka",
+      "debitIdr": 60000000,
+      "creditIdr": 0,
+      "balanceIdr": 60000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "1501",
+      "accountName": "Peralatan Server & Komputer",
+      "debitIdr": 240000000,
+      "creditIdr": 0,
+      "balanceIdr": 240000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "1502",
+      "accountName": "Akumulasi Penyusutan Server",
+      "debitIdr": 0,
+      "creditIdr": 48000000,
+      "balanceIdr": -48000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "2001",
+      "accountName": "Utang Usaha Subkontraktor",
+      "debitIdr": 0,
+      "creditIdr": 190000000,
+      "balanceIdr": -190000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "2101",
+      "accountName": "Utang PPh 21 & PPh 23",
+      "debitIdr": 0,
+      "creditIdr": 35000000,
+      "balanceIdr": -35000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "2201",
+      "accountName": "Utang Gaji Karyawan",
+      "debitIdr": 0,
+      "creditIdr": 85000000,
+      "balanceIdr": -85000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "2501",
+      "accountName": "Pinjaman Modal Kerja Bank",
+      "debitIdr": 0,
+      "creditIdr": 300000000,
+      "balanceIdr": -300000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "3001",
+      "accountName": "Modal Saham Disetor",
+      "debitIdr": 0,
+      "creditIdr": 400000000,
+      "balanceIdr": -400000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "3101",
+      "accountName": "Saldo Laba Ditahan",
+      "debitIdr": 0,
+      "creditIdr": 117000000,
+      "balanceIdr": -117000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "4001",
+      "accountName": "Pendapatan Jasa Pengembangan Software",
+      "debitIdr": 0,
+      "creditIdr": 850000000,
+      "balanceIdr": -850000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "5001",
+      "accountName": "Beban Pokok Proyek (HPP)",
+      "debitIdr": 450000000,
+      "creditIdr": 0,
+      "balanceIdr": 450000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
+    {
+      "accountCode": "6001",
+      "accountName": "Beban Operasional & Administrasi",
+      "debitIdr": 300000000,
+      "creditIdr": 0,
+      "balanceIdr": 300000000,
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionId": "DSV-MTQPSYDY"
+    },
     {
       "id": "ACC-1110-00",
       "datasetVersionId": "DSV-001",
@@ -1012,29 +1174,29 @@
   ],
   "workpaperVersions": [
     {
-      "id": "WPV-MTMO954D",
-      "engagementId": "ENG-2026-03",
-      "datasetVersionId": "DSV-ENG-2026-03",
-      "mappingSetId": "MAPSET-ENG-2026-03",
+      "id": "WPV-MTQPSYDY",
+      "tenantId": "FIRM-001",
+      "engagementId": "ENG-2026-759742903",
+      "datasetVersionIds": [
+        "DSV-MTQPSYDY"
+      ],
+      "mappingSetId": "MAPSET-ENG-2026-759742903",
+      "templateVersion": "FINOVA-LEAD-v1.0",
       "versionNumber": 1,
       "status": "draft",
+      "totals": {
+        "totalAssetsIdr": -48000000,
+        "totalLiabilitiesIdr": 310000000,
+        "totalEquityIdr": 1367000000,
+        "netIncomeIdr": 850000000,
+        "tbDebitCreditDiffIdr": 0,
+        "balanceSheetDiffIdr": 1725000000
+      },
       "isStale": false,
-      "unmappedCount": 0,
-      "checksum": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-      "generatedAt": "2026-09-04T08:08:11.053Z",
-      "generatedBy": "USR-PARTNER-01",
-      "summary": {
-        "totalAssets": 0,
-        "totalLiabilities": 0,
-        "totalEquity": 0,
-        "totalRevenue": 0,
-        "totalExpenses": 0,
-        "netIncome": 0,
-        "isBalanced": true
-      }
+      "calculatedAt": "2026-09-07T04:02:39.766Z"
     },
     {
-      "id": "WPV-MTMO9527",
+      "id": "WPV-MTQPSY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
       "datasetVersionIds": [
@@ -1053,10 +1215,259 @@
         "balanceSheetDiffIdr": 0
       },
       "isStale": false,
-      "calculatedAt": "2026-09-04T08:08:10.991Z"
+      "calculatedAt": "2026-09-07T04:02:39.577Z"
     }
   ],
   "workpaperLines": [
+    {
+      "lineId": "WP-A.1",
+      "sectionId": "SEC-A",
+      "label": "Kas & Setara Kas (Cash & Cash Equivalents)",
+      "accountCodes": [
+        "1001",
+        "1002",
+        "1101",
+        "2501"
+      ],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-A-1-SYDY"
+    },
+    {
+      "lineId": "WP-A.2",
+      "sectionId": "SEC-A",
+      "label": "Piutang Usaha Bruto (Accounts Receivable)",
+      "accountCodes": [
+        "1201"
+      ],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "valid",
+      "commentCount": 1,
+      "primaryEvidenceLinkId": "EVL-WP-A-2-SYDY"
+    },
+    {
+      "lineId": "WP-A.3",
+      "sectionId": "SEC-A",
+      "label": "Cadangan Penurunan Nilai Piutang (ECL)",
+      "accountCodes": [],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "unmapped",
+      "commentCount": 0
+    },
+    {
+      "lineId": "WP-A.4",
+      "sectionId": "SEC-A",
+      "label": "Persediaan Barang (Inventories)",
+      "accountCodes": [
+        "1301"
+      ],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-A-4-SYDY"
+    },
+    {
+      "lineId": "WP-A.5",
+      "sectionId": "SEC-A",
+      "label": "Uang Muka & Biaya Dibayar Dimuka",
+      "accountCodes": [],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "unmapped",
+      "commentCount": 0
+    },
+    {
+      "lineId": "WP-B.1",
+      "sectionId": "SEC-B",
+      "label": "Aset Tetap - Biaya Perolehan (Fixed Assets Gross)",
+      "accountCodes": [
+        "1501"
+      ],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-B-1-SYDY"
+    },
+    {
+      "lineId": "WP-B.2",
+      "sectionId": "SEC-B",
+      "label": "Akumulasi Penyusutan Aset Tetap",
+      "accountCodes": [
+        "1502"
+      ],
+      "unadjustedCurrentPeriodIdr": 48000000,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 48000000,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-B-2-SYDY"
+    },
+    {
+      "lineId": "WP-B.3",
+      "sectionId": "SEC-B",
+      "label": "Aset Lain-lain & Hak Guna",
+      "accountCodes": [],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "unmapped",
+      "commentCount": 0
+    },
+    {
+      "lineId": "WP-C.1",
+      "sectionId": "SEC-C",
+      "label": "Utang Usaha (Trade Accounts Payable)",
+      "accountCodes": [
+        "2001",
+        "2101"
+      ],
+      "unadjustedCurrentPeriodIdr": 225000000,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 225000000,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-C-1-SYDY"
+    },
+    {
+      "lineId": "WP-C.2",
+      "sectionId": "SEC-C",
+      "label": "Utang Pajak (Tax Payable)",
+      "accountCodes": [
+        "2201"
+      ],
+      "unadjustedCurrentPeriodIdr": 85000000,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 85000000,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-C-2-SYDY"
+    },
+    {
+      "lineId": "WP-C.3",
+      "sectionId": "SEC-C",
+      "label": "Beban Akrual & Utang Jangka Pendek Lainnya",
+      "accountCodes": [],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "unmapped",
+      "commentCount": 0
+    },
+    {
+      "lineId": "WP-D.1",
+      "sectionId": "SEC-D",
+      "label": "Utang Bank Jangka Panjang (Long-Term Loans)",
+      "accountCodes": [],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "unmapped",
+      "commentCount": 0
+    },
+    {
+      "lineId": "WP-D.2",
+      "sectionId": "SEC-D",
+      "label": "Kewajiban Imbalan Pasca Kerja",
+      "accountCodes": [],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "unmapped",
+      "commentCount": 0
+    },
+    {
+      "lineId": "WP-E.1",
+      "sectionId": "SEC-E",
+      "label": "Modal Disetor (Paid-in Capital)",
+      "accountCodes": [
+        "3001"
+      ],
+      "unadjustedCurrentPeriodIdr": 400000000,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 400000000,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-E-1-SYDY"
+    },
+    {
+      "lineId": "WP-E.2",
+      "sectionId": "SEC-E",
+      "label": "Saldo Laba Ditahan (Retained Earnings)",
+      "accountCodes": [
+        "3101"
+      ],
+      "unadjustedCurrentPeriodIdr": 117000000,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 117000000,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-E-2-SYDY"
+    },
+    {
+      "lineId": "WP-F.1",
+      "sectionId": "SEC-F",
+      "label": "Pendapatan Usaha (Revenue)",
+      "accountCodes": [
+        "4001"
+      ],
+      "unadjustedCurrentPeriodIdr": 850000000,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 850000000,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-F-1-SYDY"
+    },
+    {
+      "lineId": "WP-F.2",
+      "sectionId": "SEC-F",
+      "label": "Beban Pokok Penjualan (Cost of Goods Sold)",
+      "accountCodes": [
+        "5001"
+      ],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-F-2-SYDY"
+    },
+    {
+      "lineId": "WP-F.3",
+      "sectionId": "SEC-F",
+      "label": "Beban Operasional & Umum (OPEX)",
+      "accountCodes": [
+        "6001"
+      ],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "valid",
+      "commentCount": 0,
+      "primaryEvidenceLinkId": "EVL-WP-F-3-SYDY"
+    },
+    {
+      "lineId": "WP-F.4",
+      "sectionId": "SEC-F",
+      "label": "Pendapatan / (Beban) Lain-lain Bersih",
+      "accountCodes": [],
+      "unadjustedCurrentPeriodIdr": 0,
+      "adjustmentNetIdr": 0,
+      "currentPeriodIdr": 0,
+      "validationState": "unmapped",
+      "commentCount": 0
+    },
     {
       "lineId": "WP-A.1",
       "sectionId": "SEC-A",
@@ -1073,7 +1484,7 @@
       "variancePercent": 7.1,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-1-9527"
+      "primaryEvidenceLinkId": "EVL-WP-A-1-SY8D"
     },
     {
       "lineId": "WP-A.2",
@@ -1090,7 +1501,7 @@
       "variancePercent": 43.8,
       "validationState": "valid",
       "commentCount": 1,
-      "primaryEvidenceLinkId": "EVL-WP-A-2-9527"
+      "primaryEvidenceLinkId": "EVL-WP-A-2-SY8D"
     },
     {
       "lineId": "WP-A.3",
@@ -1107,7 +1518,7 @@
       "variancePercent": 33.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-3-9527"
+      "primaryEvidenceLinkId": "EVL-WP-A-3-SY8D"
     },
     {
       "lineId": "WP-A.4",
@@ -1125,7 +1536,7 @@
       "variancePercent": 19,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-4-9527"
+      "primaryEvidenceLinkId": "EVL-WP-A-4-SY8D"
     },
     {
       "lineId": "WP-A.5",
@@ -1142,7 +1553,7 @@
       "variancePercent": 12.5,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-A-5-9527"
+      "primaryEvidenceLinkId": "EVL-WP-A-5-SY8D"
     },
     {
       "lineId": "WP-B.1",
@@ -1160,7 +1571,7 @@
       "variancePercent": 10.7,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-1-9527"
+      "primaryEvidenceLinkId": "EVL-WP-B-1-SY8D"
     },
     {
       "lineId": "WP-B.2",
@@ -1177,7 +1588,7 @@
       "variancePercent": 22.4,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-2-9527"
+      "primaryEvidenceLinkId": "EVL-WP-B-2-SY8D"
     },
     {
       "lineId": "WP-B.3",
@@ -1194,7 +1605,7 @@
       "variancePercent": 8.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-B-3-9527"
+      "primaryEvidenceLinkId": "EVL-WP-B-3-SY8D"
     },
     {
       "lineId": "WP-C.1",
@@ -1212,7 +1623,7 @@
       "variancePercent": 18.3,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-1-9527"
+      "primaryEvidenceLinkId": "EVL-WP-C-1-SY8D"
     },
     {
       "lineId": "WP-C.2",
@@ -1229,7 +1640,7 @@
       "variancePercent": 18.8,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-2-9527"
+      "primaryEvidenceLinkId": "EVL-WP-C-2-SY8D"
     },
     {
       "lineId": "WP-C.3",
@@ -1246,7 +1657,7 @@
       "variancePercent": 12.5,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-C-3-9527"
+      "primaryEvidenceLinkId": "EVL-WP-C-3-SY8D"
     },
     {
       "lineId": "WP-D.1",
@@ -1263,7 +1674,7 @@
       "variancePercent": 10,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-D-1-9527"
+      "primaryEvidenceLinkId": "EVL-WP-D-1-SY8D"
     },
     {
       "lineId": "WP-D.2",
@@ -1280,7 +1691,7 @@
       "variancePercent": 11.4,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-D-2-9527"
+      "primaryEvidenceLinkId": "EVL-WP-D-2-SY8D"
     },
     {
       "lineId": "WP-E.1",
@@ -1297,7 +1708,7 @@
       "variancePercent": 0,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-E-1-9527"
+      "primaryEvidenceLinkId": "EVL-WP-E-1-SY8D"
     },
     {
       "lineId": "WP-E.2",
@@ -1314,7 +1725,7 @@
       "variancePercent": -6.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-E-2-9527"
+      "primaryEvidenceLinkId": "EVL-WP-E-2-SY8D"
     },
     {
       "lineId": "WP-F.1",
@@ -1331,7 +1742,7 @@
       "variancePercent": 9.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-1-9527"
+      "primaryEvidenceLinkId": "EVL-WP-F-1-SY8D"
     },
     {
       "lineId": "WP-F.2",
@@ -1348,7 +1759,7 @@
       "variancePercent": 21.2,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-2-9527"
+      "primaryEvidenceLinkId": "EVL-WP-F-2-SY8D"
     },
     {
       "lineId": "WP-F.3",
@@ -1365,7 +1776,7 @@
       "variancePercent": 8.9,
       "validationState": "valid",
       "commentCount": 0,
-      "primaryEvidenceLinkId": "EVL-WP-F-3-9527"
+      "primaryEvidenceLinkId": "EVL-WP-F-3-SY8D"
     },
     {
       "lineId": "WP-F.4",
@@ -1384,10 +1795,10 @@
   ],
   "evidenceLinks": [
     {
-      "id": "EVL-WP-A-1-9527",
+      "id": "EVL-WP-A-1-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-A.1",
       "targetAmountIdr": 4500000000,
       "sourceFileVersionId": "FV-001",
@@ -1407,10 +1818,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-2-9527",
+      "id": "EVL-WP-A-2-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-A.2",
       "targetAmountIdr": 9850000000,
       "sourceFileVersionId": "FV-001",
@@ -1430,10 +1841,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-3-9527",
+      "id": "EVL-WP-A-3-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-A.3",
       "targetAmountIdr": 200000000,
       "sourceFileVersionId": "FV-001",
@@ -1453,10 +1864,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-4-9527",
+      "id": "EVL-WP-A-4-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-A.4",
       "targetAmountIdr": 8450000000,
       "sourceFileVersionId": "FV-001",
@@ -1476,10 +1887,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-A-5-9527",
+      "id": "EVL-WP-A-5-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-A.5",
       "targetAmountIdr": 450000000,
       "sourceFileVersionId": "FV-001",
@@ -1499,10 +1910,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-1-9527",
+      "id": "EVL-WP-B-1-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-B.1",
       "targetAmountIdr": 15500000000,
       "sourceFileVersionId": "FV-001",
@@ -1522,10 +1933,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-2-9527",
+      "id": "EVL-WP-B-2-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-B.2",
       "targetAmountIdr": 4650000000,
       "sourceFileVersionId": "FV-001",
@@ -1545,10 +1956,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-B-3-9527",
+      "id": "EVL-WP-B-3-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-B.3",
       "targetAmountIdr": 650000000,
       "sourceFileVersionId": "FV-001",
@@ -1568,10 +1979,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-1-9527",
+      "id": "EVL-WP-C-1-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-C.1",
       "targetAmountIdr": 4850000000,
       "sourceFileVersionId": "FV-001",
@@ -1591,10 +2002,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-2-9527",
+      "id": "EVL-WP-C-2-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-C.2",
       "targetAmountIdr": 380000000,
       "sourceFileVersionId": "FV-001",
@@ -1614,10 +2025,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-C-3-9527",
+      "id": "EVL-WP-C-3-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-C.3",
       "targetAmountIdr": 540000000,
       "sourceFileVersionId": "FV-001",
@@ -1637,10 +2048,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-D-1-9527",
+      "id": "EVL-WP-D-1-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-D.1",
       "targetAmountIdr": 5500000000,
       "sourceFileVersionId": "FV-001",
@@ -1660,10 +2071,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-D-2-9527",
+      "id": "EVL-WP-D-2-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-D.2",
       "targetAmountIdr": 780000000,
       "sourceFileVersionId": "FV-001",
@@ -1683,10 +2094,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-E-1-9527",
+      "id": "EVL-WP-E-1-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-E.1",
       "targetAmountIdr": 8000000000,
       "sourceFileVersionId": "FV-001",
@@ -1706,10 +2117,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-E-2-9527",
+      "id": "EVL-WP-E-2-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-E.2",
       "targetAmountIdr": 9940000000,
       "sourceFileVersionId": "FV-001",
@@ -1729,10 +2140,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-1-9527",
+      "id": "EVL-WP-F-1-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-F.1",
       "targetAmountIdr": 52400000000,
       "sourceFileVersionId": "FV-001",
@@ -1752,10 +2163,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-2-9527",
+      "id": "EVL-WP-F-2-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-F.2",
       "targetAmountIdr": 35950000000,
       "sourceFileVersionId": "FV-001",
@@ -1775,10 +2186,10 @@
       "ruleVersion": "RULE-LEAD-SCHEDULE-SAK-2024"
     },
     {
-      "id": "EVL-WP-F-3-9527",
+      "id": "EVL-WP-F-3-SY8D",
       "tenantId": "TENANT-001",
       "engagementId": "ENG-2026-01",
-      "workpaperVersionId": "WPV-MTMO9527",
+      "workpaperVersionId": "WPV-MTQPSY8D",
       "targetLineId": "WP-F.3",
       "targetAmountIdr": 12200000000,
       "sourceFileVersionId": "FV-001",
@@ -1877,7 +2288,7 @@
       "createdByUserId": "USR-PARTNER-01",
       "readbackVerified": true,
       "fileSizeBytes": 21652,
-      "createdAt": "2026-09-04T08:08:10.991Z"
+      "createdAt": "2026-09-07T04:02:39.577Z"
     }
   ],
   "auditEvents": [
@@ -1890,9 +2301,9 @@
       "action": "engagement_created",
       "resourceType": "Engagement",
       "resourceId": "ENG-2026-03",
-      "requestId": "req-1788509291052",
-      "id": "EVT-MTMO954D-841",
-      "timestamp": "2026-09-04T08:08:11.053Z"
+      "requestId": "req-1788753759742",
+      "id": "EVT-MTQPSYDB-464",
+      "timestamp": "2026-09-07T04:02:39.743Z"
     },
     {
       "id": "EVT-001",
@@ -1950,7 +2361,7 @@
       "actorRole": "manager",
       "action": "workpaper_calculated",
       "resourceType": "WorkpaperVersion",
-      "resourceId": "WPV-MTMO9527",
+      "resourceId": "WPV-MTQPSY8D",
       "timestamp": "2026-01-18T10:15:00Z",
       "requestId": "req-wp-004"
     }
@@ -2046,7 +2457,7 @@
         "role": "preparer"
       }
     ],
-    "updatedAt": "2026-09-04T08:08:10.974Z"
+    "updatedAt": "2026-09-07T04:02:39.565Z"
   },
   "adjustments": [
     {
