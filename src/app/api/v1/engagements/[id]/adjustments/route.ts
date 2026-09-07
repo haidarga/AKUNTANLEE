@@ -11,8 +11,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const actor = await requireSessionActor(req);
     const data = await getEngagementServerData(id);
     assertTenantAccess(actor, data.engagement?.tenantId);
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ success: false, error: 'Database production belum dikonfigurasi; jurnal audit tidak boleh menggunakan penyimpanan sementara.' }, { status: 503 });
+    }
     const persisted = await getPersistentAdjustments(id, actor.tenantId);
-    return NextResponse.json({ success: true, data: persisted ?? repo.getAdjustments(id) });
+    if (persisted === null) {
+      return NextResponse.json({ success: false, error: 'Gagal memuat jurnal dari database production.' }, { status: 503 });
+    }
+    return NextResponse.json({ success: true, data: persisted });
   } catch (error) {
     return authorizationErrorResponse(error) || NextResponse.json({ success: false, error: 'Gagal memuat jurnal.' }, { status: 400 });
   }
@@ -47,9 +53,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         preparedByName: user.name,
         status: 'draft' as const,
     };
-    const entry = isSupabaseConfigured()
-      ? await createPersistentAdjustment(adjustment, user)
-      : repo.createAdjustmentEntry(adjustment, user);
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ success: false, error: 'Database production belum dikonfigurasi; jurnal audit tidak boleh menggunakan penyimpanan sementara.' }, { status: 503 });
+    }
+    const entry = await createPersistentAdjustment(adjustment, user);
     if (!entry) {
       return NextResponse.json({ success: false, error: 'Jurnal tidak tersimpan permanen. Periksa database sebelum melanjutkan.' }, { status: 503 });
     }
