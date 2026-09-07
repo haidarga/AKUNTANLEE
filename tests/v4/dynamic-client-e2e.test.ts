@@ -100,8 +100,8 @@ describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', ()
     // canonical calculation as the server-rendered overview and workpaper.
     const canonical = await getEngagementServerData(engagementId);
     expect(getJson.data.workpaper?.totals).toEqual(canonical.workpaper?.totals);
-    expect(getJson.data.lines).toEqual(canonical.lines);
-    expect(getJson.data.checks).toEqual(canonical.checks);
+    expect(getJson.data.lines).toEqual(JSON.parse(JSON.stringify(canonical.lines)));
+    expect(getJson.data.checks).toEqual(JSON.parse(JSON.stringify(canonical.checks)));
 
     // Verify SAK mapping rationale is dynamic (no "Akun penampungan kurs" nonsense)
     const kasDecision = getJson.data.decisions.find((d: any) => d.sourceAccountCode === '1001');

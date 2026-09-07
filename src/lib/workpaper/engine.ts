@@ -86,7 +86,26 @@ export function calculateWorkpaperVersion(params: {
   checks: ValidationCheckResult[];
 } {
   const template = params.template || APPROVED_LEAD_SCHEDULE_TEMPLATE;
-  const wpvId = `WPV-${Date.now().toString(36).toUpperCase()}`;
+  // A workpaper calculated from the same imported dataset must keep the same
+  // identity. Date-based IDs made a harmless page refresh look like a new
+  // version and produced different evidence links across dashboard screens.
+  const versionFingerprint = [
+    params.engagementId,
+    params.datasetVersionId,
+    params.mappingSetId,
+    String(params.versionNumber || 1),
+    ...params.accounts
+      .map((account) => `${account.accountCode}:${account.closingBalanceIdr}:${account.debitIdr}:${account.creditIdr}`)
+      .sort(),
+    ...params.mappingDecisions
+      .map((decision) => `${decision.sourceAccountCode}:${decision.effectiveTarget || decision.proposedTarget}:${decision.status}`)
+      .sort(),
+  ].join('|');
+  let fingerprintHash = 2166136261;
+  for (let index = 0; index < versionFingerprint.length; index += 1) {
+    fingerprintHash = Math.imul(fingerprintHash ^ versionFingerprint.charCodeAt(index), 16777619);
+  }
+  const wpvId = `WPV-${params.engagementId}-${(fingerprintHash >>> 0).toString(36).toUpperCase()}`;
 
   // Map each account to effective target
   const decisionByCode: Record<string, MappingDecision> = {};

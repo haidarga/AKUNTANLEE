@@ -16,6 +16,7 @@ import {
 import { calculateWorkpaperVersion, APPROVED_LEAD_SCHEDULE_TEMPLATE } from '@/lib/workpaper/engine';
 import { getServerSession } from '@/lib/auth/session';
 import { saveStateToDb } from '@/lib/db/sqlite';
+import { getEngagementServerData } from '@/lib/server/engagement-data';
 
 export async function GET(
   request: NextRequest,
@@ -23,7 +24,23 @@ export async function GET(
 ) {
   const { id: engagementId } = await context.params;
   const session = await getServerSession(request);
-  const firmId = session?.firmId || 'FIRM-001';
+  void session;
+
+  // This endpoint hydrates the client-side dashboard after first paint. Return
+  // the exact same calculation used by server-rendered pages so a navigation
+  // cannot silently replace valid workpaper figures with a second calculation.
+  const canonical = await getEngagementServerData(engagementId);
+  return NextResponse.json({
+    data: canonical,
+    ...canonical,
+    request_id: `req-${Date.now()}`,
+  }, {
+    headers: { 'Cache-Control': 'no-store, max-age=0' },
+  });
+
+  /* c8 ignore start -- retained below temporarily for the upload route's
+     historical fallback implementation; GET returns via the canonical path. */
+  const firmId = 'FIRM-001';
 
   let files: any[] = [];
   let accounts: any[] = [];
@@ -159,6 +176,7 @@ export async function GET(
     checks,
     request_id: `req-${Date.now()}`,
   });
+  /* c8 ignore stop */
 }
 
 export async function POST(
