@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { repo } from '@/lib/db/repo-v4';
 import { saveStateToDb } from '@/lib/db/sqlite';
@@ -7,9 +6,10 @@ import {
   fetchEngagementsFromSupabase,
   saveEngagementToSupabase,
 } from '@/lib/supabase/service';
-import { ClientV4, EngagementV4, UserRoleV4 } from '@/types/domain-v4';
+import { ClientV4 } from '@/types/domain-v4';
 import { DEMO_CLIENT, DEMO_ENGAGEMENT } from '@/lib/demo/fixtures';
 import { getServerSession } from '@/lib/auth/session';
+import { authorizationErrorResponse, requireSessionActor } from '@/lib/auth/authorization';
 
 function parseCustomEngagementsCookie(request: Request) {
   try {
@@ -87,8 +87,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(request);
-    const firmId = session?.firmId || 'FIRM-001';
+    const actor = await requireSessionActor(request, ['manager', 'partner']);
+    const firmId = actor.tenantId;
 
     const body = await request.json();
     const {
@@ -103,11 +103,9 @@ export async function POST(request: Request) {
       periodYear,
       materialityIdr,
       accountingStandard,
-      userRole,
     } = body;
 
     const state = repo.getState();
-    const user = state.users.find((u) => u.role === (userRole as UserRoleV4)) || state.users[0];
 
     let finalClientId = incomingClientId;
     let createdClient: ClientV4 | any = null;
@@ -158,12 +156,12 @@ export async function POST(request: Request) {
         currency: 'IDR',
         materialityIdr: materialityIdr ? Number(materialityIdr) : 150_000_000,
         status: 'preparing',
-        leadPartnerId: session?.userId || 'USR-PARTNER-01',
+        leadPartnerId: actor.role === 'partner' ? actor.id : 'USR-PARTNER-01',
         managerId: 'USR-MANAGER-01',
         seniorId: 'USR-SENIOR-01',
         preparerId: 'USR-PREPARER-01',
       },
-      user
+      actor
     );
 
     // Explicit ID guarantee
@@ -261,6 +259,8 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error: any) {
+    const authResponse = authorizationErrorResponse(error);
+    if (authResponse) return authResponse;
     console.error('Error creating engagement:', error);
     return NextResponse.json(
       {

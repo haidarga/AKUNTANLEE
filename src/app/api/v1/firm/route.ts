@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { repo } from '@/lib/db/repo-v4';
 import { getServerSession } from '@/lib/auth/session';
+import { authorizationErrorResponse, requireSessionActor } from '@/lib/auth/authorization';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { getFirmProfileFromSupabase, saveFirmProfileToSupabase } from '@/lib/supabase/service';
 
@@ -38,8 +39,8 @@ export async function GET(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const session = await getServerSession(req);
-    const firmId = session?.firmId || DEFAULT_FIRM_ID;
+    const actor = await requireSessionActor(req, ['partner']);
+    const firmId = actor.tenantId;
     const body = await req.json();
     let updated;
 
@@ -68,6 +69,8 @@ export async function PUT(req: NextRequest) {
     });
     return res;
   } catch (err: any) {
+    const authResponse = authorizationErrorResponse(err);
+    if (authResponse) return authResponse;
     return NextResponse.json({ success: false, error: err.message || 'Failed to update firm profile' }, { status: 500 });
   }
 }
