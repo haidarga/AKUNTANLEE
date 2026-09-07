@@ -416,6 +416,60 @@ export async function updateEngagementInSupabase(
   }
 }
 
+/** Partner sign-off: seal an engagement with a digital certificate hash. */
+export async function sealEngagementInSupabase(
+  engagementId: string,
+  partnerApNumber: string,
+  actor: { id: string; name: string },
+): Promise<{ engagement: EngagementV4; certificateHash: string } | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
+  try {
+    const { data: existing, error: readError } = await supabase
+      .from('engagements')
+      .select('*')
+      .eq('id', engagementId)
+      .maybeSingle();
+    if (readError || !existing) return null;
+
+    const sealHash = `FINOVA-SEAL-${Date.now().toString(16).toUpperCase()}-${partnerApNumber.replace(/[^A-Z0-9]/gi, '').toUpperCase()}`;
+    const metadata = {
+      ...(existing.metadata || {}),
+      seal: {
+        sealedAt: new Date().toISOString(),
+        sealedByApNumber: partnerApNumber,
+        sealedByUserId: actor.id,
+        sealedByName: actor.name,
+        sealHash,
+      },
+    };
+
+    const { data, error } = await supabase
+      .from('engagements')
+      .update({ status: 'partner_sealed', metadata, updated_at: new Date().toISOString() })
+      .eq('id', engagementId)
+      .select()
+      .maybeSingle();
+    if (error || !data) return null;
+
+    return {
+      engagement: {
+        ...existing,
+        id: data.id,
+        status: data.status,
+        sealedAt: metadata.seal.sealedAt,
+        sealedByApNumber: metadata.seal.sealedByApNumber,
+        sealHash,
+      } as unknown as EngagementV4,
+      certificateHash: sealHash,
+    };
+  } catch (err) {
+    console.error('Error in sealEngagementInSupabase:', err);
+    return null;
+  }
+}
+
 // -----------------------------------------------------------------------------
 // FILE STORAGE & FILE SOURCES
 // -----------------------------------------------------------------------------

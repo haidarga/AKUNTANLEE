@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { repo } from '@/lib/db/repo-v4';
 import { assertTenantAccess, authorizationErrorResponse, requireSessionActor } from '@/lib/auth/authorization';
 import { getEngagementServerData } from '@/lib/server/engagement-data';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
+import { sealEngagementInSupabase } from '@/lib/supabase/service';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -28,7 +30,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }, { status: 400 });
     }
 
-    const result = repo.sealEngagementWithPartnerCertificate(id, partnerApNumber, user);
+    // Custom engagements created in production live in Supabase, not the
+    // local in-memory/SQLite repo — sealEngagementWithPartnerCertificate()
+    // only ever checked local state, so every seal attempt on a real
+    // engagement 400'd as "not found" despite every other endpoint (files,
+    // exports, tax) correctly resolving the same id via Supabase.
+    const result = isSupabaseConfigured()
+      ? await sealEngagementInSupabase(id, partnerApNumber, user)
+      : repo.sealEngagementWithPartnerCertificate(id, partnerApNumber, user);
+
+    if (!result) {
+      return NextResponse.json({
+        success: false,
+        code: 'SEAL_FAILED',
+        error: 'Perikatan tidak ditemukan atau gagal disegel di database produksi.',
+      }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true, data: result });
   } catch (err: any) {
     const authResponse = authorizationErrorResponse(err);
