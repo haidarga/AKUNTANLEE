@@ -176,7 +176,7 @@ function LoginFormContent() {
         localStorage.setItem('finova_firm_id', data.user.firmId);
       }
 
-      const redirectPath = searchParams.get('redirect') || '/engagements';
+      const redirectPath = searchParams.get('redirect') || (data.user?.onboardingRequired ? '/onboarding' : '/engagements');
       router.push(redirectPath);
     } catch (err: any) {
       setErrorMessage('Terjadi kesalahan jaringan saat autentikasi.');

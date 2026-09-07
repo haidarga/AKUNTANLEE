@@ -1,15 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Briefcase, ArrowLeft, ArrowRight, ShieldCheck, DollarSign, Building2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { repo } from '@/lib/db/repo-v4';
-import { saveStoredCustomEngagement } from '@/lib/storage/finova-store';
 
 export default function NewEngagementPage() {
   const router = useRouter();
-  const state = repo.getState();
+  const [clients, setClients] = useState<any[]>([]);
 
   const [mode, setMode] = useState<'new_client' | 'existing_client'>('new_client');
   
@@ -20,7 +18,7 @@ export default function NewEngagementPage() {
   const [industry, setIndustry] = useState('Manufaktur & Fabrikasi');
   
   // Existing Client Field
-  const [existingClientId, setExistingClientId] = useState(state.clients[0]?.id || 'CLI-001');
+  const [existingClientId, setExistingClientId] = useState('');
 
   // Engagement Parameters
   const [engagementName, setEngagementName] = useState('Kertas Kerja Audit & Lead Schedule FY 2026');
@@ -32,6 +30,23 @@ export default function NewEngagementPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/v1/engagements')
+      .then((res) => res.json())
+      .then((json) => {
+        const byId = new Map<string, any>();
+        for (const engagement of json.data || []) {
+          if (engagement.clientId && engagement.clientName) byId.set(engagement.clientId, {
+            id: engagement.clientId, legalName: engagement.clientName, code: engagement.clientCode, industry: engagement.industry,
+          });
+        }
+        const tenantClients = Array.from(byId.values());
+        setClients(tenantClients);
+        setExistingClientId(tenantClients[0]?.id || '');
+      })
+      .catch(() => setErrorMsg('Daftar klien tidak dapat dimuat. Silakan ulangi.'));
+  }, []);
 
   // Auto-generate client code from client name
   const handleClientNameChange = (val: string) => {
@@ -51,6 +66,10 @@ export default function NewEngagementPage() {
 
     if (mode === 'new_client' && !clientName.trim()) {
       setErrorMsg('Harap masukkan Nama Perusahaan / PT Klien.');
+      return;
+    }
+    if (mode === 'existing_client' && !existingClientId) {
+      setErrorMsg('Belum ada klien tersimpan di KAP ini. Pilih Klien Baru untuk mendaftarkan klien pertama.');
       return;
     }
 
@@ -89,18 +108,6 @@ export default function NewEngagementPage() {
 
       const createdEng = json.data;
       const createdClient = json.client;
-
-      saveStoredCustomEngagement(
-        {
-          ...createdEng,
-          clientName: createdClient?.legalName || payload.clientName || clientName,
-          clientCode: createdClient?.code || payload.clientCode || clientCode,
-          taxIdNpwp: createdClient?.taxIdNpwp || payload.taxIdNpwp || taxIdNpwp,
-          industry: createdClient?.industry || payload.industry || industry,
-          periodYear,
-        },
-        createdClient
-      );
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('finova_active_engagement', createdEng.id);
@@ -185,7 +192,7 @@ export default function NewEngagementPage() {
                 }
               >
                 <Briefcase className="w-4 h-4" />
-                <span>Pilih Klien Terdaftar ({state.clients.length})</span>
+                <span>Pilih Klien Terdaftar ({clients.length})</span>
               </button>
             </div>
           </div>
@@ -264,7 +271,9 @@ export default function NewEngagementPage() {
                 onChange={(e) => setExistingClientId(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-[#DDE4E2] rounded-xl bg-white font-semibold text-[#102A32]"
               >
-                {state.clients.map((c) => (
+                {clients.length === 0 ? (
+                  <option value="">Belum ada klien pada KAP ini</option>
+                ) : clients.map((c) => (
                   <option key={c.id} value={c.id}>
                     [{c.code}] {c.legalName} &bull; {c.industry}
                   </option>

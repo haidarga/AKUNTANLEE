@@ -40,8 +40,10 @@ export async function verifyPassword(plainText: string, hash: string): Promise<b
  * Sign JWT session token with HMAC-SHA256 (24h expiry)
  */
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
-  const firmId = payload.firmId || 'FIRM-001';
-  return new SignJWT({ ...payload, firmId })
+  const claims = payload.firmId ? { ...payload, firmId: payload.firmId } : {
+    userId: payload.userId, email: payload.email, role: payload.role, name: payload.name, title: payload.title,
+  };
+  return new SignJWT(claims)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')
@@ -56,7 +58,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
     const { payload } = await jwtVerify(token, getJwtSecret());
     return {
       userId: payload.userId as string,
-      firmId: (payload.firmId as string) || 'FIRM-001',
+      firmId: payload.firmId as string | undefined,
       email: payload.email as string,
       role: payload.role as string,
       name: payload.name as string,

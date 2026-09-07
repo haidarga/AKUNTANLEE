@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Briefcase,
@@ -20,6 +21,7 @@ import { EngagementStatusV4 } from '@/types/domain-v4';
 import { formatIdrNumber } from '@/lib/decimal';
 
 export default function EngagementsListPage() {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [allEngagements, setAllEngagements] = useState<any[]>([]);
@@ -33,6 +35,13 @@ export default function EngagementsListPage() {
 
     // The authenticated API is the sole directory source. Never merge another
     // browser user's localStorage into a firm's client list.
+    fetch('/api/v1/firm')
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.data?.setupComplete === false) router.replace('/onboarding');
+      })
+      .catch(() => router.replace('/login?redirect=/engagements'));
+
     fetch('/api/v1/engagements')
       .then((res) => res.json())
       .then((json) => {

@@ -6,7 +6,7 @@ import { createSessionToken, AUTH_COOKIE_NAME } from '@/lib/auth/session';
 export async function GET(req: NextRequest) {
   const requestUrl = new URL(req.url);
   const code = requestUrl.searchParams.get('code');
-  const next = requestUrl.searchParams.get('next') || '/engagements';
+  const requestedNext = requestUrl.searchParams.get('next') || '/engagements';
 
   if (!code) {
     return NextResponse.redirect(new URL('/login?error=missing_code', req.url));
@@ -38,8 +38,9 @@ export async function GET(req: NextRequest) {
       (authUser.user_metadata?.name as string) ||
       email.split('@')[0];
 
-    let firmId = 'FIRM-001';
+    let firmId = '';
     let role = 'partner';
+    let onboardingRequired = true;
     const title = 'Managing Engagement Partner';
 
     // Cek apakah user sudah terikat dengan firm di PostgreSQL
@@ -54,21 +55,21 @@ export async function GET(req: NextRequest) {
         if (membership) {
           firmId = membership.firm_id;
           role = membership.role || 'partner';
+          onboardingRequired = membership.firms?.settings?.onboarding_completed !== true;
         } else {
           // Buat firm baru untuk user Google OAuth baru
           firmId = 'FIRM-' + crypto.randomUUID().substring(0, 8);
-          const firmName = 'KAP ' + fullName;
-
           await admin.from('firms').insert({
             id: firmId,
-            legal_name: firmName,
-            short_name: 'KAP',
+            legal_name: 'Belum dikonfigurasi',
+            short_name: 'Belum diatur',
             email: email,
-            status: 'active',
+            status: 'pending_setup',
             settings: {
               lead_partner_name: fullName,
               default_currency: 'IDR',
               accounting_standard: 'SAK_INDONESIA',
+              onboarding_completed: false,
             },
           });
 
@@ -96,7 +97,7 @@ export async function GET(req: NextRequest) {
       title: title,
     });
 
-    const response = NextResponse.redirect(new URL(next, req.url));
+    const response = NextResponse.redirect(new URL(onboardingRequired ? '/onboarding' : requestedNext, req.url));
 
     response.cookies.set(AUTH_COOKIE_NAME, token, {
       httpOnly: true,

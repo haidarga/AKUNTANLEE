@@ -13,7 +13,7 @@ const ROLE_ALIASES: Record<string, UserRoleV4> = {
 export class AuthorizationError extends Error {
   constructor(
     public readonly status: 401 | 403,
-    public readonly code: 'UNAUTHENTICATED' | 'FORBIDDEN_ROLE' | 'FORBIDDEN_TENANT_ACCESS',
+    public readonly code: 'UNAUTHENTICATED' | 'FIRM_SETUP_REQUIRED' | 'FORBIDDEN_ROLE' | 'FORBIDDEN_TENANT_ACCESS',
     message: string,
   ) {
     super(message);
@@ -29,6 +29,9 @@ export async function requireSessionActor(
   if (!session) {
     throw new AuthorizationError(401, 'UNAUTHENTICATED', 'Sesi login diperlukan.');
   }
+  if (!session.firmId) {
+    throw new AuthorizationError(403, 'FIRM_SETUP_REQUIRED', 'Profil KAP perlu disiapkan sebelum membuka data audit.');
+  }
 
   const role = ROLE_ALIASES[session.role];
   if (!role || (allowedRoles && !allowedRoles.includes(role))) {
@@ -37,7 +40,7 @@ export async function requireSessionActor(
 
   return {
     id: session.userId,
-    tenantId: session.firmId || 'FIRM-001',
+    tenantId: session.firmId,
     email: session.email,
     name: session.name,
     role,

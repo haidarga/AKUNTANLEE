@@ -12,23 +12,20 @@ export async function POST(req: NextRequest) {
       email,
       password,
       fullName,
-      firmName,
       role = 'partner',
-      licenseNumber,
       phone,
     } = body;
 
     // 1. Validasi Input
-    if (!email || !password || !fullName || !firmName) {
+    if (!email || !password || !fullName) {
       return NextResponse.json(
-        { error: 'Nama Lengkap, Nama KAP, Email, dan Kata Sandi wajib diisi.' },
+        { error: 'Nama Lengkap, Email, dan Kata Sandi wajib diisi.' },
         { status: 400 }
       );
     }
 
     const trimmedEmail = email.trim().toLowerCase();
     const trimmedFullName = fullName.trim();
-    const trimmedFirmName = firmName.trim();
 
     if (!trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
       return NextResponse.json(
@@ -86,10 +83,8 @@ export async function POST(req: NextRequest) {
           email_confirm: true,
           user_metadata: {
             full_name: trimmedFullName,
-            firm_name: trimmedFirmName,
             role: assignedRole,
             title: title,
-            license_number: licenseNumber || null,
           },
         });
 
@@ -120,23 +115,21 @@ export async function POST(req: NextRequest) {
           userId = authData.user.id;
         }
 
-        // Simpan / Buat KAP baru di tabel firms
-        const shortName = trimmedFirmName
-          .replace(/^(KAP|Kantor Akuntan Publik)\s+/i, '')
-          .trim();
-
+        // Create an isolated tenant shell, not a configured KAP. The setup wizard
+        // is the only place that can turn this into an active firm profile.
         const { error: firmError } = await admin.from('firms').insert({
           id: firmId,
-          legal_name: trimmedFirmName,
-          short_name: shortName || 'KAP',
-          license_number: licenseNumber || null,
+          legal_name: 'Belum dikonfigurasi',
+          short_name: 'Belum diatur',
+          license_number: null,
           email: trimmedEmail,
           phone: phone || null,
-          status: 'active',
+          status: 'pending_setup',
           settings: {
             lead_partner_name: trimmedFullName,
             default_currency: 'IDR',
             accounting_standard: 'SAK_INDONESIA',
+            onboarding_completed: false,
           },
         });
 
@@ -151,7 +144,7 @@ export async function POST(req: NextRequest) {
           email: trimmedEmail,
           full_name: trimmedFullName,
           role: assignedRole,
-          license_number: licenseNumber || null,
+          license_number: null,
           status: 'active',
         });
 
@@ -177,7 +170,7 @@ export async function POST(req: NextRequest) {
           trimmedFullName,
           assignedRole,
           title,
-          licenseNumber || null,
+          null,
           new Date().toISOString()
         );
       }
@@ -198,7 +191,7 @@ export async function POST(req: NextRequest) {
     // 5. Konstruksi HTTP Response & Set Cookie
     const response = NextResponse.json({
       success: true,
-      message: 'Pendaftaran KAP & Akun Auditor berhasil.',
+      message: 'Akun berhasil dibuat. Silakan selesaikan setup KAP.',
       user: {
         id: userId,
         email: trimmedEmail,
@@ -206,12 +199,12 @@ export async function POST(req: NextRequest) {
         role: assignedRole,
         title: title,
         firmId: firmId,
-        firmName: trimmedFirmName,
-        cpaLicense: licenseNumber || null,
+        firmName: null,
+        cpaLicense: null,
       },
       firm: {
         id: firmId,
-        name: trimmedFirmName,
+        name: 'Belum dikonfigurasi',
       },
     });
 

@@ -9,6 +9,7 @@ import { POST as updateMappings } from '@/app/api/v1/mapping-sets/[id]/decisions
 import { POST as rollForward } from '@/app/api/v1/engagements/[id]/roll-forward/route';
 import { POST as createEngagement } from '@/app/api/v1/engagements/route';
 import { PUT as updateFirm } from '@/app/api/v1/firm/route';
+import { GET as getFirm } from '@/app/api/v1/firm/route';
 import { POST as analyzeAccount } from '@/app/api/v1/ai/analyze/route';
 import { AUTH_COOKIE_NAME, createSessionToken } from '@/lib/auth/session';
 
@@ -16,6 +17,11 @@ describe('production authorization hardening', () => {
   it('rejects an unauthenticated engagement directory instead of falling back to the shared seed tenant', async () => {
     const { GET: listEngagements } = await import('@/app/api/v1/engagements/route');
     const response = await listEngagements(new Request('http://localhost:3000/api/v1/engagements'));
+    expect(response.status).toBe(401);
+  });
+
+  it('does not disclose a default KAP profile before the user has signed in', async () => {
+    const response = await getFirm(new NextRequest('http://localhost/api/v1/firm'));
     expect(response.status).toBe(401);
   });
   async function sessionRequest(role: 'preparer' | 'senior' | 'manager' | 'partner', url: string, body: unknown) {

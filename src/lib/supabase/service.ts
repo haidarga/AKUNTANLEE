@@ -40,6 +40,7 @@ export async function getFirmProfileFromSupabase(firmId?: string): Promise<FirmP
       defaultAccountingStandard: data.settings?.accounting_standard || 'SAK_INDONESIA',
       defaultMaterialityIdr: 150_000_000,
       teamMembers: [],
+      setupComplete: data.settings?.onboarding_completed === true,
       updatedAt: data.updated_at,
     };
   } catch (err) {
@@ -65,6 +66,7 @@ export async function saveFirmProfileToSupabase(firm: Partial<FirmProfile>): Pro
         lead_partner_name: firm.managingPartnerName || '',
         accounting_standard: firm.defaultAccountingStandard || 'SAK_INDONESIA',
         default_currency: 'IDR',
+        onboarding_completed: true,
       },
       updated_at: new Date().toISOString(),
     };
@@ -93,6 +95,7 @@ export async function saveFirmProfileToSupabase(firm: Partial<FirmProfile>): Pro
       defaultAccountingStandard: data.settings?.accounting_standard || 'SAK_INDONESIA',
       defaultMaterialityIdr: 150_000_000,
       teamMembers: [],
+      setupComplete: true,
       updatedAt: data.updated_at,
     };
   } catch (err) {

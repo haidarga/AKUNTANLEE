@@ -30,12 +30,13 @@ export async function POST(req: NextRequest) {
 
         if (!authError && authData.user) {
           const authUser = authData.user;
-          let firmId = 'FIRM-001';
+          let firmId = '';
           let role = (authUser.user_metadata?.role as string) || 'partner';
           let name = (authUser.user_metadata?.full_name as string) || trimmedEmail.split('@')[0];
           const title = (authUser.user_metadata?.title as string) || 'Managing Engagement Partner';
           let cpaLicense = (authUser.user_metadata?.license_number as string) || null;
           let firmName = (authUser.user_metadata?.firm_name as string) || 'Kantor Akuntan Publik';
+          let onboardingRequired = true;
 
           // Ambil data firm & membership dari PostgreSQL
           if (admin) {
@@ -54,10 +55,18 @@ export async function POST(req: NextRequest) {
                 if (membership.firms?.legal_name) {
                   firmName = membership.firms.legal_name;
                 }
+                onboardingRequired = membership.firms?.settings?.onboarding_completed !== true;
               }
             } catch (dbErr) {
               console.warn('Error fetching membership from Supabase:', dbErr);
             }
+          }
+
+          if (!firmId) {
+            return NextResponse.json({
+              code: 'FIRM_MEMBERSHIP_REQUIRED',
+              error: 'Akun ini belum terhubung ke KAP. Silakan daftar atau minta undangan dari Managing Partner.',
+            }, { status: 403 });
           }
 
           const token = await createSessionToken({
@@ -80,6 +89,7 @@ export async function POST(req: NextRequest) {
               firmId: firmId,
               firmName: firmName,
               cpaLicense: cpaLicense,
+              onboardingRequired,
             },
           });
 

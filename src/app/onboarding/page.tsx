@@ -24,94 +24,40 @@ import {
   OnboardingAuthenticationRequiredError,
 } from '@/lib/onboarding/complete';
 
-const ONBOARDING_DRAFT_KEY = 'finova_onboarding_draft';
-
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form States
-  const [name, setName] = useState('KAP Haidar & Rekan');
-  const [shortName, setShortName] = useState('KAP Haidar');
-  const [licenseNumber, setLicenseNumber] = useState('KMK No. 492/KM.1/2024');
-  const [managingPartnerName, setManagingPartnerName] = useState('Haidar, CPA, CA');
-  const [managingPartnerApNumber, setManagingPartnerApNumber] = useState('AP.0942');
-  const [address, setAddress] = useState('Menara Finansial Indonesia Lt. 18, Jl. Jend. Sudirman Kav. 52-53');
-  const [city, setCity] = useState('Jakarta Selatan');
-  const [email, setEmail] = useState('contact@kaphaidar.co.id');
-  const [phone, setPhone] = useState('+62 21 5299 8800');
+  const [name, setName] = useState('');
+  const [shortName, setShortName] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
+  const [managingPartnerName, setManagingPartnerName] = useState('');
+  const [managingPartnerApNumber, setManagingPartnerApNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [defaultAccountingStandard, setDefaultAccountingStandard] = useState<'SAK_INDONESIA' | 'SAK_EP' | 'PSAK_IFRS'>('SAK_INDONESIA');
   const [defaultMaterialityIdr, setDefaultMaterialityIdr] = useState(250000000);
 
-  const [teamMembers, setTeamMembers] = useState<TeamMemberProfile[]>([
-    {
-      id: 'usr-1',
-      name: 'Haidar, CPA, CA',
-      title: 'Audit Partner (Signing Partner)',
-      email: 'haidar@kaphaidar.co.id',
-      role: 'partner',
-      cpaLicense: 'AP.0942',
-    },
-    {
-      id: 'usr-2',
-      name: 'Siti Rahmawati, CA',
-      title: 'Engagement Manager',
-      email: 'siti.r@kaphaidar.co.id',
-      role: 'manager',
-      cpaLicense: 'CA.18471',
-    },
-    {
-      id: 'usr-3',
-      name: 'Ahmad Pratama, S.Ak',
-      title: 'Senior In-Charge (Field Senior)',
-      email: 'ahmad.p@kaphaidar.co.id',
-      role: 'senior',
-    },
-    {
-      id: 'usr-4',
-      name: 'Budi Santoso, S.Ak',
-      title: 'Preparer (Junior Associate)',
-      email: 'budi.s@kaphaidar.co.id',
-      role: 'preparer',
-    },
-  ]);
+  const [teamMembers, setTeamMembers] = useState<TeamMemberProfile[]>([]);
 
   // Load existing profile if available
   useEffect(() => {
-    try {
-      // A session may be required before the server accepts the profile. Keep the
-      // in-progress wizard data locally so returning from login never loses it.
-      const cached = localStorage.getItem(ONBOARDING_DRAFT_KEY) || localStorage.getItem('finova_firm_profile');
-      if (cached) {
-        const f: FirmProfile = JSON.parse(cached);
-        if (f.name) setName(f.name);
-        if (f.shortName) setShortName(f.shortName);
-        if (f.licenseNumber) setLicenseNumber(f.licenseNumber);
-        if (f.managingPartnerName) setManagingPartnerName(f.managingPartnerName);
-        if (f.managingPartnerApNumber) setManagingPartnerApNumber(f.managingPartnerApNumber);
-        if (f.address) setAddress(f.address);
-        if (f.city) setCity(f.city);
-        if (f.email) setEmail(f.email);
-        if (f.phone) setPhone(f.phone);
-        if (f.defaultAccountingStandard) setDefaultAccountingStandard(f.defaultAccountingStandard);
-        if (f.defaultMaterialityIdr) setDefaultMaterialityIdr(f.defaultMaterialityIdr);
-        if (f.teamMembers && f.teamMembers.length > 0) setTeamMembers(f.teamMembers);
-      }
-    } catch (e) {}
-
     fetch('/api/v1/firm')
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
           const f: FirmProfile = data.data;
-          setName(f.name || 'KAP Haidar & Rekan');
-          setShortName(f.shortName || 'KAP Haidar');
-          setLicenseNumber(f.licenseNumber || 'KMK No. 492/KM.1/2024');
-          setManagingPartnerName(f.managingPartnerName || 'Haidar, CPA, CA');
+          setName(f.name === 'Belum dikonfigurasi' ? '' : f.name || '');
+          setShortName(f.shortName === 'Belum diatur' ? '' : f.shortName || '');
+          setLicenseNumber(f.licenseNumber || '');
+          setManagingPartnerName(f.managingPartnerName || '');
           setManagingPartnerApNumber(f.managingPartnerApNumber || 'AP.0942');
           setAddress(f.address || '');
-          setCity(f.city || 'Jakarta');
+          setCity(f.city || '');
           setEmail(f.email || '');
           setPhone(f.phone || '');
           if (f.defaultAccountingStandard) setDefaultAccountingStandard(f.defaultAccountingStandard);
@@ -120,6 +66,18 @@ export default function OnboardingPage() {
         }
       })
       .catch((e) => console.error(e));
+
+    fetch('/api/v1/auth/me')
+      .then((res) => res.json())
+      .then(({ user }) => {
+        if (!user) return;
+        setManagingPartnerName((current) => current || user.name || '');
+        setEmail((current) => current || user.email || '');
+        setTeamMembers((current) => current.length ? current : [{
+          id: user.id, name: user.name || '', title: user.title || 'Managing Engagement Partner',
+          email: user.email || '', role: 'partner', cpaLicense: user.cpaLicense || undefined,
+        }]);
+      });
   }, []);
 
   const handleAddMember = () => {
@@ -164,17 +122,11 @@ export default function OnboardingPage() {
     try {
       await completeOnboarding(payload, {
         request: fetch,
-        persistProfile: (savedProfile) => {
-          localStorage.setItem('finova_firm_profile', JSON.stringify(savedProfile));
-          localStorage.removeItem(ONBOARDING_DRAFT_KEY);
-          document.cookie = "finova_firm_profile=" + encodeURIComponent(JSON.stringify(savedProfile)) + "; path=/; max-age=31536000; SameSite=Lax";
-          window.dispatchEvent(new CustomEvent('finova_firm_updated', { detail: savedProfile }));
-        },
+        persistProfile: () => {},
         navigate: (destination) => router.replace(destination),
       });
     } catch (e: any) {
       if (e instanceof OnboardingAuthenticationRequiredError) {
-        localStorage.setItem(ONBOARDING_DRAFT_KEY, JSON.stringify(payload));
         router.replace('/login?redirect=/onboarding');
         return;
       }

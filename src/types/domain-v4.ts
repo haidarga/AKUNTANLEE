@@ -28,6 +28,8 @@ export interface FirmProfile {
   defaultAccountingStandard: 'SAK_INDONESIA' | 'SAK_EP' | 'PSAK_IFRS';
   defaultMaterialityIdr: number;
   teamMembers: TeamMemberProfile[];
+  /** A tenant shell exists after sign-up; no client workspace is available until this is true. */
+  setupComplete?: boolean;
   updatedAt?: string;
 }
 

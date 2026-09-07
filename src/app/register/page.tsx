@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Building2,
   Mail,
   Lock,
   User,
@@ -16,7 +15,6 @@ import {
   EyeOff,
   CheckCircle2,
   Briefcase,
-  FileText,
 } from 'lucide-react';
 import { getSupabaseAnon, isSupabaseConfigured } from '@/lib/supabase/client';
 
@@ -24,8 +22,6 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [fullName, setFullName] = useState('');
-  const [firmName, setFirmName] = useState('');
-  const [licenseNumber, setLicenseNumber] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'partner' | 'manager' | 'senior'>('partner');
   const [password, setPassword] = useState('');
@@ -41,7 +37,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!fullName.trim() || !firmName.trim() || !email.trim() || !password) {
+    if (!fullName.trim() || !email.trim() || !password) {
       setErrorMessage('Mohon lengkapi seluruh kolom wajib.');
       return;
     }
@@ -64,8 +60,6 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName,
-          firmName,
-          licenseNumber: licenseNumber.trim() || undefined,
           email,
           role,
           password,
@@ -84,11 +78,7 @@ export default function RegisterPage() {
         localStorage.setItem('finova_v4_role', data.user.role);
         localStorage.setItem('finova_user_name', data.user.name);
       }
-      if (data.firm?.id) {
-        localStorage.setItem('finova_firm_id', data.firm.id);
-      }
-
-      router.push('/engagements');
+      router.replace('/onboarding');
     } catch (err: any) {
       setErrorMessage('Terjadi kendala jaringan saat memproses pendaftaran.');
       setIsLoading(false);
@@ -157,7 +147,7 @@ export default function RegisterPage() {
           FN
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-[#102A32]">
-          Pendaftaran Kantor Akuntan Publik
+          Buat Akun FINOVA AI
         </h1>
         <p className="text-xs text-[#52636A]">
           Buat Workspace Audit Baru &bull; SAK & SPAP Compliant &bull; Multi-Tenant Isolated
@@ -169,8 +159,8 @@ export default function RegisterPage() {
           <div className="finova-bezel-inner p-5 sm:p-7 space-y-4 bg-white">
             <div className="border-b border-[#DDE4E2] pb-3 flex items-center justify-between">
               <div>
-                <h2 className="font-bold text-sm text-[#102A32]">Formulir Pendaftaran KAP</h2>
-                <p className="text-[11px] text-[#52636A]">Akun pertama otomatis menjadi Managing Partner KAP</p>
+                <h2 className="font-bold text-sm text-[#102A32]">Buat akun Anda</h2>
+                <p className="text-[11px] text-[#52636A]">Setelah masuk, Anda akan diminta menyiapkan profil KAP terlebih dahulu.</p>
               </div>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#E8F5F1] text-[#0F8F7A] border border-[#B2DFD6] flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3" />
@@ -274,39 +264,6 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Nama KAP */}
-                <div className="space-y-1">
-                  <label className="font-bold text-[#102A32] block">Nama Resmi KAP *</label>
-                  <div className="relative">
-                    <Building2 className="w-3.5 h-3.5 text-[#7A8C93] absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      required
-                      value={firmName}
-                      onChange={(e) => setFirmName(e.target.value)}
-                      placeholder="KAP Haidar & Rekan"
-                      className="w-full pl-8 pr-3 py-2 bg-[#F6F7F5] border border-[#DDE4E2] rounded-xl text-xs text-[#102A32] focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
-                    />
-                  </div>
-                </div>
-
-                {/* No Izin AP / KMK */}
-                <div className="space-y-1">
-                  <label className="font-bold text-[#102A32] block">No. Izin AP / KMK (Opsional)</label>
-                  <div className="relative">
-                    <FileText className="w-3.5 h-3.5 text-[#7A8C93] absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={licenseNumber}
-                      onChange={(e) => setLicenseNumber(e.target.value)}
-                      placeholder="AP.0942 / KMK No. 492"
-                      className="w-full pl-8 pr-3 py-2 bg-[#F6F7F5] border border-[#DDE4E2] rounded-xl text-xs text-[#102A32] focus:outline-none focus:ring-1 focus:ring-[#0F8F7A]"
-                    />
-                  </div>
-                </div>
-              </div>
-
               {/* Email */}
               <div className="space-y-1">
                 <label className="font-bold text-[#102A32] block">Email Bisnis / Kantor *</label>
@@ -369,7 +326,7 @@ export default function RegisterPage() {
                 disabled={isLoading}
                 className="w-full finova-pill-cta justify-center bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs shadow-md cursor-pointer py-2.5 mt-2"
               >
-                <span>{isLoading ? 'Membuat Profil KAP & Akun...' : 'Daftarkan KAP & Masuk Workspace'}</span>
+                <span>{isLoading ? 'Membuat Akun...' : 'Buat Akun & Lanjut Setup KAP'}</span>
                 <div className="icon-circle">
                   {isLoading ? (
                     <RefreshCw className="w-3.5 h-3.5 text-white animate-spin" />

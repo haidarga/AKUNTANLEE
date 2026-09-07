@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
         name: sqliteUser.name,
         role: sqliteUser.role,
         title: sqliteUser.title,
-        firmId: payload.firmId || 'FIRM-001',
+        firmId: payload.firmId || null,
         cpaLicense: sqliteUser.cpa_license,
       },
     });
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
       name: payload.name,
       role: payload.role,
       title: payload.title,
-      firmId: payload.firmId || 'FIRM-001',
+      firmId: payload.firmId || null,
       firmName: firmName,
       cpaLicense: cpaLicense,
     },
