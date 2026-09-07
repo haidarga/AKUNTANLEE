@@ -321,10 +321,11 @@ export async function chatWithAuditCopilot(
   const q = lastUserMsg.toLowerCase().trim();
   const activeContext = engagementContext.trim();
 
-  // Try live fast model first if available within 5 seconds
+  // Give the configured provider a realistic bounded window. The UI receives
+  // the returned model name and must label a safe fallback as such.
   if (AI_BASE_URL && AI_API_KEY) try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), Number(process.env.AI_CHAT_TIMEOUT_MS || 15_000));
 
     const res = await fetch(`${AI_BASE_URL}/chat/completions`, {
       method: 'POST',

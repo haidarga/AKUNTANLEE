@@ -883,13 +883,21 @@ class FinovaV4Repository {
     const mapSet = this.state.mappingSets.find((m) => m.engagementId === engagementId) || this.state.mappingSets[0];
     const adjs = (this.state.adjustments || []).filter((a) => a.engagementId === engagementId);
 
+    const accounts = this.state.accounts.filter((account: any) =>
+      (account as any).engagementId === engagementId || account.datasetVersionId === dsv?.id
+    );
+    const accountIds = new Set(accounts.map((account) => account.id));
+    const mappingDecisions = this.state.mappingDecisions.filter((decision) =>
+      decision.mappingSetId === mapSet?.id || accountIds.has(decision.accountRowId)
+    );
+
     const calc = calculateWorkpaperVersion({
       tenantId: eng.tenantId,
       engagementId: eng.id,
       datasetVersionId: dsv?.id || 'DSV-001',
       mappingSetId: mapSet?.id || 'MAPSET-001',
-      accounts: this.state.accounts,
-      mappingDecisions: this.state.mappingDecisions,
+      accounts,
+      mappingDecisions,
       adjustments: adjs,
       template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
       includeComparativeDefaults: engagementId === 'ENG-2026-01',

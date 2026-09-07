@@ -78,13 +78,15 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
   const clientDisplayName = client?.legalName || 'Entitas Klien';
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [providerLabel, setProviderLabel] = useState('Provider diverifikasi saat pertanyaan pertama');
+  const [isLiveProvider, setIsLiveProvider] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'msg-0',
       role: 'assistant',
-      content: 'Halo! Saya FINOVA AI Copilot (bertenaga model Qwen 3.8 & SAK Indonesia Engine). Saya memegang seluruh data kertas kerja audit ' + clientDisplayName + ' untuk Tahun Fiskal 2026. Silakan tanyakan apapun seputar laba bersih, EBITDA, uji keseimbangan neraca, pembengkakan biaya, atau simulasi pajak.',
+      content: 'Halo! Saya FINOVA AI Copilot. Saya menggunakan konteks kertas kerja aktif dan akan menampilkan provider jawaban yang benar setelah pertanyaan pertama. Silakan tanyakan apapun seputar laba bersih, uji keseimbangan neraca, atau pajak.',
       timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-      model: 'qwen3.8-nvfp4',
+      model: 'finova-context',
     },
   ]);
 
@@ -129,6 +131,9 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
       const data = await res.json();
 
       if (data.success) {
+        const live = data.model !== 'finova-context-safe-fallback';
+        setIsLiveProvider(live);
+        setProviderLabel(live ? `Live ${data.model}` : 'Mode konteks aman (provider tidak tersedia)');
         const assistantMsg: ChatMessage = {
           id: `msg-${Date.now()}-ai`,
           role: 'assistant',
@@ -172,7 +177,7 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
           <Sparkles className="w-3.5 h-3.5" />
         </div>
         <span className="text-xs font-bold tracking-tight">Tanya FINOVA AI</span>
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+        <span className={`w-2 h-2 rounded-full ${isLiveProvider ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
       </button>
 
       {/* Floating Chat Drawer */}
@@ -188,7 +193,7 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
                 <h3 className="font-bold text-xs flex items-center gap-1.5">
                   FINOVA AI Audit Copilot
                   <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
-                    Live Qwen 3.8
+                    {providerLabel}
                   </span>
                 </h3>
                 <p className="text-[10px] text-white/75">
@@ -251,7 +256,7 @@ export function AuditCopilotDrawer({ engagementId }: { engagementId: string }) {
                 </div>
                 <div className="p-3 rounded-2xl bg-white border border-[#DDE4E2] shadow-xs flex items-center gap-2 text-[11px]">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#0F8F7A] animate-ping" />
-                  <span>Qwen-3.8 sedang menelaah data kertas kerja...</span>
+                  <span>FINOVA AI sedang menelaah data kertas kerja...</span>
                 </div>
               </div>
             )}

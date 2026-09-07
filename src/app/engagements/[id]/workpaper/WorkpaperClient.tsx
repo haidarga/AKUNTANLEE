@@ -33,11 +33,9 @@ import { BalanceScaleIllustration } from '@/components/v4/visuals/WorkflowIllust
 import { FinancialWaterfallChart } from '@/components/v4/visuals/FinancialWaterfallChart';
 import { AuditSpreadsheet } from '@/components/v4/spreadsheet/AuditSpreadsheet';
 import { AuditAdjustmentsModal } from '@/components/v4/workpaper/AuditAdjustmentsModal';
-import { inferLeadScheduleTarget } from '@/lib/workpaper/infer-target';
 import { AuditSealModal } from '@/components/v4/workpaper/AuditSealModal';
 import { ReviewerNotesDrawer } from '@/components/v4/workpaper/ReviewerNotesDrawer';
 import { Scale, Lock } from 'lucide-react';
-import { calculateWorkpaperVersion } from '@/lib/workpaper/engine';
 
 
 export default function WorkpaperClient({
@@ -122,7 +120,7 @@ export default function WorkpaperClient({
   const [isSealOpen, setIsSealOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [selectedNoteLine, setSelectedNoteLine] = useState<WorkpaperLineItem | null>(null);
-  const [adjustments, setAdjustments] = useState(repo.getAdjustments(engagementId));
+  const [adjustments, setAdjustments] = useState<any[]>([]);
   const [notes, setNotes] = useState(repo.getReviewerNotes(engagementId));
   const [currentEngagement, setCurrentEngagement] = useState(engagement);
 
@@ -135,8 +133,9 @@ export default function WorkpaperClient({
       setActiveRole(saved as UserRoleV4);
     }
 
-    // Fetch live workpaper lines and totals from API single source of truth
-    fetch(`/api/v1/engagements/${engagementId}/files`, { credentials: 'include' })
+    // The server is the only calculation authority for an active engagement.
+    // Browser caches and the demo repository must never replace these figures.
+    const refreshCanonicalWorkpaper = () => fetch(`/api/v1/engagements/${engagementId}/files`, { credentials: 'include' })
       .then((res) => res.json())
       .then((json) => {
         if (json.data?.lines && json.data.lines.length > 0) {
@@ -152,126 +151,11 @@ export default function WorkpaperClient({
         }
       })
       .catch((err) => console.warn('Error fetching live workpaper data:', err));
-
-    try {
-      const customAccountsRaw = localStorage.getItem('finova_accounts_' + engagementId);
-      const customMappingRaw = localStorage.getItem('finova_mapping_' + engagementId);
-
-      if (customAccountsRaw) {
-        const accs = JSON.parse(customAccountsRaw);
-        if (Array.isArray(accs) && accs.length > 0) {
-          let activeDecs = [];
-          if (customMappingRaw) {
-            try {
-              const parsedMap = JSON.parse(customMappingRaw);
-              if (Array.isArray(parsedMap) && parsedMap.length > 0) {
-                activeDecs = parsedMap;
-              }
-            } catch (e) {}
-          }
-
-          if (activeDecs.length === 0) {
-            activeDecs = accs.map((acc: any, idx: number) => {
-              const code = acc.accountCode || '';
-              const target = inferLeadScheduleTarget(code, acc.accountName);
-
-              return {
-                id: 'DEC-' + (idx + 1),
-                tenantId: 'TENANT-001',
-                mappingSetId: 'MAPSET-' + engagementId,
-                accountRowId: acc.id || ('ACC-' + (idx + 1)),
-                sourceAccountCode: acc.accountCode,
-                sourceAccountName: acc.accountName,
-                amountIdr: acc.closingBalanceIdr || acc.balanceIdr || 0,
-                proposedTarget: target,
-                effectiveTarget: target,
-                confidenceScore: 96,
-                confidenceLevel: 'high' as const,
-                rationale: 'Pemetaan Otomatis SAK Standard Pattern',
-                status: 'mapped' as const,
-                isMaterial: false,
-              };
-            });
-          }
-
-          const customWpCalc = calculateWorkpaperVersion({
-            tenantId: engagement.tenantId || 'TENANT-001',
-            engagementId,
-            datasetVersionId: 'DSV-' + engagementId,
-            mappingSetId: 'MAPSET-' + engagementId,
-            accounts: accs,
-            mappingDecisions: activeDecs,
-          });
-
-          setWpVersion(customWpCalc.workpaperVersion);
-          setLines(customWpCalc.lines);
-          if (customWpCalc.checks) setChecks(customWpCalc.checks);
-          localStorage.setItem('finova_wp_' + engagementId, JSON.stringify(customWpCalc));
-          return;
-        }
-      }
-
-      // If finova_wp already cached
-      const customWpRaw = localStorage.getItem('finova_wp_' + engagementId);
-      if (customWpRaw) {
-        const customWp = JSON.parse(customWpRaw);
-        if (customWp?.workpaperVersion && customWp?.lines?.length > 0) {
-          setWpVersion(customWp.workpaperVersion);
-          setLines(customWp.lines);
-          if (customWp.checks?.length > 0) setChecks(customWp.checks);
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn('Error loading custom workpaper in page:', e);
-    }
-
-    // Cross-Device API Fallback for Workpaper Hydration
-    fetch('/api/v1/engagements/' + engagementId + '/files', { credentials: 'include' })
+    refreshCanonicalWorkpaper();
+    fetch(`/api/v1/engagements/${engagementId}/adjustments`, { credentials: 'include' })
       .then((res) => res.json())
       .then((json) => {
-        if (json?.data?.accounts && json.data.accounts.length > 0) {
-          const accs = json.data.accounts;
-          const autoDecisions = accs.map((acc: any, idx: number) => {
-            const code = acc.accountCode || '';
-            const target = inferLeadScheduleTarget(code, acc.accountName);
-
-            return {
-              id: 'DEC-' + (idx + 1),
-              tenantId: 'TENANT-001',
-              mappingSetId: 'MAPSET-' + engagementId,
-              accountRowId: acc.id || ('ACC-' + (idx + 1)),
-              sourceAccountCode: acc.accountCode,
-              sourceAccountName: acc.accountName,
-              amountIdr: acc.closingBalanceIdr || acc.balanceIdr || 0,
-              proposedTarget: target,
-              effectiveTarget: target,
-              confidenceScore: 96,
-              confidenceLevel: 'high' as const,
-              rationale: 'Pemetaan Otomatis SAK Standard Pattern',
-              status: 'mapped' as const,
-              isMaterial: false,
-            };
-          });
-
-          const customWpCalc = calculateWorkpaperVersion({
-            tenantId: engagement.tenantId || 'TENANT-001',
-            engagementId,
-            datasetVersionId: 'DSV-' + engagementId,
-            mappingSetId: 'MAPSET-' + engagementId,
-            accounts: accs,
-            mappingDecisions: autoDecisions,
-          });
-
-          setWpVersion(customWpCalc.workpaperVersion);
-          setLines(customWpCalc.lines);
-          if (customWpCalc.checks?.length > 0) setChecks(customWpCalc.checks);
-          try {
-            localStorage.setItem('finova_accounts_' + engagementId, JSON.stringify(accs));
-            localStorage.setItem('finova_mapping_' + engagementId, JSON.stringify(autoDecisions));
-            localStorage.setItem('finova_wp_' + engagementId, JSON.stringify(customWpCalc));
-          } catch (e) {}
-        }
+        if (json.success && Array.isArray(json.data)) setAdjustments(json.data);
       })
       .catch(() => {});
   }, [engagementId]);
@@ -293,24 +177,7 @@ export default function WorkpaperClient({
           setWpVersion(data.data);
         }
       }
-      const customAccountsRaw = localStorage.getItem('finova_accounts_' + engagementId);
-      const customMappingRaw = localStorage.getItem('finova_mapping_' + engagementId);
-      if (customAccountsRaw) {
-        const accs = JSON.parse(customAccountsRaw);
-        const decs = customMappingRaw ? JSON.parse(customMappingRaw) : [];
-        const wpCalc = calculateWorkpaperVersion({
-          tenantId: engagement.tenantId || 'TENANT-001',
-          engagementId,
-          datasetVersionId: 'DSV-' + engagementId,
-          mappingSetId: 'MAPSET-' + engagementId,
-          accounts: accs,
-          mappingDecisions: decs,
-        });
-        setWpVersion(wpCalc.workpaperVersion);
-        setLines(wpCalc.lines);
-        if (wpCalc.checks) setChecks(wpCalc.checks);
-        localStorage.setItem('finova_wp_' + engagementId, JSON.stringify(wpCalc));
-      } else if (isCustomEngagement) {
+      if (isCustomEngagement) {
         const res = await fetch('/api/v1/engagements/' + engagementId + '/files', { credentials: 'include' });
         const json = await res.json();
         if (json.data?.workpaper) setWpVersion(json.data.workpaper);
@@ -660,9 +527,13 @@ export default function WorkpaperClient({
         adjustments={adjustments}
         onAdjustmentCreated={(newAdj) => {
           setAdjustments((prev) => [...prev, newAdj]);
-          const refreshedState = repo.getState();
-          setLines(refreshedState.workpaperLines);
-          setChecks(refreshedState.validationChecks);
+          fetch(`/api/v1/engagements/${engagementId}/files`, { credentials: 'include' })
+            .then((res) => res.json())
+            .then((json) => {
+              if (json.data?.workpaper) setWpVersion(json.data.workpaper);
+              if (json.data?.lines) setLines(json.data.lines);
+              if (json.data?.checks) setChecks(json.data.checks);
+            });
         }}
       />
 

@@ -34,6 +34,26 @@ import {
   calculatePpnEqualization,
 } from '@/lib/tax/ppn-equalization';
 import { calculateCorporateFiscalReconciliation } from '@/lib/tax/fiscal-reconciliation';
+import { buildPayrollTaxData } from '@/lib/tax/payroll-store';
+
+const SAMPLE_PAYROLL_FILES = {
+  PT_Surya_Retail: {
+    headers: ['Karyawan', 'Role Jabatan', 'Gapok Bulanan', 'Status PTKP', 'Tunjangan Operasional'],
+    rows: [
+      ['Ayu Pratama', 'Konsultan', '8500000', 'TK/0', '500000'],
+      ['Bima Saputra', 'Senior Konsultan', '12000000', 'K/1', '1000000'],
+      ['Citra Lestari', 'Admin', '6500000', 'TK/0', '300000'],
+    ],
+  },
+  CV_Maju_Logistik: {
+    headers: ['No', 'Tanggungan', 'Nama Lengkap', 'Upah Pokok', 'Premi BPJS'],
+    rows: [
+      ['1', 'TK0', 'Dewi Kartika', '9000000', '400000'],
+      ['2', 'K1', 'Eko Wibowo', '11500000', '500000'],
+      ['3', 'TK0', 'Farah Anjani', '7000000', '300000'],
+    ],
+  },
+} as const;
 
 const DEFAULT_TAX_DATA = (() => {
   const turnover = 24_000_000_000;
@@ -94,6 +114,7 @@ export default function TaxCompliancePage() {
   const [importNotice, setImportNotice] = useState<string | null>(null);
   const [sampleClientFile, setSampleClientFile] = useState<'PT_Surya_Retail' | 'CV_Maju_Logistik'>('PT_Surya_Retail');
   const [hasPayroll, setHasPayroll] = useState<boolean>(!isCustomEngagement);
+  const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
     if (!isCustomEngagement) {
@@ -105,7 +126,7 @@ export default function TaxCompliancePage() {
     setIsLoading(true);
     fetch('/api/v1/engagements/' + engagementId + '/files')
       .then((res) => res.json())
-      .then((json) => {
+      .then(async (json) => {
         const lines = json.data?.lines || [];
         const wp = json.data?.workpaper || null;
 
@@ -120,44 +141,11 @@ export default function TaxCompliancePage() {
         const turnover = Math.abs(revLine?.currentPeriodIdr || 0);
         const netProfit = wp?.totals?.netIncomeIdr || 0;
 
-        let monthlyList: any[] = [];
-        let annualList: any[] = [];
-        let foundPayroll = false;
-
-        try {
-          const storedPayroll = localStorage.getItem('finova_payroll_' + engagementId);
-          if (storedPayroll) {
-            const employees = JSON.parse(storedPayroll);
-            if (Array.isArray(employees) && employees.length > 0) {
-              foundPayroll = true;
-              monthlyList = employees.map((emp: any) => calculateMonthlyPph21(emp));
-              annualList = employees.map((emp: any) => {
-                const annualGross = (emp.monthlyGrossSalaryIdr + emp.monthlyAllowanceIdr) * 12;
-                const biayaJabatan = Math.min(6_000_000, annualGross * 0.05);
-                const net = annualGross - biayaJabatan;
-                const ptkp = getPtkpAnnualAmount(emp.ptkpStatus);
-                const pkp = Math.max(0, net - ptkp);
-                const annualTax = calculateAnnualPph21Pasal17(pkp);
-                const janToNovTer = (monthlyList.find((m) => m.employeeId === emp.id)?.monthlyPph21Idr || 0) * 11;
-                const decTax = Math.max(0, annualTax - janToNovTer);
-                return {
-                  employeeId: emp.id,
-                  employeeName: emp.name,
-                  annualGrossIncomeIdr: annualGross,
-                  biayaJabatanIdr: biayaJabatan,
-                  netIncomeIdr: net,
-                  ptkpAmountIdr: ptkp,
-                  taxableIncomeIdr: pkp,
-                  annualPph21TarifPasal17Idr: annualTax,
-                  totalPph21TerJanToNovIdr: janToNovTer,
-                  decemberPph21Idr: decTax,
-                };
-              });
-            }
-          }
-        } catch (e) {}
-
-        setHasPayroll(foundPayroll);
+        const payrollResponse = await fetch(`/api/v1/tax/payroll/import?engagementId=${encodeURIComponent(engagementId)}`, { credentials: 'include' });
+        const payrollJson = payrollResponse.ok ? await payrollResponse.json() : null;
+        const employees = payrollJson?.success && Array.isArray(payrollJson.data?.employees) ? payrollJson.data.employees : [];
+        const payrollData = buildPayrollTaxData(employees);
+        setHasPayroll(employees.length > 0);
         const ppnFilings = generateDefaultPpnFilings(turnover);
         const ppnEqualization = calculatePpnEqualization(turnover, ppnFilings);
         const corporateFiscal = calculateCorporateFiscalReconciliation(netProfit, turnover);
@@ -166,10 +154,7 @@ export default function TaxCompliancePage() {
           turnoverIdr: turnover,
           netProfitIdr: netProfit,
           pph21: {
-            monthlyList,
-            totalMonthlyWithholdingIdr: monthlyList.reduce((s: number, c: any) => s + c.monthlyPph21Idr, 0),
-            annualReconciliationList: annualList,
-            totalAnnualWithholdingIdr: annualList.reduce((s: number, a: any) => s + a.annualPph21TarifPasal17Idr, 0),
+            ...payrollData,
           },
           ppn: {
             filings: ppnFilings,
@@ -230,6 +215,30 @@ export default function TaxCompliancePage() {
 
   const { pph21, ppn, corporateTax } = data;
 
+  const importSamplePayroll = async () => {
+    setIsImporting(true);
+    setImportNotice(null);
+    try {
+      const sample = SAMPLE_PAYROLL_FILES[sampleClientFile];
+      const response = await fetch('/api/v1/tax/payroll/import', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ engagementId, headers: sample.headers, rows: sample.rows }),
+      });
+      const json = await response.json();
+      if (!response.ok || !json.success) throw new Error(json.error || 'Import payroll gagal.');
+      setImportNotice(`${json.data.validRowCount} pegawai tersimpan permanen pada perikatan ini. PPh 21 sudah dihitung dari data tersebut.`);
+      const payrollData = buildPayrollTaxData(json.data.importedEmployees);
+      setData((current: any) => ({ ...current, pph21: payrollData }));
+      setHasPayroll(true);
+    } catch (error: any) {
+      setImportNotice(`Import gagal: ${error.message}`);
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 text-[#102A32] animate-finova-in">
       {/* Top Banner */}
@@ -259,7 +268,7 @@ export default function TaxCompliancePage() {
           </button>
 
           <a
-            href="/api/v1/tax/export/ebupot-21"
+            href={`/api/v1/tax/export/ebupot-21?engagementId=${encodeURIComponent(engagementId)}`}
             download
             className="finova-pill-cta bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
@@ -313,7 +322,7 @@ export default function TaxCompliancePage() {
                 <button
                   onClick={() => {
                     setSampleClientFile('PT_Surya_Retail');
-                    setImportNotice('Berhasil memetakan 8 karyawan PT Surya Retail dengan skor kecocokan 94%!');
+                    setImportNotice(null);
                   }}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     sampleClientFile === 'PT_Surya_Retail'
@@ -326,7 +335,7 @@ export default function TaxCompliancePage() {
                 <button
                   onClick={() => {
                     setSampleClientFile('CV_Maju_Logistik');
-                    setImportNotice('Berhasil memetakan 12 karyawan CV Maju Logistik dengan skor kecocokan 91%!');
+                    setImportNotice(null);
                   }}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     sampleClientFile === 'CV_Maju_Logistik'
@@ -365,6 +374,13 @@ export default function TaxCompliancePage() {
                 <span>{importNotice}</span>
               </div>
             )}
+            <button
+              onClick={importSamplePayroll}
+              disabled={isImporting}
+              className="px-3 py-2 rounded-lg bg-[#102A32] text-white text-xs font-bold disabled:opacity-60"
+            >
+              {isImporting ? 'Menyimpan payroll...' : 'Impor data contoh ke perikatan aktif'}
+            </button>
           </div>
         </div>
       )}

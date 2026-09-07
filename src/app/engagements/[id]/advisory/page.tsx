@@ -3,7 +3,6 @@
 import Link from 'next/link';
 
 import { useParams } from 'next/navigation';
-import { repo } from '@/lib/db/repo-v4';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -28,6 +27,7 @@ import { calculateFinancialRatios } from '@/lib/advisory/ratios';
 import { analyzeCostAnomaliesAndAdvise } from '@/lib/advisory/cost-anomaly-analyzer';
 import { calculateManufacturingBreakdown } from '@/lib/advisory/manufacturing-breakdown';
 import { extractFinancialInputs } from '@/lib/advisory/custom-engagement';
+import { resolveAdvisoryEngagementContext } from '@/lib/advisory/engagement-context';
 
 const DEFAULT_ADVISORY_DATA = {
   ratios: calculateFinancialRatios({
@@ -51,9 +51,6 @@ export default function AdvisoryAnalyticsPage() {
   const routeParams = useParams();
   const engagementId = (routeParams?.id as string) || 'ENG-2026-01';
   const isCustomEngagement = engagementId !== 'ENG-2026-01';
-  const state = repo.getState();
-  const engagement = state.engagements.find((e: any) => e.id === engagementId);
-  const client = state.clients.find((c: any) => c.id === engagement?.clientId);
   const [data, setData] = useState<any>(isCustomEngagement ? null : DEFAULT_ADVISORY_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'cost' | 'ratios' | 'manufacturing' | 'whatif' | 'memo'>(
@@ -78,8 +75,9 @@ export default function AdvisoryAnalyticsPage() {
     fetch('/api/v1/engagements/' + engagementId + '/files')
       .then((res) => res.json())
       .then((json) => {
-        const customLines = json.data?.lines || [];
-        const wp = json.data?.workpaper || null;
+        const canonical = json.data || json;
+        const customLines = canonical.lines || [];
+        const wp = canonical.workpaper || null;
 
         if (customLines.length === 0 && !wp?.totals) {
           setHasData(false);
@@ -90,11 +88,11 @@ export default function AdvisoryAnalyticsPage() {
 
         setHasData(true);
         const ratioInputs = extractFinancialInputs(customLines, wp.totals);
-        const clientLegalName = client?.legalName || engagement?.name || 'Entitas Klien';
+        const { clientName: clientLegalName, industry } = resolveAdvisoryEngagementContext(canonical);
         const customRatios = calculateFinancialRatios({
           ...ratioInputs,
           clientName: clientLegalName,
-          industry: client?.industry || 'Manufaktur & Perdagangan',
+          industry,
         });
         const dynamicCostAdvisory = analyzeCostAnomaliesAndAdvise({
           annualRevenueIdr: ratioInputs.revenueIdr || 10_000_000_000,
@@ -119,7 +117,7 @@ export default function AdvisoryAnalyticsPage() {
         setData(null);
         setIsLoading(false);
       });
-  }, [client?.industry, client?.legalName, engagement?.name, engagementId, isCustomEngagement]);
+  }, [engagementId, isCustomEngagement]);
 
   useEffect(() => {
     const fetchSimulation = async () => {
@@ -709,7 +707,7 @@ export default function AdvisoryAnalyticsPage() {
             <div className="border-b border-[#DDE4E2] pb-4 flex items-center justify-between font-sans">
               <div>
                 <span className="text-[10px] font-bold text-[#0F8F7A] uppercase tracking-wider block">MEMO EKSEKUTIF KONSULTAN FINANSIAL</span>
-                <h2 className="text-lg font-bold text-[#102A32]">{client?.legalName || 'Entitas Klien'} — Dewan Direksi &amp; Komisaris</h2>
+                <h2 className="text-lg font-bold text-[#102A32]">{ratios.clientName || 'Entitas Klien'} — Dewan Direksi &amp; Komisaris</h2>
                 <span className="text-xs text-[#52636A]">Diterbitkan oleh Tim Advisory FINOVA AI &bull; Periode Evaluasi FY 2026</span>
               </div>
               <button
