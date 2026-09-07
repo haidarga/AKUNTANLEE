@@ -9,6 +9,7 @@ import {
 import { calculateWorkpaperVersion, APPROVED_LEAD_SCHEDULE_TEMPLATE } from '@/lib/workpaper/engine';
 import { FileVersion, MappingDecision, AccountRow, WorkpaperVersion, WorkpaperLineItem, ValidationCheckResult } from '@/types/domain-v4';
 import { inferLeadScheduleTarget } from '@/lib/workpaper/infer-target';
+import { getPersistentAdjustments } from '@/lib/audit/adjustment-store';
 
 export interface EngagementServerData {
   engagement: any;
@@ -168,6 +169,10 @@ export async function getEngagementServerData(engagementId: string): Promise<Eng
   let checks: ValidationCheckResult[] = [];
 
   if (accounts.length > 0 && decisions.length > 0) {
+    const firmId = engagement.tenantId || 'TENANT-001';
+    const adjustments = isSupabaseConfigured()
+      ? (await getPersistentAdjustments(engagementId, firmId)) || []
+      : repo.getAdjustments(engagementId);
     const wpCalc = calculateWorkpaperVersion({
       tenantId: 'TENANT-001',
       engagementId,
@@ -175,6 +180,7 @@ export async function getEngagementServerData(engagementId: string): Promise<Eng
       mappingSetId: `MAPSET-${engagementId}`,
       accounts,
       mappingDecisions: decisions,
+      adjustments,
       template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
     });
     workpaper = wpCalc.workpaperVersion;
