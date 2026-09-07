@@ -19,7 +19,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }, { status: 422 });
     }
 
-    const result = repo.sealEngagementWithPartnerCertificate(id, body.partnerApNumber || 'AP.0942', user);
+    const partnerApNumber = String(body.partnerApNumber || '').trim();
+    if (!partnerApNumber) {
+      return NextResponse.json({
+        success: false,
+        code: 'AP_NUMBER_REQUIRED',
+        error: 'Nomor Izin Akuntan Publik (AP) wajib diisi untuk menyegel perikatan.',
+      }, { status: 400 });
+    }
+
+    const result = repo.sealEngagementWithPartnerCertificate(id, partnerApNumber, user);
     return NextResponse.json({ success: true, data: result });
   } catch (err: any) {
     const authResponse = authorizationErrorResponse(err);
