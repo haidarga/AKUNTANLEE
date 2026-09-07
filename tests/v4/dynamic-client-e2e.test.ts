@@ -4,12 +4,19 @@ import { GET as getEngagementFiles, POST as uploadFiles } from '@/app/api/v1/eng
 import { POST as generateExport } from '@/app/api/v1/exports/route';
 import { getEngagementServerData } from '@/lib/server/engagement-data';
 import { NextRequest } from 'next/server';
+import { AUTH_COOKIE_NAME, createSessionToken } from '@/lib/auth/session';
 
 describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', () => {
   it('should run a complete audit engagement workflow for any custom PT and KAP', async () => {
+    const partnerToken = await createSessionToken({
+      userId: 'USR-PARTNER-01', firmId: 'FIRM-001', email: 'partner@example.test',
+      role: 'partner', name: 'Dr. Hendra Pratama, CPA', title: 'Engagement Partner',
+    });
+    const authHeaders = { 'Content-Type': 'application/json', cookie: `${AUTH_COOKIE_NAME}=${partnerToken}` };
     // 1. Create a brand new engagement for PT Langit Biru Sistem Nusantara
     const createReq = new NextRequest('http://localhost:3000/api/v1/engagements', {
       method: 'POST',
+      headers: authHeaders,
       body: JSON.stringify({
         clientName: 'PT Langit Biru Sistem Nusantara',
         clientCode: 'LBSN',
@@ -34,6 +41,7 @@ describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', ()
     // 2. Fail-Closed Check: Exporting BEFORE importing files must be strictly blocked (HTTP 422)
     const earlyExportReq = new NextRequest('http://localhost:3000/api/v1/exports', {
       method: 'POST',
+      headers: authHeaders,
       body: JSON.stringify({
         engagementId,
         userRole: 'partner',
@@ -69,6 +77,7 @@ describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', ()
 
     const uploadReq = new NextRequest(`http://localhost:3000/api/v1/engagements/${engagementId}/files`, {
       method: 'POST',
+      headers: authHeaders,
       body: JSON.stringify({
         fileName: 'TB_PT_LBSN_FY2026.xlsx',
         fileSize: 18450,
@@ -84,7 +93,7 @@ describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', ()
     expect(uploadJson.decisionsCount).toBe(16);
 
     // 4. Test Single Source of Truth API (GET /files)
-    const getReq = new NextRequest(`http://localhost:3000/api/v1/engagements/${engagementId}/files`);
+    const getReq = new NextRequest(`http://localhost:3000/api/v1/engagements/${engagementId}/files`, { headers: authHeaders });
     const getRes = await getEngagementFiles(getReq, { params: Promise.resolve({ id: engagementId }) });
     expect(getRes.status).toBe(200);
     const getJson = await getRes.json();
@@ -102,6 +111,10 @@ describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', ()
     expect(getJson.data.workpaper?.totals).toEqual(canonical.workpaper?.totals);
     expect(getJson.data.lines).toEqual(JSON.parse(JSON.stringify(canonical.lines)));
     expect(getJson.data.checks).toEqual(JSON.parse(JSON.stringify(canonical.checks)));
+    expect(
+      canonical.checks.filter((check) => check.status === 'fail' && check.severity === 'blocking'),
+      JSON.stringify(canonical.workpaper?.totals),
+    ).toHaveLength(0);
 
     // Verify SAK mapping rationale is dynamic (no "Akun penampungan kurs" nonsense)
     const kasDecision = getJson.data.decisions.find((d: any) => d.sourceAccountCode === '1001');
@@ -111,6 +124,7 @@ describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', ()
     // 5. Generate Official XLSX Export for PT LBSN
     const exportReq = new NextRequest('http://localhost:3000/api/v1/exports', {
       method: 'POST',
+      headers: authHeaders,
       body: JSON.stringify({
         engagementId,
         userRole: 'partner',
@@ -123,7 +137,7 @@ describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', ()
     });
 
     const exportRes = await generateExport(exportReq);
-    expect(exportRes.status).toBe(202);
+    expect(exportRes.status, JSON.stringify(await exportRes.clone().json())).toBe(202);
     const exportJson = await exportRes.json();
 
     expect(exportJson.data).toBeDefined();
