@@ -318,8 +318,9 @@ export default function OverviewClient({
 
       {/* 3. Visual Accounting Balance Equation Scale */}
       <BalanceScaleIllustration
-        isBalanced={activeWpVersion ? Math.abs(activeWpVersion.totals?.balanceSheetDiffIdr || 0) === 0 : true}
-        assets={activeWpVersion?.totals?.totalAssetsIdr || 0}
+      isBalanced={activeWpVersion ? Math.abs(activeWpVersion.totals?.balanceSheetDiffIdr || 0) === 0 : true}
+      diff={Math.abs(activeWpVersion?.totals?.balanceSheetDiffIdr || 0)}
+      assets={activeWpVersion?.totals?.totalAssetsIdr || 0}
         liabilities={activeWpVersion?.totals?.totalLiabilitiesIdr || 0}
         equity={activeWpVersion?.totals?.totalEquityIdr || 0}
       />
