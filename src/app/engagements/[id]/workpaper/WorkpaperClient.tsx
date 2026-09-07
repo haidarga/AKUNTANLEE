@@ -33,6 +33,7 @@ import { BalanceScaleIllustration } from '@/components/v4/visuals/WorkflowIllust
 import { FinancialWaterfallChart } from '@/components/v4/visuals/FinancialWaterfallChart';
 import { AuditSpreadsheet } from '@/components/v4/spreadsheet/AuditSpreadsheet';
 import { AuditAdjustmentsModal } from '@/components/v4/workpaper/AuditAdjustmentsModal';
+import { inferLeadScheduleTarget } from '@/lib/workpaper/infer-target';
 import { AuditSealModal } from '@/components/v4/workpaper/AuditSealModal';
 import { ReviewerNotesDrawer } from '@/components/v4/workpaper/ReviewerNotesDrawer';
 import { Scale, Lock } from 'lucide-react';
@@ -171,26 +172,8 @@ export default function WorkpaperClient({
 
           if (activeDecs.length === 0) {
             activeDecs = accs.map((acc: any, idx: number) => {
-              let target = 'WP-A.1';
-              const nameLower = (acc.accountName || '').toLowerCase();
               const code = acc.accountCode || '';
-              if (code.startsWith('10') || code.startsWith('111') || nameLower.includes('kas') || nameLower.includes('bank operasional') || nameLower.includes('bank giro')) target = 'WP-A.1';
-              else if (code.startsWith('112') || code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
-              else if (nameLower.includes('cadangan') || nameLower.includes('ecl') || nameLower.includes('penurunan nilai')) target = 'WP-A.3';
-              else if (code.startsWith('13') || code.startsWith('113') || nameLower.includes('persediaan') || nameLower.includes('inventory') || nameLower.includes('barang')) target = 'WP-A.4';
-              else if (code.startsWith('14') || code.startsWith('118') || nameLower.includes('muka') || nameLower.includes('prepaid') || nameLower.includes('sewa gedung')) target = 'WP-A.5';
-              else if (nameLower.includes('akumulasi') || nameLower.includes('penyusutan aset')) target = 'WP-B.2';
-              else if (code.startsWith('121') || code.startsWith('122') || code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan') || nameLower.includes('peralatan') || nameLower.includes('komputer')) target = 'WP-B.1';
-              else if (code.startsWith('201') || code.startsWith('211') || (code.startsWith('20') && nameLower.includes('usaha')) || nameLower.includes('utang usaha') || nameLower.includes('pemasok') || nameLower.includes('payable') || nameLower.includes('sub-konsultan')) target = 'WP-C.1';
-              else if (code.startsWith('202') || code.startsWith('212') || code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax') || nameLower.includes('pph') || nameLower.includes('ppn')) target = 'WP-C.2';
-              else if (code.startsWith('203') || code.startsWith('213') || nameLower.includes('utang gaji') || nameLower.includes('bonus') || nameLower.includes('akrual')) target = 'WP-C.3';
-              else if (code.startsWith('221') || code.startsWith('25') || (code.startsWith('2') && (nameLower.includes('bank') || nameLower.includes('pinjaman') || nameLower.includes('kredit') || nameLower.includes('loan')))) target = 'WP-D.1';
-              else if (code.startsWith('301') || code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital') || nameLower.includes('saham')) target = 'WP-E.1';
-              else if (code.startsWith('302') || code.startsWith('31') || nameLower.includes('laba ditahan') || nameLower.includes('retained') || nameLower.includes('saldo laba')) target = 'WP-E.2';
-              else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue') || nameLower.includes('jasa')) target = 'WP-F.1';
-              else if (code.startsWith('501') || code.startsWith('510') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
-              else if (nameLower.includes('beban') || nameLower.includes('biaya') || nameLower.includes('gaji') || nameLower.includes('sewa') || nameLower.includes('utilitas') || nameLower.includes('listrik') || nameLower.includes('air') || nameLower.includes('telepon') || nameLower.includes('penyusutan') || nameLower.includes('operasional') || nameLower.includes('umum') || code.startsWith('5') || code.startsWith('6')) target = 'WP-F.3';
-              else target = 'WP-F.4';
+              const target = inferLeadScheduleTarget(code, acc.accountName);
 
               return {
                 id: 'DEC-' + (idx + 1),
@@ -250,26 +233,8 @@ export default function WorkpaperClient({
         if (json?.data?.accounts && json.data.accounts.length > 0) {
           const accs = json.data.accounts;
           const autoDecisions = accs.map((acc: any, idx: number) => {
-            let target = 'WP-A.1';
-            const nameLower = (acc.accountName || '').toLowerCase();
             const code = acc.accountCode || '';
-            if (code.startsWith('10') || code.startsWith('111') || nameLower.includes('kas') || nameLower.includes('bank operasional') || nameLower.includes('bank giro')) target = 'WP-A.1';
-            else if (code.startsWith('112') || code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
-            else if (nameLower.includes('cadangan') || nameLower.includes('ecl') || nameLower.includes('penurunan nilai')) target = 'WP-A.3';
-            else if (code.startsWith('13') || code.startsWith('113') || nameLower.includes('persediaan') || nameLower.includes('inventory') || nameLower.includes('barang')) target = 'WP-A.4';
-            else if (code.startsWith('14') || code.startsWith('118') || nameLower.includes('muka') || nameLower.includes('prepaid') || nameLower.includes('sewa gedung')) target = 'WP-A.5';
-            else if (nameLower.includes('akumulasi') || nameLower.includes('penyusutan aset')) target = 'WP-B.2';
-            else if (code.startsWith('121') || code.startsWith('122') || code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan') || nameLower.includes('peralatan') || nameLower.includes('komputer')) target = 'WP-B.1';
-            else if (code.startsWith('201') || code.startsWith('211') || (code.startsWith('20') && nameLower.includes('usaha')) || nameLower.includes('utang usaha') || nameLower.includes('pemasok') || nameLower.includes('payable') || nameLower.includes('sub-konsultan')) target = 'WP-C.1';
-            else if (code.startsWith('202') || code.startsWith('212') || code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax') || nameLower.includes('pph') || nameLower.includes('ppn')) target = 'WP-C.2';
-            else if (code.startsWith('203') || code.startsWith('213') || nameLower.includes('utang gaji') || nameLower.includes('bonus') || nameLower.includes('akrual')) target = 'WP-C.3';
-            else if (code.startsWith('221') || code.startsWith('25') || (code.startsWith('2') && (nameLower.includes('bank') || nameLower.includes('pinjaman') || nameLower.includes('kredit') || nameLower.includes('loan')))) target = 'WP-D.1';
-            else if (code.startsWith('301') || code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital') || nameLower.includes('saham')) target = 'WP-E.1';
-            else if (code.startsWith('302') || code.startsWith('31') || nameLower.includes('laba ditahan') || nameLower.includes('retained') || nameLower.includes('saldo laba')) target = 'WP-E.2';
-            else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue') || nameLower.includes('jasa')) target = 'WP-F.1';
-            else if (code.startsWith('501') || code.startsWith('510') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
-            else if (nameLower.includes('beban') || nameLower.includes('biaya') || nameLower.includes('gaji') || nameLower.includes('sewa') || nameLower.includes('utilitas') || nameLower.includes('listrik') || nameLower.includes('air') || nameLower.includes('telepon') || nameLower.includes('penyusutan') || nameLower.includes('operasional') || nameLower.includes('umum') || code.startsWith('5') || code.startsWith('6')) target = 'WP-F.3';
-            else target = 'WP-F.4';
+            const target = inferLeadScheduleTarget(code, acc.accountName);
 
             return {
               id: 'DEC-' + (idx + 1),

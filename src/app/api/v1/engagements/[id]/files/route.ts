@@ -17,6 +17,7 @@ import { calculateWorkpaperVersion, APPROVED_LEAD_SCHEDULE_TEMPLATE } from '@/li
 import { getServerSession } from '@/lib/auth/session';
 import { saveStateToDb } from '@/lib/db/sqlite';
 import { getEngagementServerData } from '@/lib/server/engagement-data';
+import { inferLeadScheduleTarget } from '@/lib/workpaper/infer-target';
 import {
   assertTenantAccess,
   authorizationErrorResponse,
@@ -131,24 +132,8 @@ export async function GET(
 
   if (accounts.length > 0) {
     decisions = accounts.map((acc: any, idx: number) => {
-      let target = 'WP-A.1';
-      const nameLower = (acc.accountName || '').toLowerCase();
       const code = String(acc.accountCode || '');
-      if (code.startsWith('10') || code.startsWith('11') || nameLower.includes('kas') || nameLower.includes('bank')) target = 'WP-A.1';
-      else if (code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
-      else if (code.startsWith('13') || nameLower.includes('persediaan') || nameLower.includes('inventory')) target = 'WP-A.4';
-      else if (code.startsWith('14') || nameLower.includes('muka') || nameLower.includes('prepaid')) target = 'WP-A.5';
-      else if (nameLower.includes('akumulasi')) target = 'WP-B.2';
-      else if (code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan') || nameLower.includes('peralatan')) target = 'WP-B.1';
-      else if (code.startsWith('20') || code.startsWith('21') || nameLower.includes('utang usaha') || nameLower.includes('payable')) target = 'WP-C.1';
-      else if (code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax')) target = 'WP-C.2';
-      else if (code.startsWith('23') || nameLower.includes('gaji') || nameLower.includes('akrual')) target = 'WP-C.3';
-      else if (code.startsWith('25') || nameLower.includes('pinjaman') || nameLower.includes('kredit')) target = 'WP-D.1';
-      else if (code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital')) target = 'WP-E.1';
-      else if (code.startsWith('31') || nameLower.includes('laba') || nameLower.includes('retained')) target = 'WP-E.2';
-      else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue')) target = 'WP-F.1';
-      else if (code.startsWith('5') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
-      else target = 'WP-F.3';
+      const target = inferLeadScheduleTarget(code, acc.accountName);
 
       const amount = Number(acc.closingBalanceIdr) || Number(acc.balanceIdr) || (Number(acc.debitIdr || 0) - Number(acc.creditIdr || 0)) || 0;
 
@@ -415,23 +400,8 @@ export async function POST(
 
     // 5. Automatic SAK Mapping
     const decisions = parsedAccounts.map((acc: any, idx: number) => {
-      let target = 'WP-A.1';
-      const nameLower = (acc.accountName || '').toLowerCase();
       const code = acc.accountCode || '';
-      if (code.startsWith('10') || code.startsWith('11') || nameLower.includes('kas') || nameLower.includes('bank')) target = 'WP-A.1';
-      else if (code.startsWith('12') || nameLower.includes('piutang')) target = 'WP-A.2';
-      else if (code.startsWith('13') || nameLower.includes('persediaan') || nameLower.includes('inventory')) target = 'WP-A.4';
-      else if (code.startsWith('14') || nameLower.includes('muka') || nameLower.includes('prepaid')) target = 'WP-A.5';
-      else if (nameLower.includes('akumulasi')) target = 'WP-B.2';
-      else if (code.startsWith('15') || code.startsWith('16') || nameLower.includes('tetap') || nameLower.includes('gedung') || nameLower.includes('mesin') || nameLower.includes('kendaraan')) target = 'WP-B.1';
-      else if (code.startsWith('20') || code.startsWith('21') || nameLower.includes('utang usaha') || nameLower.includes('payable')) target = 'WP-C.1';
-      else if (code.startsWith('22') || nameLower.includes('pajak') || nameLower.includes('tax')) target = 'WP-C.2';
-      else if (code.startsWith('25') || nameLower.includes('bank') || nameLower.includes('pinjaman')) target = 'WP-D.1';
-      else if (code.startsWith('30') || nameLower.includes('modal') || nameLower.includes('capital')) target = 'WP-E.1';
-      else if (code.startsWith('31') || nameLower.includes('laba') || nameLower.includes('retained')) target = 'WP-E.2';
-      else if (code.startsWith('4') || nameLower.includes('pendapatan') || nameLower.includes('penjualan') || nameLower.includes('revenue')) target = 'WP-F.1';
-      else if (code.startsWith('5') || nameLower.includes('pokok') || nameLower.includes('hpp') || nameLower.includes('cogs')) target = 'WP-F.2';
-      else target = 'WP-F.3';
+      const target = inferLeadScheduleTarget(code, acc.accountName);
 
       return {
         id: `DEC-${idx + 1}`,
