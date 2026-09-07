@@ -315,6 +315,35 @@ export async function POST(
       fileBuffer = Buffer.from(JSON.stringify(parsedAccounts));
     }
 
+    // Normalize every ingestion path to the AccountRow contract before any
+    // mapping, calculation, or persistence. Browser parsers historically sent
+    // `balanceIdr`, while the deterministic engine consumes
+    // `closingBalanceIdr`; accepting both without normalization zeroed debit
+    // balances in server-side recalculation.
+    parsedAccounts = parsedAccounts.map((account: any, index: number) => {
+      const debitIdr = Number(account.debitIdr ?? account.debit ?? 0);
+      const creditIdr = Number(account.creditIdr ?? account.credit ?? 0);
+      const closingBalanceIdr = Number(
+        account.closingBalanceIdr ?? account.balanceIdr ?? (debitIdr - creditIdr),
+      );
+      if (![debitIdr, creditIdr, closingBalanceIdr].every(Number.isFinite)) {
+        throw new Error(`Nilai saldo tidak valid pada baris akun ${index + 1}.`);
+      }
+      if (debitIdr < 0 || creditIdr < 0) {
+        throw new Error(`Debit dan kredit tidak boleh negatif pada baris akun ${index + 1}.`);
+      }
+      return {
+        ...account,
+        id: account.id || `ACC-${index + 1}`,
+        accountCode: String(account.accountCode || '').trim(),
+        accountName: String(account.accountName || '').trim(),
+        debitIdr,
+        creditIdr,
+        closingBalanceIdr,
+        balanceIdr: closingBalanceIdr,
+      };
+    });
+
     // 3. Independent Server-Side Cryptographic Hash Verification (ISA / SPAP Standard)
     const serverSha256 = crypto.createHash('sha256').update(fileBuffer).digest('hex');
 
