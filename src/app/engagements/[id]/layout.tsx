@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { repo } from '@/lib/db/repo-v4';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
-import { fetchEngagementByIdFromSupabase } from '@/lib/supabase/service';
+import { fetchEngagementByIdFromSupabase, fetchWorkpaperFromSupabase } from '@/lib/supabase/service';
 import { EngagementHeader } from '@/components/v4/EngagementHeader';
 import { AuditCopilotDrawer } from '@/components/v4/AuditCopilotDrawer';
 
@@ -152,7 +152,15 @@ export default async function EngagementV4Layout({
     };
   }
 
-  const wp = state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
+  let wp = state.workpaperVersions.find((w) => w.engagementId === engagement.id);
+  if (!wp && isSupabaseConfigured()) {
+    try {
+      wp = (await fetchWorkpaperFromSupabase(resolvedParams.id)) as any;
+    } catch (e) {}
+  }
+  if (!wp) {
+    wp = state.workpaperVersions[0];
+  }
 
   return (
     <div className="flex-1 flex flex-col relative">
