@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { POST as createEngagement } from '@/app/api/v1/engagements/route';
 import { GET as getEngagementFiles, POST as uploadFiles } from '@/app/api/v1/engagements/[id]/files/route';
 import { POST as generateExport } from '@/app/api/v1/exports/route';
+import { getEngagementServerData } from '@/lib/server/engagement-data';
 import { NextRequest } from 'next/server';
 
 describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', () => {
@@ -94,6 +95,13 @@ describe('End-to-End Dynamic Multi-Tenant Client Workflow (Zero Hardcoding)', ()
     expect(getJson.data.decisions).toHaveLength(16);
     expect(getJson.data.lines.length).toBeGreaterThan(0);
     expect(getJson.data.workpaper).toBeDefined();
+
+    // Every screen consumes this endpoint after hydration. It must be the same
+    // canonical calculation as the server-rendered overview and workpaper.
+    const canonical = await getEngagementServerData(engagementId);
+    expect(getJson.data.workpaper?.totals).toEqual(canonical.workpaper?.totals);
+    expect(getJson.data.lines).toEqual(canonical.lines);
+    expect(getJson.data.checks).toEqual(canonical.checks);
 
     // Verify SAK mapping rationale is dynamic (no "Akun penampungan kurs" nonsense)
     const kasDecision = getJson.data.decisions.find((d: any) => d.sourceAccountCode === '1001');
