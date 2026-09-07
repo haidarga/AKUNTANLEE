@@ -909,10 +909,26 @@ class FinovaV4Repository {
     this.state.validationChecks = calc.checks;
   }
 
+  // getState() is called many times per request (root layout, nested
+  // engagement layout, page Server Components, and several client
+  // components all call it independently). Re-reading and JSON-parsing the
+  // entire multi-tenant state blob from SQLite/disk on every single call
+  // was a major source of latency: a single page view could trigger 3-6+
+  // full-state disk reads. We still re-sync from disk periodically (needed
+  // because separate warm serverless invocations do not share memory), but
+  // throttle it so bursts of getState() calls within the same request reuse
+  // the same in-memory snapshot instead of hitting disk repeatedly.
+  private static readonly STATE_REFRESH_INTERVAL_MS = 2000;
+  private lastDiskSyncAt = 0;
+
   getState(): FinovaV4State {
-    const disk = this.loadFromDisk();
-    if (disk) {
-      this.state = this.applyStateMigrations(disk);
+    const now = Date.now();
+    if (now - this.lastDiskSyncAt >= FinovaV4Repository.STATE_REFRESH_INTERVAL_MS) {
+      this.lastDiskSyncAt = now;
+      const disk = this.loadFromDisk();
+      if (disk) {
+        this.state = this.applyStateMigrations(disk);
+      }
     }
     return this.state;
   }
@@ -922,7 +938,10 @@ class FinovaV4Repository {
     if (eng) {
       this.assertTenantAccess(userTenantId, eng.tenantId);
     }
-    this.persist();
+    // NOTE: this is a read-only lookup. Persisting here used to force a full
+    // JSON.stringify + SQLite write of the entire application state on every
+    // single engagement read, which added an unnecessary write on every page
+    // view. Removed — nothing is mutated above.
     return eng;
   }
 

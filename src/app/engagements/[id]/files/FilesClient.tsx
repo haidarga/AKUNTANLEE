@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import * as XLSX from 'xlsx';
 import {
   FileSpreadsheet,
   UploadCloud,
@@ -120,6 +119,10 @@ export default function FilesClient({
 
       setUploadProgress(80);
       setUploadStatusText('Memeriksa integritas workbook & membaca daftar sheet...');
+
+      // Lazy-load SheetJS only when a real file is being processed, keeping
+      // this heavy library out of the initial page bundle.
+      const XLSX = await import('xlsx');
 
       // Read real worksheets with SheetJS
       const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });

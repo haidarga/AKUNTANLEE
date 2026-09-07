@@ -18,12 +18,24 @@ export default async function EngagementV4Layout({
   const cookieStore = await cookies();
   const state = repo.getState();
 
+  // Workpaper lookup only depends on resolvedParams.id (engagement.id always
+  // equals resolvedParams.id in every branch below), so kick it off now and
+  // run it in parallel with the engagement/client resolution instead of
+  // waiting for that chain to finish first (was a sequential waterfall).
+  // Only fired when actually needed (no in-memory workpaper) to avoid
+  // wasting a network call on the common/fast path.
+  const supabaseConfigured = isSupabaseConfigured();
+  const wpInMemory = state.workpaperVersions.find((w) => w.engagementId === resolvedParams.id);
+  const wpPromise = !wpInMemory && supabaseConfigured
+    ? fetchWorkpaperFromSupabase(resolvedParams.id).catch(() => null)
+    : Promise.resolve(null);
+
   // 1. Check in-memory state
   let engagement = state.engagements.find((e) => e.id === resolvedParams.id);
   let client = engagement ? state.clients.find((c) => c.id === engagement?.clientId) : null;
 
   // 2. Check Supabase if configured
-  if ((!engagement || !client) && isSupabaseConfigured()) {
+  if ((!engagement || !client) && supabaseConfigured) {
     try {
       const sbRecord = await fetchEngagementByIdFromSupabase(resolvedParams.id);
       if (sbRecord) {
@@ -152,11 +164,9 @@ export default async function EngagementV4Layout({
     };
   }
 
-  let wp = state.workpaperVersions.find((w) => w.engagementId === engagement.id);
-  if (!wp && isSupabaseConfigured()) {
-    try {
-      wp = (await fetchWorkpaperFromSupabase(resolvedParams.id)) as any;
-    } catch (e) {}
+  let wp = wpInMemory;
+  if (!wp && supabaseConfigured) {
+    wp = (await wpPromise) as any;
   }
   if (!wp) {
     wp = state.workpaperVersions[0];

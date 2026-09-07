@@ -137,12 +137,12 @@ export default function EngagementsListPage() {
               <span className="font-mono font-bold text-lg text-[#102A32]">{allEngagements.length} Entitas</span>
             </div>
             <div>
-              <span className="text-[#52636A] text-[11px] block">Database Single Source</span>
-              <span className="font-mono font-bold text-lg text-[#0F8F7A]">Postgres Supabase</span>
+              <span className="text-[#52636A] text-[11px] block">Status Sinkronisasi</span>
+              <span className="font-mono font-bold text-lg text-[#0F8F7A]">Real-time</span>
             </div>
             <div>
               <span className="text-[#52636A] text-[11px] block">Penyimpanan Berkas</span>
-              <span className="font-mono font-bold text-lg text-[#102A32]">audit-vault</span>
+              <span className="font-mono font-bold text-lg text-[#102A32]">Terenkripsi</span>
             </div>
             <div>
               <span className="text-[#52636A] text-[11px] block">Standar Pelaporan</span>
