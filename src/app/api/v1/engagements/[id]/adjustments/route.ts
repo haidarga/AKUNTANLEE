@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { repo } from '@/lib/db/repo-v4';
 import { assertTenantAccess, authorizationErrorResponse, requireSessionActor } from '@/lib/auth/authorization';
 import { getEngagementServerData } from '@/lib/server/engagement-data';
+import { createPersistentAdjustment, getPersistentAdjustments } from '@/lib/audit/adjustment-store';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -9,7 +11,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const actor = await requireSessionActor(req);
     const data = await getEngagementServerData(id);
     assertTenantAccess(actor, data.engagement?.tenantId);
-    return NextResponse.json({ success: true, data: repo.getAdjustments(id) });
+    const persisted = await getPersistentAdjustments(id, actor.tenantId);
+    return NextResponse.json({ success: true, data: persisted ?? repo.getAdjustments(id) });
   } catch (error) {
     return authorizationErrorResponse(error) || NextResponse.json({ success: false, error: 'Gagal memuat jurnal.' }, { status: 400 });
   }
@@ -28,8 +31,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ success: false, code: 'INVALID_ADJUSTMENT', error: 'Jurnal wajib memiliki deskripsi dan nilai debit/kredit positif yang seimbang.' }, { status: 400 });
     }
 
-    const entry = repo.createAdjustmentEntry(
-      {
+    const adjustment = {
         tenantId: user.tenantId,
         engagementId: id,
         entryNumber: body.entryNumber || repo.getAdjustments(id).length + 1,
@@ -43,10 +45,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         creditAmountIdr,
         preparedByUserId: user.id,
         preparedByName: user.name,
-        status: 'draft',
-      },
-      user
-    );
+        status: 'draft' as const,
+    };
+    const entry = isSupabaseConfigured()
+      ? await createPersistentAdjustment(adjustment, user)
+      : repo.createAdjustmentEntry(adjustment, user);
+    if (!entry) {
+      return NextResponse.json({ success: false, error: 'Jurnal tidak tersimpan permanen. Periksa database sebelum melanjutkan.' }, { status: 503 });
+    }
 
     return NextResponse.json({ success: true, data: entry }, { status: 201 });
   } catch (err: any) {
