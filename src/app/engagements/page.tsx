@@ -35,18 +35,14 @@ export default function EngagementsListPage() {
 
     // The authenticated API is the sole directory source. Never merge another
     // browser user's localStorage into a firm's client list.
-    fetch('/api/v1/firm')
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.data?.setupComplete === false) router.replace('/onboarding');
-      })
-      .catch(() => router.replace('/login?redirect=/engagements'));
-
-    fetch('/api/v1/engagements')
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.data && Array.isArray(json.data)) {
-          for (const e of json.data) {
+    Promise.all([
+      fetch('/api/v1/firm').then((res) => res.json()).catch(() => null),
+      fetch('/api/v1/engagements').then((res) => res.json()).catch(() => null),
+    ])
+      .then(([firmJson, engagementsJson]) => {
+        let engagementCount = 0;
+        if (engagementsJson?.data && Array.isArray(engagementsJson.data)) {
+          for (const e of engagementsJson.data) {
             if (e.id !== 'ENG-2026-01' && e.id !== 'ENG-DEMO-2026') {
               mergedMap.set(e.id, { ...mergedMap.get(e.id), ...e });
               if (e.clientId && e.clientName) clientMap.set(e.clientId, { id: e.clientId, legalName: e.clientName, code: e.clientCode, industry: e.industry });
@@ -54,9 +50,18 @@ export default function EngagementsListPage() {
           }
           setAllEngagements(Array.from(mergedMap.values()));
           setAllClients(Array.from(clientMap.values()));
+          engagementCount = mergedMap.size;
+        }
+
+        // Only nudge genuinely first-time firms into onboarding. A firm that
+        // already has engagements must never be forced away from its own
+        // directory just because its profile record is incomplete —
+        // that traps returning users with no way back (no nav renders on
+        // /onboarding). See fix for the "onboarding dead-end" bug.
+        if (firmJson?.data?.setupComplete === false && engagementCount === 0) {
+          router.replace('/onboarding');
         }
       })
-      .catch((err) => console.warn('Directory API fetch fallback to local:', err))
       .finally(() => setIsLoading(false));
 
   }, []);

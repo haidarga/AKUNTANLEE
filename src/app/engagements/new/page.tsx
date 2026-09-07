@@ -51,7 +51,8 @@ export default function NewEngagementPage() {
   // Auto-generate client code from client name
   const handleClientNameChange = (val: string) => {
     setClientName(val);
-    const words = val.replace(/^(PT|CV|UD|FIRMA)\s+/i, '').trim().split(/\s+/);
+    const cleaned = val.replace(/^(PT|CV|UD|FIRMA)\s+/i, '').replace(/[^a-zA-Z\s]/g, '').trim();
+    const words = cleaned.split(/\s+/).filter(Boolean);
     if (words.length > 0 && words[0]) {
       const suggested = words.map((w) => w[0]).join('').substring(0, 4).toUpperCase();
       if (suggested) {

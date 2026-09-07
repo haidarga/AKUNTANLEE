@@ -168,7 +168,7 @@ export default async function EngagementV4Layout({
   if (!wp && supabaseConfigured) {
     wp = (await wpPromise) as any;
   }
-  if (!wp) {
+  if (!wp && engagement.id === 'ENG-2026-01') {
     wp = state.workpaperVersions[0];
   }
 

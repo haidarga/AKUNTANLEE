@@ -143,7 +143,24 @@ export default function OnboardingPage() {
 
       <div className="max-w-3xl mx-auto space-y-8 relative z-10">
         {/* Top Branding */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 relative">
+          <div className="absolute right-0 top-0 flex items-center gap-3 text-[11px] font-semibold">
+            <Link href="/engagements" className="text-[#0F8F7A] hover:underline">
+              Lewati, ke Dashboard →
+            </Link>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await fetch('/api/v1/auth/logout', { method: 'POST' });
+                } catch (e) {}
+                window.location.href = '/login';
+              }}
+              className="text-[#7A8C93] hover:text-[#C83E4D] hover:underline cursor-pointer"
+            >
+              Keluar
+            </button>
+          </div>
           <Link href="/" className="inline-flex items-center gap-2 mb-2">
             <div className="w-10 h-10 rounded-2xl bg-[#0F8F7A] text-white flex items-center justify-center font-bold text-base shadow-sm">
               FN

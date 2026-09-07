@@ -445,9 +445,9 @@ export default function ImportSetupPage() {
                       <tr key={i} className="hover:bg-[#F6F7F5]">
                         <td className="py-2 px-3 font-mono font-bold text-[#102A32] border-r border-[#DDE4E2]">{r[0]}</td>
                         <td className="py-2 px-3 text-[#102A32] border-r border-[#DDE4E2]">{r[1]}</td>
-                        <td className="py-2 px-3 font-mono text-right border-r border-[#DDE4E2]">Rp {r[3]}</td>
-                        <td className="py-2 px-3 font-mono text-right border-r border-[#DDE4E2]">Rp {r[4]}</td>
-                        <td className="py-2 px-3 font-mono font-bold text-right text-[#0F8F7A]">Rp {r[5]}</td>
+                        <td className="py-2 px-3 font-mono text-right border-r border-[#DDE4E2]">{r[3]}</td>
+                        <td className="py-2 px-3 font-mono text-right border-r border-[#DDE4E2]">{r[4]}</td>
+                        <td className="py-2 px-3 font-mono font-bold text-right text-[#0F8F7A]">{r[5]}</td>
                       </tr>
                     ))
                   ) : (

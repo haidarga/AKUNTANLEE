@@ -13,8 +13,8 @@ export function inferLeadScheduleTarget(accountCode: string, accountName: string
   if (/akrual|utang gaji|accrued/.test(name)) return 'WP-C.3';
   if (/modal|capital/.test(name)) return 'WP-E.1';
   if (/saldo laba|laba ditahan|retained/.test(name)) return 'WP-E.2';
-  if (/pendapatan|penjualan|revenue|sales/.test(name)) return 'WP-F.1';
   if (/harga pokok|beban pokok|hpp|cogs|cost of goods/.test(name)) return 'WP-F.2';
+  if (/pendapatan|penjualan|revenue|sales/.test(name)) return 'WP-F.1';
   if (/beban|expense|gaji|sewa|utilitas/.test(name)) return 'WP-F.3';
   if (/kas|bank|cash/.test(name)) return 'WP-A.1';
 

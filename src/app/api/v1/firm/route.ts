@@ -13,6 +13,11 @@ export async function GET(req: NextRequest) {
       if (profile) {
         return NextResponse.json({ success: true, data: profile }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
       }
+    } else {
+      const localProfile = repo.getFirmProfile();
+      if (localProfile) {
+        return NextResponse.json({ success: true, data: localProfile }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
+      }
     }
     return NextResponse.json({ success: false, code: 'FIRM_NOT_FOUND', error: 'Profil KAP tidak ditemukan.' }, { status: 404 });
   } catch (err: any) {

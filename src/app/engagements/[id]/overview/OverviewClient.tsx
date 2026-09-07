@@ -68,7 +68,29 @@ export default function OverviewClient({
     code: 'CLIENT',
     industry: 'Jasa & Manufaktur',
   };
-  const wp = initialWorkpaper || state.workpaperVersions.find((w) => w.engagementId === engagement.id) || state.workpaperVersions[0];
+  const emptyWp = {
+    id: `WPV-${engagement.id}`,
+    tenantId: 'TENANT-001',
+    engagementId: engagement.id,
+    datasetVersionIds: [],
+    mappingSetId: `MAPSET-${engagement.id}`,
+    templateVersion: 'FINOVA-LEAD-v1.0',
+    versionNumber: 1,
+    status: 'draft' as const,
+    totals: {
+      totalAssetsIdr: 0,
+      totalLiabilitiesIdr: 0,
+      totalEquityIdr: 0,
+      netIncomeIdr: 0,
+      tbDebitCreditDiffIdr: 0,
+      balanceSheetDiffIdr: 0,
+    },
+    isStale: false,
+    calculatedAt: new Date().toISOString(),
+  };
+  const wp = initialWorkpaper
+    || state.workpaperVersions.find((w) => w.engagementId === engagement.id)
+    || (engagement.id === 'ENG-2026-01' ? state.workpaperVersions[0] : emptyWp);
   const files = initialFiles.length > 0 ? initialFiles : state.fileVersions.filter((f) => f.engagementId === engagement.id);
   const mapSets = state.mappingSets.filter((ms) => ms.engagementId === engagement.id);
   const mapSetIds = new Set(mapSets.map((ms) => ms.id));
