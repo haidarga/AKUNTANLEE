@@ -143,7 +143,7 @@ export default function OverviewClient({
   const isAllMapped = isCustomAllMapped && !hasBlockingFailure;
 
   const checks = state.validationChecks;
-  const auditEvents = state.auditEvents.slice(0, 4);
+  const auditEvents = state.auditEvents.filter((evt) => evt.engagementId === engagement.id).slice(0, 4);
 
   return (
     <div className="space-y-6 text-[#102A32] animate-finova-in">

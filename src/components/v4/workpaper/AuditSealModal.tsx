@@ -26,8 +26,11 @@ export function AuditSealModal({
   engagementId,
   onSealed,
 }: SealModalProps) {
-  const [partnerApNumber, setPartnerApNumber] = useState('AP.0942');
-  const [partnerPin, setPartnerPin] = useState('2026');
+  // These must never be pre-filled with a real or guessable value — this
+  // dialog exists specifically to gate an irreversible partner sign-off, so
+  // both fields require explicit entry every time.
+  const [partnerApNumber, setPartnerApNumber] = useState('');
+  const [partnerPin, setPartnerPin] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [certificateData, setCertificateData] = useState<any>(null);
 

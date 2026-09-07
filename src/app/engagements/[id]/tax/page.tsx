@@ -239,6 +239,30 @@ export default function TaxCompliancePage() {
     }
   };
 
+  const downloadTaxExport = async (url: string, fallbackFileName: string) => {
+    try {
+      const response = await fetch(url, { credentials: 'include' });
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => null);
+        throw new Error(errJson?.error || `Gagal mengunduh berkas (HTTP ${response.status}).`);
+      }
+      const blob = await response.blob();
+      const disposition = response.headers.get('Content-Disposition') || '';
+      const nameMatch = disposition.match(/filename="?([^"]+)"?/);
+      const fileName = nameMatch?.[1] || fallbackFileName;
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    } catch (error: any) {
+      alert(`Unduh gagal: ${error.message}`);
+    }
+  };
+
   return (
     <div className="space-y-6 text-[#102A32] animate-finova-in">
       {/* Top Banner */}
@@ -267,23 +291,23 @@ export default function TaxCompliancePage() {
             <span>Impor Rekap Gaji (Format Bebas Excel Klien)</span>
           </button>
 
-          <a
-            href={`/api/v1/tax/export/ebupot-21?engagementId=${encodeURIComponent(engagementId)}`}
-            download
+          <button
+            type="button"
+            onClick={() => downloadTaxExport(`/api/v1/tax/export/ebupot-21?engagementId=${encodeURIComponent(engagementId)}`, 'DJP_eBupot_PPh21_Masa_FY2026.csv')}
             className="finova-pill-cta bg-[#0F8F7A] hover:bg-[#0C7564] text-white text-xs shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Unduh CSV e-Bupot 21 (Format DJP)</span>
-          </a>
+          </button>
 
-          <a
-            href="/api/v1/tax/export/efaktur"
-            download
+          <button
+            type="button"
+            onClick={() => downloadTaxExport(`/api/v1/tax/export/efaktur?engagementId=${encodeURIComponent(engagementId)}`, 'DJP_eFaktur_PPN_FY2026.csv')}
             className="finova-pill-cta bg-[#F6F7F5] border border-[#DDE4E2] hover:bg-white text-[#102A32] text-xs shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-[#0F8F7A]" />
             <span>Unduh CSV e-Faktur (Format DJP)</span>
-          </a>
+          </button>
         </div>
       </div>
 

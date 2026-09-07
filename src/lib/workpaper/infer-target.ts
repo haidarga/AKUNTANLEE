@@ -8,12 +8,16 @@ export function inferLeadScheduleTarget(accountCode: string, accountName: string
   if (/persediaan|inventory/.test(name)) return 'WP-A.4';
   if (/uang muka|biaya dimuka|prepaid/.test(name)) return 'WP-A.5';
   if (/aset tetap|gedung|mesin|kendaraan|peralatan|fixed asset/.test(name)) return 'WP-B.1';
-  if (/utang pajak|tax payable/.test(name)) return 'WP-C.2';
+  if (/utang pajak|tax payable|ppn keluaran|utang ppn|utang pph|pph terutang/.test(name)) return 'WP-C.2';
   if (/utang usaha|accounts payable|trade payable/.test(name)) return 'WP-C.1';
-  if (/akrual|utang gaji|accrued/.test(name)) return 'WP-C.3';
+  if (/akrual|utang gaji|accrued|masih harus dibayar/.test(name)) return 'WP-C.3';
   if (/modal|capital/.test(name)) return 'WP-E.1';
   if (/saldo laba|laba ditahan|retained/.test(name)) return 'WP-E.2';
   if (/harga pokok|beban pokok|hpp|cogs|cost of goods/.test(name)) return 'WP-F.2';
+  // "Other income/expense" accounts must be pulled out before the generic
+  // revenue/expense catch-alls below, or they silently inflate operating
+  // revenue/opex instead of landing in the dedicated "lain-lain" line.
+  if (/lain-?lain/.test(name) && /pendapatan|beban|penghasilan/.test(name)) return 'WP-F.4';
   if (/pendapatan|penjualan|revenue|sales/.test(name)) return 'WP-F.1';
   if (/beban|expense|gaji|sewa|utilitas/.test(name)) return 'WP-F.3';
   if (/kas|bank|cash/.test(name)) return 'WP-A.1';

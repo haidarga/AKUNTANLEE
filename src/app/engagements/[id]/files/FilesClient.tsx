@@ -258,7 +258,6 @@ export default function FilesClient({
           };
 
           repo.publishImportDataset(importJob, newDsv, extractedAccounts, user);
-          setExtractedCount(extractedAccounts.length);
 
           // Build automated SAK mapping decisions for custom accounts
           const autoDecisions = extractedAccounts.map((acc: any, idx: number) => {
@@ -310,6 +309,11 @@ export default function FilesClient({
           if (serverData.signedDownloadUrl) {
             newFv.downloadUrl = serverData.signedDownloadUrl;
           }
+
+          // Only signal success to the user once the server has actually
+          // accepted and persisted the file — extraction succeeding
+          // client-side is not the same as the upload succeeding.
+          setExtractedCount(extractedAccounts.length);
 
           try {
             localStorage.setItem('finova_accounts_' + engagement.id, JSON.stringify(extractedAccounts));

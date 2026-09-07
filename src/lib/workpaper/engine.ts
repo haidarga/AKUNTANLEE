@@ -136,9 +136,14 @@ export function calculateWorkpaperVersion(params: {
       linesMap[target].accounts.push(acc);
       // Determine net value according to sign policy
       const lineDef = template.lines.find((l) => l.lineId === target);
+      // credit_positive lines must always net as (credit - debit), even for
+      // a contra account whose own natural balance is debit-heavy (e.g. Retur
+      // Penjualan sitting correctly under Revenue) — otherwise such accounts
+      // fall through to the debit-positive default and get added instead of
+      // subtracted, silently inflating the line total.
       let val = acc.closingBalanceIdr;
-      if (lineDef?.signPolicy === 'credit_positive' && acc.creditIdr > acc.debitIdr) {
-        val = acc.creditIdr - acc.debitIdr;
+      if (lineDef?.signPolicy === 'credit_positive') {
+        val = (acc.creditIdr || 0) - (acc.debitIdr || 0);
       }
       linesMap[target].totalCurrent = linesMap[target].totalCurrent.add(val);
     } else {

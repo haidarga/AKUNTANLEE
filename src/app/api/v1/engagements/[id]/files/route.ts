@@ -18,6 +18,7 @@ import { getServerSession } from '@/lib/auth/session';
 import { saveStateToDb } from '@/lib/db/sqlite';
 import { getEngagementServerData } from '@/lib/server/engagement-data';
 import { inferLeadScheduleTarget } from '@/lib/workpaper/infer-target';
+import { guessTrialBalanceSheetName } from '@/lib/importer/sheet-detection';
 import {
   assertTenantAccess,
   authorizationErrorResponse,
@@ -163,6 +164,7 @@ export async function GET(
         mappingSetId: `MAPSET-${engagementId}`,
         accounts: accounts,
         mappingDecisions: decisions,
+        adjustments: repo.getAdjustments(engagementId),
         template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
       });
       workpaper = wpCalc.workpaperVersion;
@@ -258,7 +260,8 @@ export async function POST(
       // Server-side parsing of worksheets with SheetJS from verified binary buffer
       const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
       sheetNames = workbook.SheetNames || ['Sheet1'];
-      const firstSheet = workbook.Sheets[sheetNames[0]];
+      const targetSheetName = guessTrialBalanceSheetName(workbook);
+      const firstSheet = workbook.Sheets[targetSheetName];
       const rawRows: any[][] = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
       let codeCol = 0;
@@ -429,6 +432,7 @@ export async function POST(
       mappingSetId: `MAPSET-${engagementId}`,
       accounts: parsedAccounts,
       mappingDecisions: decisions,
+      adjustments: repo.getAdjustments(engagementId),
       template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
     });
 

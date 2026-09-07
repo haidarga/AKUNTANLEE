@@ -50,8 +50,8 @@ describe('production data integrity regressions', () => {
     } as any);
     state.mappingSets.push({ id: `MAPSET-${engagementId}`, tenantId: senior.tenantId, engagementId, versionNumber: 1, status: 'active', createdAt: new Date().toISOString() } as any);
     state.accounts.push(
-      { id: 'ISO-CASH', tenantId: senior.tenantId, datasetVersionId: `DSV-${engagementId}`, engagementId, accountCode: '110100', accountName: 'Kas', closingBalanceIdr: 1000 } as any,
-      { id: 'ISO-CAPITAL', tenantId: senior.tenantId, datasetVersionId: `DSV-${engagementId}`, engagementId, accountCode: '310100', accountName: 'Modal', closingBalanceIdr: -1000 } as any,
+      { id: 'ISO-CASH', tenantId: senior.tenantId, datasetVersionId: `DSV-${engagementId}`, engagementId, accountCode: '110100', accountName: 'Kas', debitIdr: 1000, creditIdr: 0, closingBalanceIdr: 1000 } as any,
+      { id: 'ISO-CAPITAL', tenantId: senior.tenantId, datasetVersionId: `DSV-${engagementId}`, engagementId, accountCode: '310100', accountName: 'Modal', debitIdr: 0, creditIdr: 1000, closingBalanceIdr: -1000 } as any,
     );
     state.mappingDecisions.push(
       { id: 'ISO-MAP-CASH', tenantId: senior.tenantId, mappingSetId: `MAPSET-${engagementId}`, accountRowId: 'ISO-CASH', sourceAccountCode: '110100', sourceAccountName: 'Kas', amountIdr: 1000, proposedTarget: 'WP-A.1', effectiveTarget: 'WP-A.1', confidenceScore: 1, confidenceLevel: 'high', rationale: 'test', status: 'mapped', isMaterial: false },
@@ -77,7 +77,10 @@ describe('production data integrity regressions', () => {
 
     const lines = repo.getState().workpaperLines;
     expect(lines.find((line) => line.lineId === 'WP-A.1')?.currentPeriodIdr).toBe(1000);
-    expect(lines.find((line) => line.lineId === 'WP-E.1')?.currentPeriodIdr).toBe(-1000);
+    // WP-E.1 (Modal, credit_positive) must net as credit - debit = 1000 - 0 = 1000,
+    // not the raw debit-positive closingBalanceIdr (-1000) — see engine.ts fix
+    // for the contra-account sign bug this fixture now exercises correctly.
+    expect(lines.find((line) => line.lineId === 'WP-E.1')?.currentPeriodIdr).toBe(1000);
     expect(lines.every((line) => Math.abs(line.currentPeriodIdr) <= 1000)).toBe(true);
   });
 
