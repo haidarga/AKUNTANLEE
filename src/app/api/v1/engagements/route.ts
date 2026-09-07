@@ -27,8 +27,9 @@ function parseCustomEngagementsCookie(request: Request) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const session = await getServerSession(request);
-  const firmId = session?.firmId || searchParams.get('tenantId') || 'FIRM-001';
+  try {
+  const actor = await requireSessionActor(request);
+  const firmId = actor.tenantId;
   const isDemo = searchParams.get('demo') === '1';
 
   const mergedMap = new Map<string, any>();
@@ -47,8 +48,15 @@ export async function GET(request: Request) {
     try {
       const sbResult = await fetchEngagementsFromSupabase(firmId);
       if (sbResult && sbResult.engagements.length > 0) {
+        const clientsById = new Map(sbResult.clients.map((client) => [client.id, client]));
         for (const sbEng of sbResult.engagements) {
-          mergedMap.set(sbEng.id, sbEng);
+          const client = clientsById.get(sbEng.clientId);
+          mergedMap.set(sbEng.id, {
+            ...sbEng,
+            clientName: client?.legalName,
+            clientCode: client?.code,
+            industry: client?.industry,
+          });
         }
       }
     } catch (sbErr) {
@@ -83,6 +91,9 @@ export async function GET(request: Request) {
     data: list,
     request_id: 'req-' + Date.now(),
   });
+  } catch (error) {
+    return authorizationErrorResponse(error) || NextResponse.json({ code: 'DIRECTORY_LOAD_FAILED', message: 'Gagal memuat direktori perikatan.' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {

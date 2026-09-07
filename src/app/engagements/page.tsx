@@ -16,10 +16,8 @@ import {
   Sparkles,
   Layers,
 } from 'lucide-react';
-import { repo } from '@/lib/db/repo-v4';
 import { EngagementStatusV4 } from '@/types/domain-v4';
 import { formatIdrNumber } from '@/lib/decimal';
-import { getStoredCustomEngagements, getStoredCustomClients } from '@/lib/storage/finova-store';
 
 export default function EngagementsListPage() {
   const [search, setSearch] = useState('');
@@ -30,29 +28,11 @@ export default function EngagementsListPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedEngs = getStoredCustomEngagements();
-    const storedClients = getStoredCustomClients();
-
     const clientMap = new Map<string, any>();
-    for (const c of storedClients) clientMap.set(c.id, c);
-
     const mergedMap = new Map<string, any>();
-    try {
-      const savedFirm = localStorage.getItem('finova_firm_profile');
-      if (savedFirm) {
-        const parsed = JSON.parse(savedFirm);
-        if (parsed?.name) setFirmName(parsed.name);
-      }
-    } catch (e) {}
 
-    // Only add custom / real engagements (exclude hardcoded demo NSM from production list)
-    for (const e of storedEngs) {
-      if (e.id !== 'ENG-2026-01' && e.id !== 'ENG-DEMO-2026') {
-        mergedMap.set(e.id, e);
-      }
-    }
-
-    // Fetch fresh from API (which queries Supabase)
+    // The authenticated API is the sole directory source. Never merge another
+    // browser user's localStorage into a firm's client list.
     fetch('/api/v1/engagements')
       .then((res) => res.json())
       .then((json) => {
@@ -60,16 +40,16 @@ export default function EngagementsListPage() {
           for (const e of json.data) {
             if (e.id !== 'ENG-2026-01' && e.id !== 'ENG-DEMO-2026') {
               mergedMap.set(e.id, { ...mergedMap.get(e.id), ...e });
+              if (e.clientId && e.clientName) clientMap.set(e.clientId, { id: e.clientId, legalName: e.clientName, code: e.clientCode, industry: e.industry });
             }
           }
           setAllEngagements(Array.from(mergedMap.values()));
+          setAllClients(Array.from(clientMap.values()));
         }
       })
       .catch((err) => console.warn('Directory API fetch fallback to local:', err))
       .finally(() => setIsLoading(false));
 
-    setAllEngagements(Array.from(mergedMap.values()));
-    setAllClients(Array.from(clientMap.values()));
   }, []);
 
   const engagements = allEngagements.filter((eng) => {
