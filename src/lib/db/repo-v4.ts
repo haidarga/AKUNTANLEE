@@ -1216,6 +1216,7 @@ class FinovaV4Repository {
       mappingSetId: mapSet?.id || 'MAPSET-001',
       accounts: this.state.accounts,
       mappingDecisions: this.state.mappingDecisions,
+      adjustments: this.getAdjustments(engagementId),
       template: APPROVED_LEAD_SCHEDULE_TEMPLATE,
       includeComparativeDefaults: engagementId === 'ENG-2026-01',
       versionNumber: this.state.workpaperVersions.length + 1,
