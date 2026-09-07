@@ -239,6 +239,41 @@ export default function TaxCompliancePage() {
     }
   };
 
+  const importRealPayrollFile = async (file: File) => {
+    setIsImporting(true);
+    setImportNotice(null);
+    try {
+      const XLSX = await import('xlsx');
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rawRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false });
+
+      if (rawRows.length < 2) {
+        throw new Error('Berkas tidak memiliki baris data setelah header.');
+      }
+      const headers = rawRows[0].map((cell) => String(cell ?? ''));
+      const rows = rawRows.slice(1).map((row) => headers.map((_, idx) => String(row[idx] ?? '')));
+
+      const response = await fetch('/api/v1/tax/payroll/import', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ engagementId, headers, rows }),
+      });
+      const json = await response.json();
+      if (!response.ok || !json.success) throw new Error(json.error || 'Import payroll gagal.');
+      setImportNotice(`${json.data.validRowCount} pegawai dari "${file.name}" tersimpan permanen pada perikatan ini. PPh 21 sudah dihitung dari data tersebut.`);
+      const payrollData = buildPayrollTaxData(json.data.importedEmployees);
+      setData((current: any) => ({ ...current, pph21: payrollData }));
+      setHasPayroll(true);
+    } catch (error: any) {
+      setImportNotice(`Import gagal: ${error.message}`);
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const downloadTaxExport = async (url: string, fallbackFileName: string) => {
     try {
       const response = await fetch(url, { credentials: 'include' });
@@ -337,10 +372,28 @@ export default function TaxCompliancePage() {
             </button>
           </div>
 
+          <div className="bg-white p-4 rounded-xl border-2 border-[#0F8F7A] space-y-2 text-xs">
+            <span className="font-bold text-[#102A32]">Unggah Berkas Excel Rekap Gaji Klien:</span>
+            <p className="text-[11px] text-[#52636A]">
+              Terima format kolom apapun (Nama Pegawai/Karyawan, Jabatan, Gaji/Upah, Status PTKP, Tunjangan) — sistem mendeteksi otomatis.
+            </p>
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              disabled={isImporting}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) importRealPayrollFile(file);
+                e.target.value = '';
+              }}
+              className="block w-full text-xs text-[#52636A] file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-[#0F8F7A] file:text-white file:text-xs file:font-bold file:cursor-pointer disabled:opacity-60"
+            />
+          </div>
+
           <div className="bg-white p-4 rounded-xl border border-[#B2DFD6] space-y-3 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DDE4E2]">
               <span className="font-semibold text-[#52636A]">
-                Pilih Format File Excel Klien Berbeda untuk Diuji:
+                Atau, Coba Dulu dengan Data Contoh (Demo):
               </span>
               <div className="flex items-center gap-2">
                 <button
